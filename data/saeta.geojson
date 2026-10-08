@@ -1,0 +1,2297 @@
+{
+  "type": "FeatureCollection",
+  "generator": "overpass-turbo",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+  "timestamp": "2026-10-08T22:26:11Z",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/986521633",
+        "area": "yes",
+        "public_transport": "platform",
+        "railway": "platform",
+        "ref": "1",
+        "shelter": "yes",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4113076,
+          -24.7771441
+        ]
+      },
+      "id": "way/986521633"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/986521636",
+        "public_transport": "platform",
+        "railway": "platform",
+        "ref": "2",
+        "shelter": "yes",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4115077,
+          -24.7771469
+        ]
+      },
+      "id": "way/986521636"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/987024405",
+        "area": "yes",
+        "public_transport": "platform",
+        "railway": "platform",
+        "shelter": "yes",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3959874,
+          -24.74113
+        ]
+      },
+      "id": "way/987024405"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1331962094",
+        "area": "yes",
+        "bench": "yes",
+        "operator": "Trenes Argentinos",
+        "public_transport": "platform",
+        "railway": "platform",
+        "shelter": "yes",
+        "tactile_paving": "yes",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4621844,
+          -24.8375786
+        ]
+      },
+      "id": "way/1331962094"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1331963292",
+        "area": "yes",
+        "public_transport": "platform",
+        "railway": "platform",
+        "shelter": "yes",
+        "wheelchair": "yes",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4354394,
+          -24.7916456
+        ]
+      },
+      "id": "way/1331963292"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1390987539",
+        "building": "roof",
+        "bus": "yes",
+        "layer": "1",
+        "public_transport": "platform",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3988314,
+          -24.7954612
+        ]
+      },
+      "id": "way/1390987539"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1390987540",
+        "bus": "yes",
+        "public_transport": "platform",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3987956,
+          -24.7954964
+        ]
+      },
+      "id": "way/1390987540"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2068445554",
+        "bench": "no",
+        "bus": "yes",
+        "check_date:bench": "2023-10-12",
+        "highway": "bus_stop",
+        "local_ref": "2B",
+        "public_transport": "platform",
+        "shelter": "yes",
+        "tactile_paving": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4103602,
+          -24.7830942
+        ]
+      },
+      "id": "node/2068445554"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2068445557",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "local_ref": "1B",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4115901,
+          -24.7836433
+        ]
+      },
+      "id": "node/2068445557"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2068477158",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "local_ref": "4A",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4131247,
+          -24.7809544
+        ]
+      },
+      "id": "node/2068477158"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2068477162",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "local_ref": "4A",
+        "public_transport": "platform",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4089815,
+          -24.7812346
+        ]
+      },
+      "id": "node/2068477162"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2068477165",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "local_ref": "4A",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4145845,
+          -24.7838637
+        ]
+      },
+      "id": "node/2068477165"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2068477171",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "local_ref": "4A",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4149283,
+          -24.7871896
+        ]
+      },
+      "id": "node/2068477171"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2068477174",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "local_ref": "4A",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4080644,
+          -24.7874455
+        ]
+      },
+      "id": "node/2068477174"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2068477177",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "local_ref": "4A",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.401861,
+          -24.7911994
+        ]
+      },
+      "id": "node/2068477177"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2068477181",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "local_ref": "4A",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4152692,
+          -24.7916926
+        ]
+      },
+      "id": "node/2068477181"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2068477184",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "local_ref": "4A",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4146251,
+          -24.793225
+        ]
+      },
+      "id": "node/2068477184"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2068477187",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "local_ref": "4A",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4098147,
+          -24.7937876
+        ]
+      },
+      "id": "node/2068477187"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2068477196",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "local_ref": "4A",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4043273,
+          -24.7940422
+        ]
+      },
+      "id": "node/2068477196"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2068477199",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "local_ref": "4A",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4170552,
+          -24.7948566
+        ]
+      },
+      "id": "node/2068477199"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2068477202",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "local_ref": "4A",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4156324,
+          -24.7949263
+        ]
+      },
+      "id": "node/2068477202"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2079097752",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform",
+        "ref": "6A"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.410359,
+          -24.7272263
+        ]
+      },
+      "id": "node/2079097752"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2124600839",
+        "highway": "bus_stop",
+        "name": "6B 7AB"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4078867,
+          -24.7726244
+        ]
+      },
+      "id": "node/2124600839"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2177772060",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3795691,
+          -24.8083782
+        ]
+      },
+      "id": "node/2177772060"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2177773412",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3786571,
+          -24.8075991
+        ]
+      },
+      "id": "node/2177773412"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2445307248",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "operator": "3A",
+        "public_transport": "platform",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4427488,
+          -24.7785878
+        ]
+      },
+      "id": "node/2445307248"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3128631882",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4056378,
+          -24.7938626
+        ]
+      },
+      "id": "node/3128631882"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3128631883",
+        "addr:street": "Avenida San Martín",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4027265,
+          -24.7940601
+        ]
+      },
+      "id": "node/3128631883"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3611744124",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Parada Linea 6A, Transversal, Troncal, 5A",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.410356,
+          -24.7272062
+        ]
+      },
+      "id": "node/3611744124"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3611744125",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Parada colectivo 6A, Transversal, Troncal, 5A",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4098522,
+          -24.7252824
+        ]
+      },
+      "id": "node/3611744125"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4308097542",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "tres cerritos",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.436291,
+          -24.7970948
+        ]
+      },
+      "id": "node/4308097542"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4499328773",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Botta de Nicolai y Calle M",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "Transal S.R.L., Ale Hnos S.R.L.",
+        "public_transport": "platform",
+        "ref": "6A Nocturno, Huaico Mirasoles (5D-6D)",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4156516,
+          -24.7276346
+        ]
+      },
+      "id": "node/4499328773"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5296075715",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4227517,
+          -24.8121119
+        ]
+      },
+      "id": "node/5296075715"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5296080033",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4445191,
+          -24.8535292
+        ]
+      },
+      "id": "node/5296080033"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5296081501",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4539347,
+          -24.8597382
+        ]
+      },
+      "id": "node/5296081501"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5296081792",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4584889,
+          -24.8648296
+        ]
+      },
+      "id": "node/5296081792"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5298560731",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4055457,
+          -24.8509439
+        ]
+      },
+      "id": "node/5298560731"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5298561386",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.407038,
+          -24.8438877
+        ]
+      },
+      "id": "node/5298561386"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5939416946",
+        "bench": "yes",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Legislatura",
+        "public_transport": "platform",
+        "shelter": "yes",
+        "tactile_paving": "no",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4091567,
+          -24.782617
+        ]
+      },
+      "id": "node/5939416946"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5939416947",
+        "bench": "yes",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Rivadavia al 700",
+        "public_transport": "platform",
+        "shelter": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4119884,
+          -24.782428
+        ]
+      },
+      "id": "node/5939416947"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5939416948",
+        "bench": "no",
+        "bin": "no",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Avenida Sarmiento y Alsina",
+        "public_transport": "platform",
+        "shelter": "no",
+        "tactile_paving": "no",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4156386,
+          -24.7793973
+        ]
+      },
+      "id": "node/5939416948"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5939416951",
+        "bench": "no",
+        "bin": "no",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Avenida Sarmiento y Ameghino",
+        "public_transport": "platform",
+        "shelter": "no",
+        "tactile_paving": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4153784,
+          -24.7768665
+        ]
+      },
+      "id": "node/5939416951"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5939416952",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Nuevo Hospital Del Milagro",
+        "public_transport": "platform",
+        "tactile_paving": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4152316,
+          -24.7732798
+        ]
+      },
+      "id": "node/5939416952"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5939416955",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Güemes y O'Higgins",
+        "public_transport": "platform",
+        "shelter": "no",
+        "tactile_paving": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4165733,
+          -24.7758853
+        ]
+      },
+      "id": "node/5939416955"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5941408752",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform",
+        "tactile_paving": "no",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4073593,
+          -24.7838629
+        ]
+      },
+      "id": "node/5941408752"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5941408753",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Juramento y Leguizamón",
+        "public_transport": "platform",
+        "shelter": "no",
+        "tactile_paving": "no",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4037423,
+          -24.7842586
+        ]
+      },
+      "id": "node/5941408753"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5941408756",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform",
+        "tactile_paving": "no",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4021558,
+          -24.7896171
+        ]
+      },
+      "id": "node/5941408756"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5941408757",
+        "bench": "no",
+        "bin": "yes",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "lit": "yes",
+        "name": "5C",
+        "public_transport": "platform",
+        "shelter": "no",
+        "tactile_paving": "no",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.402074,
+          -24.7900663
+        ]
+      },
+      "id": "node/5941408757"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5941408759",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform",
+        "tactile_paving": "no",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4058874,
+          -24.7873378
+        ]
+      },
+      "id": "node/5941408759"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5941408760",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Dean Funes al 300",
+        "public_transport": "platform",
+        "tactile_paving": "no",
+        "wheelchair": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4077938,
+          -24.7842513
+        ]
+      },
+      "id": "node/5941408760"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5941408762",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "5A",
+        "public_transport": "platform",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4078743,
+          -24.7850266
+        ]
+      },
+      "id": "node/5941408762"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6179823885",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name:ja": "８、６B等のバス停",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.400849,
+          -24.7936924
+        ]
+      },
+      "id": "node/6179823885"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6463010587",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "5A, 6A, 6C",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4089438,
+          -24.7827333
+        ]
+      },
+      "id": "node/6463010587"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6573395474",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Linea 8a",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.412364,
+          -24.8204274
+        ]
+      },
+      "id": "node/6573395474"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6573397937",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4234729,
+          -24.8263292
+        ]
+      },
+      "id": "node/6573397937"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6573403166",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4251948,
+          -24.8273125
+        ]
+      },
+      "id": "node/6573403166"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6914047385",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Linea 7 : Directìon San Loranzo",
+        "name:en": "Line 7 : Direction San Loranzo",
+        "name:fr": "Ligne 7 : Direction San Loranzo",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4015202,
+          -24.7929694
+        ]
+      },
+      "id": "node/6914047385"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6997957385",
+        "bench": "no",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "5A",
+        "public_transport": "platform",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4058286,
+          -24.7925726
+        ]
+      },
+      "id": "node/6997957385"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6997957486",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "5A",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4277578,
+          -24.7922644
+        ]
+      },
+      "id": "node/6997957486"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/6997957585",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4276158,
+          -24.7885135
+        ]
+      },
+      "id": "node/6997957585"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7266984753",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4444601,
+          -24.8537013
+        ]
+      },
+      "id": "node/7266984753"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7267001538",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4295558,
+          -24.8293631
+        ]
+      },
+      "id": "node/7267001538"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7376579119",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4090857,
+          -24.8308181
+        ]
+      },
+      "id": "node/7376579119"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7376579120",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4094641,
+          -24.8307291
+        ]
+      },
+      "id": "node/7376579120"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7593784164",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "network": "7E Circulo",
+        "operator": "Altos molinos",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4098698,
+          -24.8314199
+        ]
+      },
+      "id": "node/7593784164"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7593784165",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "7E CIRCULO",
+        "network": "7E CIRCULO",
+        "operator": "Altos Molinos",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4119167,
+          -24.8321469
+        ]
+      },
+      "id": "node/7593784165"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7593784166",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "network": "7E Circulo",
+        "operator": "Altos Molinos",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4109308,
+          -24.8319419
+        ]
+      },
+      "id": "node/7593784166"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8122996318",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "operator": "Saeta",
+        "public_transport": "platform",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4031776,
+          -24.7818625
+        ]
+      },
+      "id": "node/8122996318"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8124225753",
+        "bus": "yes",
+        "departures_board": "timetable",
+        "highway": "bus_stop",
+        "name": "Saeta",
+        "public_transport": "platform",
+        "ref": "5B"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.393917,
+          -24.7633413
+        ]
+      },
+      "id": "node/8124225753"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8124807488",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "5B Saeta",
+        "network": "Saeta",
+        "public_transport": "platform",
+        "ref": "5B"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3938217,
+          -24.7624027
+        ]
+      },
+      "id": "node/8124807488"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8336085843",
+        "bus": "yes",
+        "departures_board": "no",
+        "highway": "bus_stop",
+        "name": "Parada 7E CIRCULO",
+        "network": "7E CIRCULO",
+        "operator": "Saeta",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4132195,
+          -24.8326179
+        ]
+      },
+      "id": "node/8336085843"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8336085844",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Parada 7E CIRCULO",
+        "network": "7E CIRCULO",
+        "operator": "SAETA",
+        "public_transport": "platform",
+        "shelter": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4142849,
+          -24.8330899
+        ]
+      },
+      "id": "node/8336085844"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8336085845",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "7E CIRCULO",
+        "network": "7E CIRCULO",
+        "operator": "SAETA",
+        "public_transport": "platform",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4166897,
+          -24.8338023
+        ]
+      },
+      "id": "node/8336085845"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8336085846",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "7E CIRCULO",
+        "network": "7E CIRCULO",
+        "operator": "SAETA",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4167505,
+          -24.8339971
+        ]
+      },
+      "id": "node/8336085846"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9413780196",
+        "highway": "bus_stop",
+        "name": "Linea 7 AB"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4078921,
+          -24.772679
+        ]
+      },
+      "id": "node/9413780196"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9413822817",
+        "highway": "bus_stop",
+        "name": "Linea 7 ABC",
+        "network": "Linea 7 ABC"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3980824,
+          -24.7940351
+        ]
+      },
+      "id": "node/9413822817"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9431817417",
+        "highway": "bus_stop",
+        "name": "5AB"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4087142,
+          -24.7802881
+        ]
+      },
+      "id": "node/9431817417"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9431817418",
+        "bench": "no",
+        "highway": "bus_stop",
+        "name": "6AB 7AB",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4102073,
+          -24.7810411
+        ]
+      },
+      "id": "node/9431817418"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9431817419",
+        "highway": "bus_stop",
+        "name": "7AB"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4033512,
+          -24.7939948
+        ]
+      },
+      "id": "node/9431817419"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9431817420",
+        "highway": "bus_stop",
+        "name": "7AB"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4179605,
+          -24.789579
+        ]
+      },
+      "id": "node/9431817420"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9431817517",
+        "bench": "no",
+        "highway": "bus_stop",
+        "name": "6B 7AB",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4066132,
+          -24.7938919
+        ]
+      },
+      "id": "node/9431817517"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9431817518",
+        "highway": "bus_stop",
+        "name": "7AB"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4120414,
+          -24.7933967
+        ]
+      },
+      "id": "node/9431817518"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9431817519",
+        "highway": "bus_stop",
+        "name": "7AB"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4107296,
+          -24.7849914
+        ]
+      },
+      "id": "node/9431817519"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9431817617",
+        "highway": "bus_stop",
+        "name": "6B 7AB"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4182368,
+          -24.7929856
+        ]
+      },
+      "id": "node/9431817617"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9431818217",
+        "highway": "bus_stop",
+        "name": "7AB"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4175265,
+          -24.7850896
+        ]
+      },
+      "id": "node/9431818217"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9431818218",
+        "highway": "bus_stop",
+        "name": "7AB"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4091066,
+          -24.7843725
+        ]
+      },
+      "id": "node/9431818218"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/9431818317",
+        "highway": "bus_stop",
+        "name": "7AB"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4150217,
+          -24.784679
+        ]
+      },
+      "id": "node/9431818317"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11489735286",
+        "bus": "yes",
+        "departures_board": "no",
+        "highway": "bus_stop",
+        "name": "Barrio Huaico II - 460 B",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "Ale Hnos S.R.L., Transal S.R.L.",
+        "public_transport": "platform",
+        "ref": "Huaico Mirasoles (5D-6D)",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4175806,
+          -24.7182255
+        ]
+      },
+      "id": "node/11489735286"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11489735287",
+        "bus": "yes",
+        "departures_board": "no",
+        "highway": "bus_stop",
+        "name": "Barrio Huaico II - 465 C",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "Ale Hnos S.R.L., Transal S.R.L.",
+        "public_transport": "platform",
+        "ref": "Huaico Mirasoles (5D-6D)",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4156574,
+          -24.7182694
+        ]
+      },
+      "id": "node/11489735287"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11489735288",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Calle M y Agustin Tosco",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "Ale Hnos S.R.L., Transal S.R.L.",
+        "public_transport": "platform",
+        "ref": "Huaico Mirasoles (5D-6D)",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.415605,
+          -24.7192928
+        ]
+      },
+      "id": "node/11489735288"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11489735289",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Calle M y Calle 10",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "Ale Hnos S.R.L., Transal S.R.L.",
+        "public_transport": "platform",
+        "ref": "Huaico Mirasoles (5D-6D)",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4156487,
+          -24.7209958
+        ]
+      },
+      "id": "node/11489735289"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11489735290",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "(AL CENTRO) Calle L y Av. Democracia - Barrio Huaico II",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "Ale Hnos S.R.L., Transal S.R.L.",
+        "public_transport": "platform",
+        "ref": "6A Huaico II, Huaico Mirasoles (5D-6D)",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4163091,
+          -24.7234123
+        ]
+      },
+      "id": "node/11489735290"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11489735291",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "(AL BARRIO) Calle L y Av. Democracia - Barrio Huaico II",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "Transal S.R.L.",
+        "public_transport": "platform",
+        "ref": "6A Huaico II",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4163068,
+          -24.7232257
+        ]
+      },
+      "id": "node/11489735291"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11489735292",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Av. Democracia y Calle K",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "San Ignacio S.R.L. UTE, Transal S.R.L., Ahynarca S.A., Ale Hnos S.R.L.",
+        "public_transport": "platform",
+        "ref": "3 TNO, 6A Nocturno, 8 Transversal, Huaico Mirasoles (5D-6D)",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4179255,
+          -24.723602
+        ]
+      },
+      "id": "node/11489735292"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11489735293",
+        "bench": "yes",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Av. Democracia y Av. Lucrecia Barquet - Escuela Bellas Artes - EFETA",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "San Ignacio S.R.L. UTE, Transal S.R.L., Ahynarnca S.A., Ale Hnos S.R.L.",
+        "public_transport": "platform",
+        "ref": "3 TNO, 6A Nocturno, 8 Transversal, Huaico Mirasoles (5D-6D)",
+        "shelter": "yes",
+        "wheelchair": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4208417,
+          -24.7232572
+        ]
+      },
+      "id": "node/11489735293"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11489735294",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Av. Lucrecia Barquet y Pablo Outes Saravia-1",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "San Ignacio S.R.L. UTE, Transal S.R.L., Ahynarca S.A., Ale Hnos S.R.L.",
+        "public_transport": "platform",
+        "ref": "3 TNO, 6A Nocturno, 8 Transversal, Huaico Mirasoles (5D-6D), Troncal (5-6)",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4213991,
+          -24.7252137
+        ]
+      },
+      "id": "node/11489735294"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11489735295",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Av. Lucrecia Barquet y Botta de Nicolai",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "San Ignacio S.R.L. UTE, Transal S.R.L., Ahynarca S.A., Ale Hnos S.R.L.",
+        "public_transport": "platform",
+        "ref": "3 TNO, 6A Nocturno, 8 Transversal, Huaico Mirasoles (5D-6D), Troncal (5-6)",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4214539,
+          -24.7274451
+        ]
+      },
+      "id": "node/11489735295"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11489735296",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Av. Botta de Nicolai y Av. Lucrecia Barquet",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "Transal S.R.L., Ale Hnos S.R.L.",
+        "public_transport": "platform",
+        "ref": "6A Nocturno, Huaico Mirasoles (5D-6D), Troncal (5-6)",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4209714,
+          -24.7275217
+        ]
+      },
+      "id": "node/11489735296"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11489735297",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Botta de Nicolai y Calle J",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "San Ignacio S.R.L. UTE, Ahynarca S.A.",
+        "public_transport": "platform",
+        "ref": "3 TNO, 8 Transversal",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4194429,
+          -24.7276399
+        ]
+      },
+      "id": "node/11489735297"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11489735298",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Botta de Nicolai y Calle K-1",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "Transal S.R.L., Ale Hnos S.R.L.",
+        "public_transport": "platform",
+        "ref": "6A Nocturno, Huaico Mirasoles (5D-6D), Troncal (5-6)",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4183086,
+          -24.7276624
+        ]
+      },
+      "id": "node/11489735298"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11489735299",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Botta de Nicolai y Calle M - Barrio Mirasoles",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "San Ignacio S.R.L. UTE, Transal S.R.L., Ahynarca S.A.",
+        "public_transport": "platform",
+        "ref": "3TNO, 6A Nocturno, 8 Transversal",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.41616,
+          -24.727717
+        ]
+      },
+      "id": "node/11489735299"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11489735300",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Botta de Nicolai y Calle M",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "Ale Hnos S.R.L., Transal S.R.L.",
+        "public_transport": "platform",
+        "ref": "Huaico Mirasoles (5D-6D), Troncal (5-6)",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4159354,
+          -24.7277159
+        ]
+      },
+      "id": "node/11489735300"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11489735301",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Botta de Nicolai y Calle O - Escuela de la Magistratura",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "San Ignacio S.R.L. UTE, Transal S.R.L., Ahynarca S.A., Ale Hnos S.R.L.",
+        "public_transport": "platform",
+        "ref": "3 Troncal O-N, 6A Nocturno, 8 Transversal, Huaico Mirasoles (5D-6D)",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4131162,
+          -24.7277882
+        ]
+      },
+      "id": "node/11489735301"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11489735302",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Colectora Circunvalacion Oeste y Av. Memoria Verdad y Justicia - Ciudad Judicial",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "Ahynarca S.A.",
+        "public_transport": "platform",
+        "ref": "8 Transversal",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4119083,
+          -24.7294138
+        ]
+      },
+      "id": "node/11489735302"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11489735303",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Colectora Oeste Autopista Av. Memoria Verdad y Justicia - Ciudad Judicial",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "San Ignacio S.R.L. UTE, El Cóndor S.A., Alto Molino S.R.L.",
+        "public_transport": "platform",
+        "ref": "3E, 3 Troncal O-N, Troncal S-E (2-7)",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4118779,
+          -24.7292335
+        ]
+      },
+      "id": "node/11489735303"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11489735304",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Botta de Nicolai y Calle O",
+        "network": "https://saetasalta.com.ar/saetaw/",
+        "operator": "Transal S.R.L., Ale Hnos S.R.L.",
+        "public_transport": "platform",
+        "ref": "6A Nocturno, Huaico Mirasoles (5D-6D)",
+        "shelter": "no"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4128862,
+          -24.7276958
+        ]
+      },
+      "id": "node/11489735304"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12013409526",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4148301,
+          -24.773328
+        ]
+      },
+      "id": "node/12013409526"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12303159383",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform",
+        "shelter": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4437134,
+          -24.7684325
+        ]
+      },
+      "id": "node/12303159383"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12303159384",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform",
+        "shelter": "yes"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4431935,
+          -24.769096
+        ]
+      },
+      "id": "node/12303159384"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12353262235",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Av. Lucrecia E. Barquet y Pablo Outes Saravia",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4209935,
+          -24.7254117
+        ]
+      },
+      "id": "node/12353262235"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12353262236",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Av. Lucrecia E. Barquet y Av. Democracia",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4209494,
+          -24.7235323
+        ]
+      },
+      "id": "node/12353262236"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12353262237",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Av. Democracia y Calle K",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4182214,
+          -24.7237687
+        ]
+      },
+      "id": "node/12353262237"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12353262239",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Av. Democracia y Calle M - Anses Huaico",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4164139,
+          -24.7239665
+        ]
+      },
+      "id": "node/12353262239"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12353262240",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "name": "Calle M y Calle 12",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4155076,
+          -24.7225299
+        ]
+      },
+      "id": "node/12353262240"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12873890208",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.399392,
+          -24.7956473
+        ]
+      },
+      "id": "node/12873890208"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12875630605",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3988964,
+          -24.7955552
+        ]
+      },
+      "id": "node/12875630605"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12886803225",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4261222,
+          -24.7802262
+        ]
+      },
+      "id": "node/12886803225"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12886803226",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.425625,
+          -24.7802616
+        ]
+      },
+      "id": "node/12886803226"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12889336112",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3988758,
+          -24.7625079
+        ]
+      },
+      "id": "node/12889336112"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/12898262848",
+        "bus": "yes",
+        "highway": "bus_stop",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4009558,
+          -24.7439195
+        ]
+      },
+      "id": "node/12898262848"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/14218240997",
+        "description": "Línea 7 \"San Lorenzo\" 28",
+        "highway": "bus_stop",
+        "name": "Bicentenario e Israel",
+        "public_transport": "platform"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.402475,
+          -24.7858092
+        ]
+      },
+      "id": "node/14218240997"
+    }
+  ]
+}
