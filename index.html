@@ -30,7 +30,7 @@
             left: 50px;
             right: 10px;
             z-index: 1000;
-            max-width: 380px;
+            max-width: 400px;
         }
         .buscador input {
             width: 100%;
@@ -49,7 +49,7 @@
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            max-height: 300px;
+            max-height: 340px;
             overflow-y: auto;
             display: none;
         }
@@ -63,6 +63,13 @@
         }
         .resultados li:last-child { border-bottom: none; }
         .resultados li:hover { background: #f0f8ff; }
+        .resultados li.esquina {
+            background: linear-gradient(90deg, #fff9e6 0%, #fff 100%);
+            border-left: 4px solid #f39c12;
+            font-weight: 500;
+        }
+        .resultados li.esquina:hover { background: #fff3cd; }
+        .resultados li small { color: #888; font-weight: normal; }
 
         /* ============================
            PUNTO AZUL DE UBICACIÓN
@@ -92,12 +99,24 @@
             border: 3px solid white;
             border-radius: 50%;
             box-shadow: 0 0 8px rgba(231, 76, 60, 0.9);
-            animation: pulso-calle 2s infinite;
         }
-        @keyframes pulso-calle {
-            0%   { box-shadow: 0 0 8px rgba(231,76,60,0.9); }
-            50%  { box-shadow: 0 0 16px rgba(231,76,60,1); }
-            100% { box-shadow: 0 0 8px rgba(231,76,60,0.9); }
+
+        /* ============================
+           PUNTO AMARILLO DE INTERSECCIÓN
+           ============================ */
+        .punto-esquina {
+            width: 22px;
+            height: 22px;
+            background: #f39c12;
+            border: 4px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 12px rgba(243, 156, 18, 1);
+            animation: pulso-esquina 1.5s infinite;
+        }
+        @keyframes pulso-esquina {
+            0%   { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 0 rgba(243,156,18,0.7); }
+            70%  { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 20px rgba(243,156,18,0); }
+            100% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 0 rgba(243,156,18,0); }
         }
 
         /* ============================
@@ -190,7 +209,7 @@
 <body>
 
     <div class="buscador">
-        <input type="text" id="inputBusqueda" placeholder="🔎 ¿Dónde queda...? Ej: Mitre">
+        <input type="text" id="inputBusqueda" placeholder="🔎 Calle o esquina... Ej: San Martín y Ituzaingó 447">
         <ul class="resultados" id="listaResultados"></ul>
     </div>
 
@@ -199,7 +218,6 @@
 
     <div class="panel-filtros" id="panelFiltros">
         <button class="toggle" id="toggleTodo" onclick="toggleTodo()">👁️ Mostrar todo</button>
-        <!-- Los botones de categorías se generan automáticamente por JavaScript -->
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -257,7 +275,7 @@
         }
 
         // ============================================
-        // BUSCADOR DE CALLES (con trazo completo)
+        // BUSCADOR DE CALLES
         // ============================================
         let callesIndex = [];
         let marcadorCalle = null;
@@ -274,7 +292,6 @@
                     if (!nombre) return;
 
                     let lat, lng, coordenadas;
-
                     if (f.geometry && f.geometry.type === 'LineString') {
                         coordenadas = f.geometry.coordinates;
                         const medio = coordenadas[Math.floor(coordenadas.length / 2)];
@@ -294,11 +311,10 @@
                         nombreOriginal: nombre,
                         lat: lat,
                         lng: lng,
-                        coordenadas: coordenadas.map(c => [c[1], c[0]])
+                        coordenadas: coordenadas.map(c => [c[1], c[0]]) // [lat, lng]
                     });
                 });
 
-                // Agrupar todas las geometrías por nombre de calle
                 const agrupadas = {};
                 callesIndex.forEach(c => {
                     if (!agrupadas[c.nombre]) {
@@ -316,80 +332,310 @@
                 callesIndex = Object.values(agrupadas);
 
                 console.log(`✅ ${callesIndex.length} calles cargadas`);
-                document.getElementById('inputBusqueda').placeholder = '🔎 ¿Dónde queda...? Ej: Mitre';
+                document.getElementById('inputBusqueda').placeholder = '🔎 Calle o esquina... Ej: San Martín y Ituzaingó 447';
             } catch (e) {
                 console.error('Error cargando calles:', e);
                 document.getElementById('inputBusqueda').placeholder = '⚠️ Error al cargar calles';
             }
         }
 
+        // --------------------------------------------------
+        // BUSCAR CALLES POR NOMBRE (búsqueda parcial)
+        // --------------------------------------------------
         function buscarCalle(termino) {
             const t = termino.toLowerCase().trim();
             if (t.length < 2) return [];
             return callesIndex
                 .filter(c => c.nombre.includes(t))
-                .slice(0, 15);
+                .slice(0, 10);
         }
 
+        // --------------------------------------------------
+        // BUSCAR CALLE EXACTA (para intersecciones)
+        // --------------------------------------------------
+        function buscarCalleExacta(nombre) {
+            const n = nombre.toLowerCase().trim();
+            // Primero: coincidencia exacta
+            let encontrada = callesIndex.find(c => c.nombre === n);
+            if (encontrada) return encontrada;
+            // Segundo: coincidencia parcial priorizando la más corta (más específica)
+            const candidatas = callesIndex
+                .filter(c => c.nombre.includes(n) || n.includes(c.nombre))
+                .sort((a, b) => Math.abs(a.nombre.length - n.length) - Math.abs(b.nombre.length - n.length));
+            return candidatas[0] || null;
+        }
+
+        // --------------------------------------------------
+        // PARSER DE INTERSECCIÓN
+        // Detecta "calle1 y calle2 [numero]"
+        // --------------------------------------------------
+        function parsearInterseccion(query) {
+            const q = query.trim();
+            // Regex: captura "calle1 y calle2" y opcionalmente un número al final
+            const match = q.match(/^(.+?)\s+y\s+(.+?)(?:\s+(\d+))?$/i);
+            if (!match) return null;
+            return {
+                calle1: match[1].trim(),
+                calle2: match[2].trim(),
+                numero: match[3] ? parseInt(match[3]) : null
+            };
+        }
+
+        // --------------------------------------------------
+        // CÁLCULO DE INTERSECCIÓN ENTRE DOS SEGMENTOS
+        // --------------------------------------------------
+        function interseccionSegmentos(p1, p2, p3, p4) {
+            // p1, p2 = [lat, lng] del primer segmento
+            // p3, p4 = [lat, lng] del segundo segmento
+            const x1 = p1[1], y1 = p1[0];
+            const x2 = p2[1], y2 = p2[0];
+            const x3 = p3[1], y3 = p3[0];
+            const x4 = p4[1], y4 = p4[0];
+
+            const denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
+            if (Math.abs(denom) < 1e-12) return null; // paralelas
+
+            const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denom;
+            const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denom;
+
+            if (ua < 0 || ua > 1 || ub < 0 || ub > 1) return null;
+
+            const x = x1 + ua * (x2 - x1);
+            const y = y1 + ua * (y2 - y1);
+            return [y, x]; // [lat, lng]
+        }
+
+        // --------------------------------------------------
+        // CALCULAR TODAS LAS INTERSECCIONES ENTRE DOS CALLES
+        // --------------------------------------------------
+        function calcularIntersecciones(calleA, calleB) {
+            const intersecciones = [];
+
+            // Bounding box de la calle B para filtro rápido
+            const bboxB = obtenerBBox(calleB.tramos);
+
+            for (const tramoA of calleA.tramos) {
+                for (let i = 0; i < tramoA.length - 1; i++) {
+                    const p1 = tramoA[i];
+                    const p2 = tramoA[i + 1];
+
+                    // Filtro rápido por bounding box
+                    if (!segmentoEnBBox(p1, p2, bboxB)) continue;
+
+                    for (const tramoB of calleB.tramos) {
+                        for (let j = 0; j < tramoB.length - 1; j++) {
+                            const p3 = tramoB[j];
+                            const p4 = tramoB[j + 1];
+                            const inter = interseccionSegmentos(p1, p2, p3, p4);
+                            if (inter) {
+                                intersecciones.push(inter);
+                            }
+                        }
+                    }
+                }
+            }
+            return intersecciones;
+        }
+
+        function obtenerBBox(tramos) {
+            let minLat = Infinity, maxLat = -Infinity;
+            let minLng = Infinity, maxLng = -Infinity;
+            for (const tramo of tramos) {
+                for (const [lat, lng] of tramo) {
+                    if (lat < minLat) minLat = lat;
+                    if (lat > maxLat) maxLat = lat;
+                    if (lng < minLng) minLng = lng;
+                    if (lng > maxLng) maxLng = lng;
+                }
+            }
+            return { minLat, maxLat, minLng, maxLng };
+        }
+
+        function segmentoEnBBox(p1, p2, bbox) {
+            const minLatS = Math.min(p1[0], p2[0]);
+            const maxLatS = Math.max(p1[0], p2[0]);
+            const minLngS = Math.min(p1[1], p2[1]);
+            const maxLngS = Math.max(p1[1], p2[1]);
+            return !(maxLatS < bbox.minLat || minLatS > bbox.maxLat ||
+                     maxLngS < bbox.minLng || minLngS > bbox.maxLng);
+        }
+
+        // --------------------------------------------------
+        // LIMPIAR CAPAS DE BÚSQUEDA
+        // --------------------------------------------------
+        function limpiarBusqueda() {
+            if (marcadorCalle) {
+                map.removeLayer(marcadorCalle);
+                marcadorCalle = null;
+            }
+            if (trazoCalle) {
+                map.removeLayer(trazoCalle);
+                trazoCalle = null;
+            }
+        }
+
+        // --------------------------------------------------
+        // MOSTRAR CALLE COMPLETA (trazo rojo)
+        // --------------------------------------------------
+        function mostrarCalle(calle) {
+            limpiarBusqueda();
+
+            const lineas = calle.tramos.map(tramo =>
+                L.polyline(tramo, {
+                    color: '#e74c3c',
+                    weight: 6,
+                    opacity: 0.85,
+                    lineCap: 'round',
+                    lineJoin: 'round'
+                })
+            );
+
+            trazoCalle = L.layerGroup(lineas).addTo(map);
+
+            marcadorCalle = L.marker([calle.lat, calle.lng], {
+                icon: L.divIcon({ className: 'punto-calle', iconSize: [14, 14] })
+            }).addTo(map).bindPopup(`<strong>${calle.nombreOriginal}</strong>`);
+
+            const grupo = L.featureGroup(lineas);
+            map.fitBounds(grupo.getBounds(), { padding: [50, 50] });
+        }
+
+        // --------------------------------------------------
+        // MOSTRAR INTERSECCIÓN (dos calles + punto amarillo)
+        // --------------------------------------------------
+        function mostrarInterseccion(calleA, calleB, numero) {
+            limpiarBusqueda();
+
+            // Dibujar calle A en rojo
+            const lineasA = calleA.tramos.map(tramo =>
+                L.polyline(tramo, {
+                    color: '#e74c3c',
+                    weight: 6,
+                    opacity: 0.85,
+                    lineCap: 'round',
+                    lineJoin: 'round'
+                })
+            );
+
+            // Dibujar calle B en azul
+            const lineasB = calleB.tramos.map(tramo =>
+                L.polyline(tramo, {
+                    color: '#3498db',
+                    weight: 6,
+                    opacity: 0.85,
+                    lineCap: 'round',
+                    lineJoin: 'round'
+                })
+            );
+
+            trazoCalle = L.layerGroup([...lineasA, ...lineasB]).addTo(map);
+
+            // Calcular intersecciones
+            const intersecciones = calcularIntersecciones(calleA, calleB);
+
+            if (intersecciones.length === 0) {
+                // No se cruzan: mostramos ambas y avisamos
+                alert(`No se encontró una esquina entre "${calleA.nombreOriginal}" y "${calleB.nombreOriginal}".\nSe muestran ambas calles completas.`);
+                const grupo = L.featureGroup([...lineasA, ...lineasB]);
+                map.fitBounds(grupo.getBounds(), { padding: [50, 50] });
+                return;
+            }
+
+            // Tomamos la primera intersección (o podríamos agrupar las cercanas)
+            // Filtrar intersecciones muy cercanas entre sí (tolerancia ~20m)
+            const unicas = [];
+            for (const inter of intersecciones) {
+                const yaExiste = unicas.some(u =>
+                    Math.abs(u[0] - inter[0]) < 0.0002 && Math.abs(u[1] - inter[1]) < 0.0002
+                );
+                if (!yaExiste) unicas.push(inter);
+            }
+
+            // Marcamos todas las esquinas únicas
+            const marcadoresEsquina = unicas.map(([lat, lng], i) => {
+                const titulo = `Esquina ${i + 1}: ${calleA.nombreOriginal} y ${calleB.nombreOriginal}`;
+                return L.marker([lat, lng], {
+                    icon: L.divIcon({ className: 'punto-esquina', iconSize: [22, 22] }),
+                    zIndexOffset: 2000
+                }).bindPopup(`<strong>📍 Esquina</strong><br>${calleA.nombreOriginal} y ${calleB.nombreOriginal}${numero ? '<br><em>Altura aproximada: ' + numero + '</em>' : ''}`);
+            });
+
+            marcadorCalle = L.layerGroup(marcadoresEsquina).addTo(map);
+
+            // Abrir el popup del primero
+            if (marcadoresEsquina.length > 0) {
+                marcadoresEsquina[0].openPopup();
+            }
+
+            // Ajustar vista a la zona de la primera intersección
+            map.setView(unicas[0], 17);
+        }
+
+        // ============================================
+        // MANEJO DEL INPUT
+        // ============================================
         const input = document.getElementById('inputBusqueda');
         const lista = document.getElementById('listaResultados');
 
         input.addEventListener('input', (e) => {
-            const resultados = buscarCalle(e.target.value);
+            const query = e.target.value;
             lista.innerHTML = '';
 
-            if (resultados.length === 0) {
+            if (query.trim().length < 2) {
                 lista.classList.remove('activo');
                 return;
             }
 
-            resultados.forEach(calle => {
+            // 1. Detectar si es una intersección
+            const inter = parsearInterseccion(query);
+            if (inter) {
                 const li = document.createElement('li');
-                li.textContent = calle.nombreOriginal;
+                li.className = 'esquina';
+                li.innerHTML = `📍 <strong>Buscar esquina:</strong> ${inter.calle1} <em>y</em> ${inter.calle2}${inter.numero ? ' <small>(altura ' + inter.numero + ')</small>' : ''}`;
                 li.addEventListener('click', () => {
-                    // Limpiar selección anterior
-                    if (marcadorCalle) {
-                        map.removeLayer(marcadorCalle);
-                        marcadorCalle = null;
+                    const calleA = buscarCalleExacta(inter.calle1);
+                    const calleB = buscarCalleExacta(inter.calle2);
+
+                    if (!calleA) {
+                        alert(`No se encontró la calle "${inter.calle1}"`);
+                        return;
                     }
-                    if (trazoCalle) {
-                        map.removeLayer(trazoCalle);
-                        trazoCalle = null;
+                    if (!calleB) {
+                        alert(`No se encontró la calle "${inter.calle2}"`);
+                        return;
                     }
 
-                    // Dibujar TODOS los tramos de la calle como líneas rojas
-                    const todosLosTramos = calle.tramos.map(tramo =>
-                        L.polyline(tramo, {
-                            color: '#e74c3c',
-                            weight: 6,
-                            opacity: 0.85,
-                            lineCap: 'round',
-                            lineJoin: 'round'
-                        })
-                    );
-
-                    // Agrupar en una capa para borrar juntos después
-                    trazoCalle = L.layerGroup(todosLosTramos).addTo(map);
-
-                    // Marcador en el punto medio
-                    marcadorCalle = L.marker([calle.lat, calle.lng], {
-                        icon: L.divIcon({ className: 'punto-calle', iconSize: [14, 14] })
-                    }).addTo(map).bindPopup(calle.nombreOriginal);
-
-                    // Ajustar la vista para que se vea TODA la calle
-                    const grupo = L.featureGroup(todosLosTramos);
-                    map.fitBounds(grupo.getBounds(), { padding: [50, 50] });
-
-                    // Limpiar UI
+                    mostrarInterseccion(calleA, calleB, inter.numero);
                     lista.classList.remove('activo');
                     lista.innerHTML = '';
-                    input.value = calle.nombreOriginal;
+                    input.value = `${calleA.nombreOriginal} y ${calleB.nombreOriginal}${inter.numero ? ' ' + inter.numero : ''}`;
                     input.blur();
                 });
                 lista.appendChild(li);
-            });
+            }
 
-            lista.classList.add('activo');
+            // 2. Búsqueda normal de calles (solo si NO es intersección)
+            if (!inter) {
+                const resultados = buscarCalle(query);
+                resultados.forEach(calle => {
+                    const li = document.createElement('li');
+                    li.textContent = calle.nombreOriginal;
+                    li.addEventListener('click', () => {
+                        mostrarCalle(calle);
+                        lista.classList.remove('activo');
+                        lista.innerHTML = '';
+                        input.value = calle.nombreOriginal;
+                        input.blur();
+                    });
+                    lista.appendChild(li);
+                });
+            }
+
+            if (lista.children.length > 0) {
+                lista.classList.add('activo');
+            } else {
+                lista.classList.remove('activo');
+            }
         });
 
         document.addEventListener('click', (e) => {
@@ -401,64 +647,37 @@
         cargarCalles();
 
         // ============================================
-        // MARCADORES DE SITIOS (hospitales, bancos, etc.)
+        // MARCADORES DE SITIOS
         // ============================================
         const EMOJIS = {
-            hospital: '🏥',
-            clinic: '🩺',
-            pharmacy: '💊',
-            bank: '🏦',
-            atm: '🏧',
-            restaurant: '🍽️',
-            fast_food: '🍔',
-            bar: '🍺',
-            cafe: '☕',
-            supermarket: '🛒',
-            convenience: '🏪',
-            police: '🚓',
-            fire_station: '🚒',
-            bus_stop: '🚌',
-            parking: '🅿️',
-            fuel: '⛽',
-            school: '🏫',
-            university: '🎓',
+            hospital: '🏥', clinic: '🩺', pharmacy: '💊',
+            bank: '🏦', atm: '🏧',
+            restaurant: '🍽️', fast_food: '🍔', bar: '🍺', cafe: '☕',
+            supermarket: '🛒', convenience: '🏪',
+            police: '🚓', fire_station: '🚒',
+            bus_stop: '🚌', parking: '🅿️', fuel: '⛽',
+            school: '🏫', university: '🎓',
             townhall: '🏛️',
-            hotel: '🏨',
-            hostel: '🛏️',
+            hotel: '🏨', hostel: '🛏️',
         };
 
         const NOMBRES = {
-            hospital: 'Hospitales',
-            clinic: 'Clínicas',
-            pharmacy: 'Farmacias',
-            bank: 'Bancos',
-            atm: 'Cajeros',
-            restaurant: 'Restaurantes',
-            fast_food: 'Comida rápida',
-            bar: 'Bares',
-            cafe: 'Cafés',
-            supermarket: 'Supermercados',
-            convenience: 'Almacenes',
-            police: 'Comisarías',
-            fire_station: 'Bomberos',
-            bus_stop: 'Paradas SAETA',
-            parking: 'Estacionamientos',
-            fuel: 'Estaciones de servicio',
-            school: 'Escuelas',
-            university: 'Universidades',
+            hospital: 'Hospitales', clinic: 'Clínicas', pharmacy: 'Farmacias',
+            bank: 'Bancos', atm: 'Cajeros',
+            restaurant: 'Restaurantes', fast_food: 'Comida rápida', bar: 'Bares', cafe: 'Cafés',
+            supermarket: 'Supermercados', convenience: 'Almacenes',
+            police: 'Comisarías', fire_station: 'Bomberos',
+            bus_stop: 'Paradas SAETA', parking: 'Estacionamientos', fuel: 'Estaciones de servicio',
+            school: 'Escuelas', university: 'Universidades',
             townhall: 'Oficinas públicas',
-            hotel: 'Hoteles',
-            hostel: 'Hostales',
+            hotel: 'Hoteles', hostel: 'Hostales',
         };
 
         const capas = {};
         const capasActivas = {};
 
         async function cargarSitios() {
-            const archivos = [
-                'data/hospitales.geojson',
-                'data/sitios.geojson'
-            ];
+            const archivos = ['data/hospitales.geojson', 'data/sitios.geojson'];
 
             for (const archivo of archivos) {
                 try {
