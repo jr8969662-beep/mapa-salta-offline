@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa Salta Capital</title>
 
-    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <style>
@@ -19,20 +18,55 @@
             width: 100%;
             height: 100vh;
         }
-        .titulo {
+
+        /* Buscador */
+        .buscador {
             position: absolute;
             top: 10px;
             left: 50px;
+            right: 10px;
             z-index: 1000;
-            background: white;
-            padding: 8px 16px;
+            max-width: 400px;
+        }
+        .buscador input {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
             border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            font-weight: bold;
+            font-size: 16px;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .resultados {
+            list-style: none;
+            margin: 4px 0 0 0;
+            padding: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+        .resultados.activo {
+            display: block;
+        }
+        .resultados li {
+            padding: 12px 16px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            font-size: 15px;
             color: #2c3e50;
         }
+        .resultados li:last-child {
+            border-bottom: none;
+        }
+        .resultados li:hover {
+            background: #f0f8ff;
+        }
 
-        /* Estilo del punto azul de ubicación */
+        /* Punto azul de ubicación */
         .punto-usuario {
             width: 18px;
             height: 18px;
@@ -42,14 +76,22 @@
             box-shadow: 0 0 10px rgba(0, 120, 255, 0.8);
             animation: pulso 2s infinite;
         }
-
         @keyframes pulso {
             0%   { box-shadow: 0 0 10px rgba(0,120,255,0.8); }
             50%  { box-shadow: 0 0 20px rgba(0,120,255,1); }
             100% { box-shadow: 0 0 10px rgba(0,120,255,0.8); }
         }
 
-        /* Aviso cuando la ubicación está cargando */
+        /* Punto de la calle buscada */
+        .punto-calle {
+            width: 14px;
+            height: 14px;
+            background: #e74c3c;
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(231, 76, 60, 0.9);
+        }
+
         .aviso-ubicacion {
             position: absolute;
             bottom: 20px;
@@ -66,95 +108,179 @@
 </head>
 <body>
 
-    <div class="titulo">📍 Salta Capital</div>
+    <div class="buscador">
+        <input type="text" id="inputBusqueda" placeholder="🔎 ¿Dónde queda...? Ej: Mitre">
+        <ul class="resultados" id="listaResultados"></ul>
+    </div>
+
     <div id="map"></div>
     <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 
-    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        // Centro de Salta Capital (por si no hay GPS todavía)
         const CENTRO_SALTA = [-24.789, -65.411];
-
-        // Crear el mapa
         const map = L.map('map').setView(CENTRO_SALTA, 14);
 
-        // Capa de teselas (por ahora online)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // Variables para guardar la referencia al marcador del usuario
+        // ============================
+        // 1. UBICACIÓN DEL USUARIO
+        // ============================
         let marcadorUsuario = null;
-        let primerUbicacionRecibida = false;
+        let primerUbicacion = false;
+        const iconoUsuario = L.divIcon({ className: 'punto-usuario', iconSize: [18, 18] });
 
-        // Crear el ícono personalizado (punto azul)
-        const iconoUsuario = L.divIcon({
-            className: 'punto-usuario',
-            iconSize: [18, 18]
-        });
-
-        // Función que se ejecuta cada vez que el GPS nos da una nueva posición
-        function actualizarUbicacion(posicion) {
-            const lat = posicion.coords.latitude;
-            const lng = posicion.coords.longitude;
-
-            console.log('📍 Ubicación:', lat, lng, 'Precisión:', posicion.coords.accuracy, 'm');
+        function actualizarUbicacion(pos) {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
 
             if (marcadorUsuario) {
-                // Si ya existe, solo movemos el marcador
                 marcadorUsuario.setLatLng([lat, lng]);
             } else {
-                // Primera vez: creamos el marcador
                 marcadorUsuario = L.marker([lat, lng], {
                     icon: iconoUsuario,
-                    zIndexOffset: 1000 // que quede arriba de otros marcadores
+                    zIndexOffset: 1000
                 }).addTo(map);
             }
 
-            // La primera vez, centramos el mapa en el usuario
-            if (!primerUbicacionRecibida) {
+            if (!primerUbicacion) {
                 map.setView([lat, lng], 16);
-                primerUbicacionRecibida = true;
+                primerUbicacion = true;
                 document.getElementById('aviso').style.display = 'none';
             }
         }
 
-        // Función si hay error al obtener la ubicación
-        function errorUbicacion(error) {
-            let mensaje = 'No se pudo obtener tu ubicación.';
-            switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    mensaje = 'Permiso de ubicación denegado. Activalo en el navegador.';
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    mensaje = 'Ubicación no disponible. Revisá el GPS.';
-                    break;
-                case error.TIMEOUT:
-                    mensaje = 'Tiempo agotado buscando tu ubicación.';
-                    break;
-            }
-            console.warn('⚠️', mensaje, error);
-            document.getElementById('aviso').textContent = mensaje;
+        function errorUbicacion(err) {
+            console.warn('Error GPS:', err.message);
+            document.getElementById('aviso').textContent = 'No se pudo obtener tu ubicación.';
         }
 
-        // Verificar que el navegador soporte geolocalización
         if ('geolocation' in navigator) {
-            // watchPosition: nos avisa CADA VEZ que la posición cambia
-            navigator.geolocation.watchPosition(
-                actualizarUbicacion,
-                errorUbicacion,
-                {
-                    enableHighAccuracy: true,  // usar GPS real, no solo Wi-Fi
-                    timeout: 15000,            // esperar hasta 15 seg
-                    maximumAge: 5000           // aceptar posición de hasta 5 seg de antigüedad
-                }
-            );
-        } else {
-            document.getElementById('aviso').textContent = 'Tu navegador no soporta geolocalización.';
+            navigator.geolocation.watchPosition(actualizarUbicacion, errorUbicacion, {
+                enableHighAccuracy: true,
+                timeout: 15000,
+                maximumAge: 5000
+            });
         }
+
+        // ============================
+        // 2. BUSCADOR DE CALLES
+        // ============================
+        let callesIndex = [];       // Lista de calles con { nombre, lat, lng }
+        let marcadorCalle = null;   // Último marcador de calle buscada
+
+        // Cargar el GeoJSON y construir el índice
+        async function cargarCalles() {
+            try {
+                document.getElementById('inputBusqueda').placeholder = '⏳ Cargando calles...';
+                const resp = await fetch('data/calles.geojson');
+                const data = await resp.json();
+
+                data.features.forEach(f => {
+                    const nombre = f.properties.name;
+                    if (!nombre) return;
+
+                    // El GeoJSON viene con "geometry.coordinates" gracias a "out geom"
+                    let lat, lng;
+
+                    if (f.geometry && f.geometry.type === 'LineString') {
+                        // Tomamos el punto medio de la calle
+                        const coords = f.geometry.coordinates;
+                        const medio = coords[Math.floor(coords.length / 2)];
+                        lng = medio[0];
+                        lat = medio[1];
+                    } else if (f.geometry && f.geometry.type === 'Polygon') {
+                        const coords = f.geometry.coordinates[0];
+                        const medio = coords[Math.floor(coords.length / 2)];
+                        lng = medio[0];
+                        lat = medio[1];
+                    } else {
+                        return;
+                    }
+
+                    callesIndex.push({
+                        nombre: nombre.toLowerCase(),
+                        nombreOriginal: nombre,
+                        lat: lat,
+                        lng: lng
+                    });
+                });
+
+                // Sacar duplicados por nombre (mismo nombre, misma calle en varias partes)
+                const unicas = {};
+                callesIndex.forEach(c => {
+                    if (!unicas[c.nombre]) unicas[c.nombre] = c;
+                });
+                callesIndex = Object.values(unicas);
+
+                console.log(`✅ ${callesIndex.length} calles cargadas`);
+                document.getElementById('inputBusqueda').placeholder = '🔎 ¿Dónde queda...? Ej: Mitre';
+            } catch (e) {
+                console.error('Error cargando calles:', e);
+                document.getElementById('inputBusqueda').placeholder = '⚠️ Error al cargar calles';
+            }
+        }
+
+        // Buscar calles que contengan el texto
+        function buscarCalle(termino) {
+            const t = termino.toLowerCase().trim();
+            if (t.length < 2) return [];
+            return callesIndex
+                .filter(c => c.nombre.includes(t))
+                .slice(0, 15);
+        }
+
+        // Mostrar resultados en la lista
+        const input = document.getElementById('inputBusqueda');
+        const lista = document.getElementById('listaResultados');
+
+        input.addEventListener('input', (e) => {
+            const resultados = buscarCalle(e.target.value);
+            lista.innerHTML = '';
+
+            if (resultados.length === 0) {
+                lista.classList.remove('activo');
+                return;
+            }
+
+            resultados.forEach(calle => {
+                const li = document.createElement('li');
+                li.textContent = calle.nombreOriginal;
+                li.addEventListener('click', () => {
+                    // Mover el mapa a la calle
+                    map.setView([calle.lat, calle.lng], 17);
+
+                    // Poner marcador rojo (sacamos el anterior si existe)
+                    if (marcadorCalle) map.removeLayer(marcadorCalle);
+                    marcadorCalle = L.marker([calle.lat, calle.lng], {
+                        icon: L.divIcon({ className: 'punto-calle', iconSize: [14, 14] })
+                    }).addTo(map).bindPopup(calle.nombreOriginal).openPopup();
+
+                    // Cerrar la lista y limpiar input
+                    lista.classList.remove('activo');
+                    lista.innerHTML = '';
+                    input.value = calle.nombreOriginal;
+                    input.blur();
+                });
+                lista.appendChild(li);
+            });
+
+            lista.classList.add('activo');
+        });
+
+        // Ocultar resultados al hacer clic afuera
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.buscador')) {
+                lista.classList.remove('activo');
+            }
+        });
+
+        // Cargar las calles al iniciar
+        cargarCalles();
     </script>
 
 </body>
