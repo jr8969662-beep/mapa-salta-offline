@@ -13,53 +13,48 @@
     <style>
         body, html { margin: 0; padding: 0; height: 100%; font-family: Arial, sans-serif; }
         #map { width: 100%; height: 100vh; }
-
-        /* MODO OSCURO */
         .leaflet-tile-pane.mapa-oscuro {
             filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9);
         }
 
         /* BUSCADOR */
-        .buscador {
-            position: absolute; top: 10px; left: 50px; right: 60px;
-            z-index: 1000; max-width: 400px;
-        }
-        .buscador input {
-            width: 100%; padding: 12px 16px; border: none;
-            border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            font-size: 16px; outline: none; box-sizing: border-box;
-        }
-        .resultados {
-            list-style: none; margin: 4px 0 0 0; padding: 0;
-            background: white; border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            max-height: 340px; overflow-y: auto; display: none;
-        }
+        .buscador { position: absolute; top: 10px; left: 50px; right: 60px; z-index: 1000; max-width: 400px; }
+        .buscador input { width: 100%; padding: 12px 16px; border: none; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); font-size: 16px; outline: none; box-sizing: border-box; }
+        .resultados { list-style: none; margin: 4px 0 0 0; padding: 0; background: white; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); max-height: 340px; overflow-y: auto; display: none; }
         .resultados.activo { display: block; }
-        .resultados li {
-            padding: 12px 16px; border-bottom: 1px solid #eee;
-            cursor: pointer; font-size: 15px; color: #2c3e50;
-        }
+        .resultados li { padding: 12px 16px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 15px; color: #2c3e50; }
         .resultados li:last-child { border-bottom: none; }
         .resultados li:hover { background: #f0f8ff; }
-        .resultados li.esquina {
-            background: linear-gradient(90deg, #fff9e6 0%, #fff 100%);
-            border-left: 4px solid #f39c12; font-weight: 500;
-        }
+        .resultados li.esquina { background: linear-gradient(90deg, #fff9e6 0%, #fff 100%); border-left: 4px solid #f39c12; font-weight: 500; }
         .resultados li.esquina:hover { background: #fff3cd; }
-        .resultados li.direccion {
-            background: linear-gradient(90deg, #e8f8ec 0%, #fff 100%);
-            border-left: 4px solid #27ae60; font-weight: 500;
-        }
+        .resultados li.direccion { background: linear-gradient(90deg, #e8f8ec 0%, #fff 100%); border-left: 4px solid #27ae60; font-weight: 500; }
         .resultados li.direccion:hover { background: #d4edda; }
         .resultados li small { color: #888; font-weight: normal; }
 
-        /* PUNTO AZUL */
+        /* PUNTO USUARIO CON FLECHA */
         .punto-usuario {
-            width: 18px; height: 18px; background: #0078ff;
-            border: 3px solid white; border-radius: 50%;
+            width: 22px; height: 22px;
+            position: relative;
+        }
+        .punto-usuario .circulo {
+            width: 100%; height: 100%;
+            background: #0078ff;
+            border: 3px solid white;
+            border-radius: 50%;
             box-shadow: 0 0 10px rgba(0, 120, 255, 0.8);
             animation: pulso 2s infinite;
+            box-sizing: border-box;
+        }
+        .punto-usuario .flecha {
+            position: absolute;
+            top: -14px; left: 50%;
+            transform: translateX(-50%);
+            width: 0; height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 14px solid #0078ff;
+            filter: drop-shadow(0 0 3px rgba(0,120,255,0.8));
+            transform-origin: 50% 25px;
         }
         @keyframes pulso {
             0% { box-shadow: 0 0 10px rgba(0,120,255,0.8); }
@@ -67,94 +62,64 @@
             100% { box-shadow: 0 0 10px rgba(0,120,255,0.8); }
         }
 
-        /* PUNTO ROJO */
-        .punto-calle {
-            width: 14px; height: 14px; background: #e74c3c;
-            border: 3px solid white; border-radius: 50%;
-            box-shadow: 0 0 8px rgba(231, 76, 60, 0.9);
-        }
-
-        /* PUNTO AMARILLO */
+        /* OTROS PUNTOS */
+        .punto-calle { width: 14px; height: 14px; background: #e74c3c; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 8px rgba(231, 76, 60, 0.9); }
         .punto-esquina {
-            width: 22px; height: 22px; background: #f39c12;
-            border: 4px solid white; border-radius: 50%;
-            box-shadow: 0 0 12px rgba(243, 156, 18, 1);
-            animation: pulso-esquina 1.5s infinite;
+            width: 22px; height: 22px; background: #f39c12; border: 4px solid white; border-radius: 50%;
+            box-shadow: 0 0 12px rgba(243, 156, 18, 1); animation: pulso-esquina 1.5s infinite;
         }
         @keyframes pulso-esquina {
             0% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 0 rgba(243,156,18,0.7); }
             70% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 20px rgba(243,156,18,0); }
             100% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 0 rgba(243,156,18,0); }
         }
-
-        /* PUNTO VERDE */
         .punto-direccion {
-            width: 24px; height: 24px; background: #27ae60;
-            border: 4px solid white; border-radius: 50% 50% 50% 0;
-            transform: rotate(-45deg);
+            width: 24px; height: 24px; background: #27ae60; border: 4px solid white;
+            border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
             box-shadow: 0 0 12px rgba(39, 174, 96, 1);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 12px;
         }
         .punto-direccion::after { content: '🏠'; transform: rotate(45deg); }
-
-        /* PUNTO MORADO */
         .punto-mio {
-            width: 26px; height: 26px; background: #9b59b6;
-            border: 4px solid white; border-radius: 50% 50% 50% 0;
-            transform: rotate(-45deg);
+            width: 26px; height: 26px; background: #9b59b6; border: 4px solid white;
+            border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
             box-shadow: 0 0 12px rgba(155, 89, 182, 1);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 12px;
         }
         .punto-mio::after { content: '⭐'; transform: rotate(45deg); }
-
-        /* MARCADORES SITIOS */
         .marcador-sitio {
             display: flex; align-items: center; justify-content: center;
-            width: 28px; height: 28px; background: white;
-            border: 2px solid #2c3e50;
-            border-radius: 50% 50% 50% 0;
-            transform: rotate(-45deg);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-            font-size: 14px;
+            width: 28px; height: 28px; background: white; border: 2px solid #2c3e50;
+            border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 14px;
         }
         .marcador-sitio > span { transform: rotate(45deg); display: block; }
 
         /* PANEL FILTROS */
         .panel-filtros {
-            position: absolute; bottom: 20px; right: 20px;
-            z-index: 1000; background: white;
-            border-radius: 12px; padding: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-            display: flex; flex-direction: column; gap: 6px;
-            max-height: 60vh; overflow-y: auto; max-width: 200px;
+            position: absolute; bottom: 20px; right: 20px; z-index: 1000; background: white;
+            border-radius: 12px; padding: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            display: flex; flex-direction: column; gap: 6px; max-height: 60vh; overflow-y: auto; max-width: 200px;
         }
         .panel-filtros button {
-            display: flex; align-items: center; justify-content: flex-start;
-            gap: 6px; padding: 8px 12px; border: none;
-            border-radius: 8px; background: #f0f0f0; cursor: pointer;
-            font-size: 12px; color: #2c3e50; transition: background 0.2s;
+            display: flex; align-items: center; justify-content: flex-start; gap: 6px;
+            padding: 8px 12px; border: none; border-radius: 8px; background: #f0f0f0;
+            cursor: pointer; font-size: 12px; color: #2c3e50; transition: background 0.2s;
             white-space: nowrap; text-align: left; width: 100%;
         }
         .panel-filtros button:hover { background: #e0e0e0; }
         .panel-filtros button.activo { background: #2c3e50; color: white; }
-        .panel-filtros .toggle {
-            background: #3498db; color: white;
-            font-weight: bold; justify-content: center;
-        }
+        .panel-filtros .toggle { background: #3498db; color: white; font-weight: bold; justify-content: center; }
         .panel-filtros .toggle:hover { background: #2980b9; }
 
         /* BOTONES FLOTANTES */
         .botones-flotantes {
-            position: absolute; top: 10px; right: 10px;
-            z-index: 1000; display: flex; flex-direction: column; gap: 8px;
+            position: absolute; top: 10px; right: 10px; z-index: 1000;
+            display: flex; flex-direction: column; gap: 8px;
         }
         .btn-flotante {
-            width: 44px; height: 44px; border: none;
-            border-radius: 50%; background: white;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            cursor: pointer; font-size: 20px;
+            width: 44px; height: 44px; border: none; border-radius: 50%; background: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; font-size: 20px;
             display: flex; align-items: center; justify-content: center;
             transition: transform 0.15s, background 0.2s;
         }
@@ -163,152 +128,139 @@
         .btn-flotante.rojo { background: #e74c3c; color: white; }
         .btn-flotante.rojo:hover { background: #c0392b; }
 
-        /* AVISO UBICACIÓN */
+        /* AVISOS */
         .aviso-ubicacion {
-            position: absolute; bottom: 20px; left: 50%;
-            transform: translateX(-50%); z-index: 1000;
-            background: rgba(0,0,0,0.75); color: white;
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; background: rgba(0,0,0,0.75); color: white;
             padding: 10px 20px; border-radius: 20px; font-size: 14px;
         }
-
-        /* AVISO MEDIR */
         .aviso-medir {
-            position: absolute; top: 70px; left: 50%;
-            transform: translateX(-50%); z-index: 1000;
-            background: #e67e22; color: white;
+            position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; background: #e67e22; color: white;
             padding: 10px 20px; border-radius: 20px; font-size: 14px;
             display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
         .aviso-medir.activo { display: block; }
 
-        /* PANEL DE RUTA */
-        .panel-ruta {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            z-index: 2000;
-            background: white;
-            border-radius: 16px 16px 0 0;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
-            padding: 16px;
-            transform: translateY(100%);
-            transition: transform 0.3s;
-            max-height: 55vh;
-            overflow-y: auto;
-        }
-        .panel-ruta.activo { transform: translateY(0); }
-        .panel-ruta .encabezado {
-            display: flex; justify-content: space-between;
-            align-items: center; margin-bottom: 12px;
-        }
-        .panel-ruta .encabezado h3 {
-            margin: 0; color: #2c3e50; font-size: 16px;
-        }
-        .panel-ruta .cerrar {
-            background: #ecf0f1; border: none;
-            width: 32px; height: 32px; border-radius: 50%;
-            cursor: pointer; font-size: 16px; color: #2c3e50;
-        }
-        .panel-ruta .cerrar:hover { background: #d5dbdb; }
-        .panel-ruta .stats {
-            display: flex; gap: 12px; margin-bottom: 12px;
-        }
-        .panel-ruta .stat {
-            flex: 1; background: #f8f9fa; border-radius: 10px;
-            padding: 12px; text-align: center;
-        }
-        .panel-ruta .stat .valor {
-            font-size: 20px; font-weight: bold; color: #2c3e50;
-        }
-        .panel-ruta .stat .etiqueta {
-            font-size: 11px; color: #7f8c8d; margin-top: 4px;
-        }
-        .panel-ruta .modo {
-            display: flex; gap: 8px; margin-bottom: 12px;
-        }
-        .panel-ruta .modo button {
-            flex: 1; padding: 8px; border: 2px solid #ecf0f1;
-            border-radius: 8px; background: white; cursor: pointer;
-            font-size: 14px; transition: all 0.2s;
-        }
-        .panel-ruta .modo button.activo {
-            border-color: #3498db; background: #e8f4fd; color: #2980b9;
+        /* VELOCÍMETRO */
+        .velocimetro {
+            position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
+            z-index: 1000; background: rgba(44, 62, 80, 0.9); color: white;
+            padding: 8px 18px; border-radius: 30px; font-size: 15px;
+            display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
             font-weight: bold;
         }
-        .panel-ruta .pasos {
-            list-style: none; padding: 0; margin: 0;
+        .velocimetro.activo { display: block; }
+        .velocimetro .num { font-size: 20px; }
+
+        /* NOTIFICACIÓN DE RECÁLCULO */
+        .notificacion {
+            position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
+            z-index: 3000; background: #3498db; color: white;
+            padding: 12px 24px; border-radius: 25px; font-size: 14px;
+            font-weight: bold;
+            display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            animation: slideDown 0.3s ease-out;
         }
+        .notificacion.activo { display: block; }
+        .notificacion.aviso { background: #f39c12; }
+        .notificacion.exito { background: #27ae60; }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translate(-50%, -20px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+
+        /* PANEL DE RUTA */
+        .panel-ruta {
+            position: absolute; bottom: 0; left: 0; right: 0; z-index: 2000;
+            background: white; border-radius: 16px 16px 0 0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.3); padding: 16px;
+            transform: translateY(100%); transition: transform 0.3s;
+            max-height: 55vh; overflow-y: auto;
+        }
+        .panel-ruta.activo { transform: translateY(0); }
+        .panel-ruta .encabezado { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .panel-ruta .encabezado h3 { margin: 0; color: #2c3e50; font-size: 16px; flex: 1; }
+        .panel-ruta .cerrar {
+            background: #ecf0f1; border: none; width: 32px; height: 32px;
+            border-radius: 50%; cursor: pointer; font-size: 16px; color: #2c3e50;
+        }
+        .panel-ruta .cerrar:hover { background: #d5dbdb; }
+        .panel-ruta .stats { display: flex; gap: 12px; margin-bottom: 12px; }
+        .panel-ruta .stat { flex: 1; background: #f8f9fa; border-radius: 10px; padding: 12px; text-align: center; }
+        .panel-ruta .stat .valor { font-size: 20px; font-weight: bold; color: #2c3e50; }
+        .panel-ruta .stat .etiqueta { font-size: 11px; color: #7f8c8d; margin-top: 4px; }
+        .panel-ruta .modo { display: flex; gap: 8px; margin-bottom: 12px; }
+        .panel-ruta .modo button {
+            flex: 1; padding: 8px; border: 2px solid #ecf0f1; border-radius: 8px;
+            background: white; cursor: pointer; font-size: 14px; transition: all 0.2s;
+        }
+        .panel-ruta .modo button.activo { border-color: #3498db; background: #e8f4fd; color: #2980b9; font-weight: bold; }
+        .panel-ruta .barra-acciones {
+            display: flex; gap: 8px; margin-bottom: 12px;
+        }
+        .panel-ruta .barra-acciones button {
+            flex: 1; padding: 8px; border: none; border-radius: 8px;
+            cursor: pointer; font-size: 13px; font-weight: bold;
+        }
+        .panel-ruta .btn-recalcular { background: #3498db; color: white; }
+        .panel-ruta .btn-recalcular:hover { background: #2980b9; }
+        .panel-ruta .btn-auto { background: #ecf0f1; color: #2c3e50; }
+        .panel-ruta .btn-auto.activo { background: #27ae60; color: white; }
+        .panel-ruta .pasos { list-style: none; padding: 0; margin: 0; }
         .panel-ruta .pasos li {
             display: flex; gap: 10px; padding: 10px 0;
-            border-bottom: 1px solid #eee; font-size: 13px;
-            color: #555;
+            border-bottom: 1px solid #eee; font-size: 13px; color: #555;
         }
         .panel-ruta .pasos li:last-child { border-bottom: none; }
-        .panel-ruta .pasos .icono {
-            font-size: 20px; flex-shrink: 0;
+        .panel-ruta .pasos li.paso-actual {
+            background: #e8f4fd; border-radius: 8px; padding: 12px;
+            border-left: 4px solid #3498db; margin: 4px 0;
         }
+        .panel-ruta .pasos .icono { font-size: 20px; flex-shrink: 0; }
         .panel-ruta .info-adicional {
-            margin-top: 12px; padding: 10px;
-            background: #fff9e6; border-left: 4px solid #f39c12;
-            border-radius: 6px; font-size: 12px; color: #555;
+            margin-top: 12px; padding: 10px; background: #fff9e6;
+            border-left: 4px solid #f39c12; border-radius: 6px;
+            font-size: 12px; color: #555;
         }
 
         /* MODALES */
         .modal-overlay {
-            display: none; position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.7);
-            z-index: 9999;
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7); z-index: 9999;
             justify-content: center; align-items: center;
         }
         .modal-overlay.activo { display: flex; }
         .modal {
-            background: white; border-radius: 12px;
-            padding: 24px; max-width: 400px; width: 90%;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            background: white; border-radius: 12px; padding: 24px;
+            max-width: 400px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.3);
             max-height: 80vh; overflow-y: auto;
         }
         .modal h3 { margin: 0 0 12px 0; color: #2c3e50; font-size: 18px; }
         .modal p { color: #555; font-size: 14px; line-height: 1.5; margin: 8px 0; }
         .modal input[type="text"] {
-            width: 100%; padding: 10px 12px;
-            border: 2px solid #ddd; border-radius: 8px;
-            font-size: 15px; box-sizing: border-box;
+            width: 100%; padding: 10px 12px; border: 2px solid #ddd;
+            border-radius: 8px; font-size: 15px; box-sizing: border-box;
             outline: none; margin-top: 8px;
         }
         .modal input[type="text"]:focus { border-color: #3498db; }
         .modal .botones { display: flex; gap: 8px; margin-top: 16px; }
         .modal .botones button {
-            flex: 1; padding: 10px; border: none;
-            border-radius: 8px; font-size: 14px;
-            cursor: pointer; font-weight: bold;
+            flex: 1; padding: 10px; border: none; border-radius: 8px;
+            font-size: 14px; cursor: pointer; font-weight: bold;
         }
         .modal .btn-cancelar { background: #ecf0f1; color: #2c3e50; }
         .modal .btn-cancelar:hover { background: #d5dbdb; }
         .modal .btn-ok { background: #27ae60; color: white; }
         .modal .btn-ok:hover { background: #229954; }
 
-        .lista-lugares {
-            list-style: none; padding: 0; margin: 12px 0 0 0;
-            max-height: 300px; overflow-y: auto;
-        }
-        .lista-lugares li {
-            display: flex; justify-content: space-between;
-            align-items: center; padding: 10px 12px;
-            border-bottom: 1px solid #eee; font-size: 14px;
-        }
+        .lista-lugares { list-style: none; padding: 0; margin: 12px 0 0 0; max-height: 300px; overflow-y: auto; }
+        .lista-lugares li { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid #eee; font-size: 14px; }
         .lista-lugares li:last-child { border-bottom: none; }
-        .lista-lugares li .nombre {
-            flex: 1; cursor: pointer; color: #2c3e50;
-        }
+        .lista-lugares li .nombre { flex: 1; cursor: pointer; color: #2c3e50; }
         .lista-lugares li .nombre:hover { color: #3498db; }
-        .lista-lugares li .borrar {
-            background: none; border: none;
-            cursor: pointer; font-size: 16px; color: #e74c3c;
-            padding: 4px 8px;
-        }
-        .lista-lugares .vacio {
-            text-align: center; color: #999;
-            padding: 20px; font-size: 14px;
-        }
+        .lista-lugares li .borrar { background: none; border: none; cursor: pointer; font-size: 16px; color: #e74c3c; padding: 4px 8px; }
+        .lista-lugares .vacio { text-align: center; color: #999; padding: 20px; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -330,6 +282,8 @@
     <div id="map"></div>
     <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
     <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa para medir</div>
+    <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
+    <div class="notificacion" id="notificacion"></div>
 
     <div class="panel-filtros" id="panelFiltros">
         <button class="toggle" id="toggleTodo" onclick="toggleTodo()">👁️ Mostrar todo</button>
@@ -356,11 +310,15 @@
                 <div class="etiqueta">Tiempo est.</div>
             </div>
         </div>
+        <div class="barra-acciones">
+            <button class="btn-recalcular" id="btnRecalcular" onclick="forzarRecalculo()">🔄 Recalcular</button>
+            <button class="btn-auto activo" id="btnAutoRecalc" onclick="toggleAutoRecalc()">📡 Auto: ON</button>
+        </div>
         <ul class="pasos" id="listaPasos"></ul>
         <div class="info-adicional" id="infoAdicional" style="display:none;"></div>
     </div>
 
-    <!-- MODAL: AGREGAR LUGAR -->
+    <!-- MODALES -->
     <div class="modal-overlay" id="modalLugar">
         <div class="modal">
             <h3>⭐ Guardar lugar</h3>
@@ -372,8 +330,6 @@
             </div>
         </div>
     </div>
-
-    <!-- MODAL: MIS LUGARES -->
     <div class="modal-overlay" id="modalLugares">
         <div class="modal">
             <h3>⭐ Mis lugares</h3>
@@ -389,56 +345,18 @@
 
     <script>
         // ============================================
-        // MAPA BASE
+        // MAPA
         // ============================================
         const CENTRO_SALTA = [-24.789, -65.411];
         const map = L.map('map').setView(CENTRO_SALTA, 14);
-
         const capaBase = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19, attribution: '© OpenStreetMap'
         });
         capaBase.addTo(map);
-
         let modoOscuro = false;
 
         // ============================================
-        // UBICACIÓN
-        // ============================================
-        let marcadorUsuario = null;
-        let primerUbicacion = false;
-        let ultimaPos = null;
-        const iconoUsuario = L.divIcon({ className: 'punto-usuario', iconSize: [18, 18] });
-
-        function actualizarUbicacion(pos) {
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
-            ultimaPos = [lat, lng];
-
-            if (marcadorUsuario) {
-                marcadorUsuario.setLatLng([lat, lng]);
-            } else {
-                marcadorUsuario = L.marker([lat, lng], {
-                    icon: iconoUsuario, zIndexOffset: 1000
-                }).addTo(map);
-            }
-            if (!primerUbicacion) {
-                map.setView([lat, lng], 16);
-                primerUbicacion = true;
-                document.getElementById('aviso').style.display = 'none';
-            }
-        }
-        function errorUbicacion(err) {
-            console.warn('Error GPS:', err.message);
-            document.getElementById('aviso').textContent = 'No se pudo obtener tu ubicación.';
-        }
-        if ('geolocation' in navigator) {
-            navigator.geolocation.watchPosition(actualizarUbicacion, errorUbicacion, {
-                enableHighAccuracy: true, timeout: 15000, maximumAge: 5000
-            });
-        }
-
-        // ============================================
-        // NORMALIZAR
+        // UTILIDADES
         // ============================================
         function normalizar(texto) {
             if (!texto) return '';
@@ -447,15 +365,201 @@
                 .replace(/\b(avenida|av\.?|calle|pasaje|pje\.?|ruta|rn|rp)\b/g, '')
                 .replace(/[.,]/g, '').replace(/\s+/g, ' ').trim();
         }
+        function haversine(lat1, lng1, lat2, lng2) {
+            const R = 6371000;
+            const toRad = (deg) => deg * Math.PI / 180;
+            const dLat = toRad(lat2 - lat1);
+            const dLng = toRad(lng2 - lng1);
+            const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+        function formatearDistancia(metros) {
+            if (metros < 1000) return `${Math.round(metros)} m`;
+            return `${(metros / 1000).toFixed(2)} km`;
+        }
+        function formatearTiempo(segundos) {
+            const min = Math.round(segundos / 60);
+            if (min < 60) return `${min} min`;
+            const h = Math.floor(min / 60);
+            const m = min % 60;
+            return `${h}h ${m}m`;
+        }
+        function mostrarNotificacion(texto, tipo = 'info', duracion = 3000) {
+            const notif = document.getElementById('notificacion');
+            notif.textContent = texto;
+            notif.className = 'notificacion activo ' + (tipo === 'aviso' ? 'aviso' : tipo === 'exito' ? 'exito' : '');
+            clearTimeout(notif._timeout);
+            notif._timeout = setTimeout(() => { notif.classList.remove('activo'); }, duracion);
+        }
 
         // ============================================
-        // CARGAR CALLES
+        // UBICACIÓN CON ORIENTACIÓN (BRÚJULA)
+        // ============================================
+        let posicionUsuario = null;       // [lat, lng]
+        let headingUsuario = null;        // grados 0-360 (0 = norte)
+        let posicionAnterior = null;      // Para calcular el rumbo por GPS
+        let timestampAnterior = null;
+        let ultimaVelocidad = 0;          // km/h
+        let marcadorUsuario = null;
+        let primerUbicacion = false;
+        let usarBrujulaDispositivo = false;
+
+        const iconoUsuario = L.divIcon({
+            className: 'punto-usuario',
+            html: '<div class="flecha" id="flechaUsuario" style="transform: translateX(-50%) rotate(0deg);"></div><div class="circulo"></div>',
+            iconSize: [22, 22],
+            iconAnchor: [11, 11]
+        });
+
+        function actualizarFlecha() {
+            const flecha = document.getElementById('flechaUsuario');
+            if (!flecha) return;
+            const grados = headingUsuario != null ? headingUsuario : 0;
+            flecha.style.transform = `translateX(-50%) rotate(${grados}deg)`;
+            // Ocultar la flecha si no tenemos orientación confiable
+            flecha.style.display = headingUsuario != null ? 'block' : 'none';
+        }
+
+        function manejarPosicion(pos) {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            const ahora = Date.now();
+
+            // Velocidad desde el GPS (en m/s → km/h)
+            if (pos.coords.speed != null && pos.coords.speed >= 0) {
+                ultimaVelocidad = pos.coords.speed * 3.6;
+            }
+
+            // Calcular rumbo por GPS si nos movemos
+            if (posicionAnterior && timestampAnterior) {
+                const dist = haversine(posicionAnterior[0], posicionAnterior[1], lat, lng);
+                if (dist > 3) { // más de 3 metros para considerar movimiento
+                    const rumbo = calcularRumbo(posicionAnterior[0], posicionAnterior[1], lat, lng);
+                    // Solo usar GPS si no tenemos brújula del dispositivo
+                    if (!usarBrujulaDispositivo) {
+                        headingUsuario = rumbo;
+                    }
+                }
+            }
+            posicionAnterior = [lat, lng];
+            timestampAnterior = ahora;
+            posicionUsuario = [lat, lng];
+
+            // Actualizar/crear marcador
+            if (marcadorUsuario) {
+                marcadorUsuario.setLatLng([lat, lng]);
+            } else {
+                marcadorUsuario = L.marker([lat, lng], {
+                    icon: iconoUsuario, zIndexOffset: 1000
+                }).addTo(map);
+            }
+            actualizarFlecha();
+
+            if (!primerUbicacion) {
+                map.setView([lat, lng], 16);
+                primerUbicacion = true;
+                document.getElementById('aviso').style.display = 'none';
+            }
+
+            // Actualizar velocímetro
+            actualizarVelocimetro();
+
+            // Verificar recálculo de ruta
+            verificarRecalculo();
+
+            // Actualizar progreso de ruta (paso actual)
+            actualizarProgresoRuta();
+        }
+
+        function calcularRumbo(lat1, lng1, lat2, lng2) {
+            const toRad = (d) => d * Math.PI / 180;
+            const toDeg = (r) => r * 180 / Math.PI;
+            const dLng = toRad(lng2 - lng1);
+            const y = Math.sin(dLng) * Math.cos(toRad(lat2));
+            const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
+                      Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLng);
+            let rumbo = toDeg(Math.atan2(y, x));
+            return (rumbo + 360) % 360;
+        }
+
+        function errorUbicacion(err) {
+            console.warn('Error GPS:', err.message);
+            document.getElementById('aviso').textContent = 'No se pudo obtener tu ubicación.';
+        }
+
+        if ('geolocation' in navigator) {
+            navigator.geolocation.watchPosition(manejarPosicion, errorUbicacion, {
+                enableHighAccuracy: true, timeout: 15000, maximumAge: 2000
+            });
+        }
+
+        // --------------------------------------------------
+        // BRÚJULA DEL DISPOSITIVO (si está disponible)
+        // --------------------------------------------------
+        function manejarOrientacion(event) {
+            let heading = null;
+            if (event.webkitCompassHeading != null) {
+                // iOS: heading absoluto
+                heading = event.webkitCompassHeading;
+            } else if (event.absolute === true && event.alpha != null) {
+                // Android: alpha = rotación respecto al norte
+                heading = 360 - event.alpha;
+            } else if (event.alpha != null) {
+                heading = 360 - event.alpha;
+            }
+            if (heading != null && !isNaN(heading)) {
+                headingUsuario = heading;
+                usarBrujulaDispositivo = true;
+                actualizarFlecha();
+            }
+        }
+
+        function activarBrujula() {
+            if (typeof DeviceOrientationEvent !== 'undefined') {
+                if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                    // iOS 13+ requiere permiso
+                    DeviceOrientationEvent.requestPermission()
+                        .then((permiso) => {
+                            if (permiso === 'granted') {
+                                window.addEventListener('deviceorientation', manejarOrientacion, true);
+                                console.log('🧭 Brújula activada (iOS)');
+                            }
+                        })
+                        .catch((e) => console.warn('Sin permiso para brújula:', e));
+                } else {
+                    window.addEventListener('deviceorientationabsolute', manejarOrientacion, true);
+                    window.addEventListener('deviceorientation', manejarOrientacion, true);
+                    console.log('🧭 Brújula activada');
+                }
+            }
+        }
+        // Activar la brújula al primer toque en el mapa (requerido por iOS)
+        document.addEventListener('touchstart', activarBrujula, { once: true });
+        document.addEventListener('click', activarBrujula, { once: true });
+
+        // ============================================
+        // VELOCÍMETRO
+        // ============================================
+        function actualizarVelocimetro() {
+            const vel = document.getElementById('velocimetro');
+            const num = document.getElementById('velocidadNum');
+            if (ultimaVelocidad > 2) { // Mostrar solo si se mueve
+                vel.classList.add('activo');
+                num.textContent = ultimaVelocidad.toFixed(0);
+            } else {
+                vel.classList.remove('activo');
+            }
+        }
+
+        // ============================================
+        // CALLES Y DIRECCIONES
         // ============================================
         let callesIndex = [];
+        let direccionesIndex = [];
         let marcadorCalle = null;
         let trazoCalle = null;
         let ultimaBusqueda = null;
-        let destinoActual = null; // { lat, lng, nombre } para el routing
+        let destinoActual = null;
 
         async function cargarCalles() {
             try {
@@ -475,8 +579,7 @@
                         lng = medio[0]; lat = medio[1];
                     } else return;
                     callesIndex.push({
-                        nombre: normalizar(nombre),
-                        nombreOriginal: nombre,
+                        nombre: normalizar(nombre), nombreOriginal: nombre,
                         lat: lat, lng: lng,
                         coordenadas: coordenadas.map(c => [c[1], c[0]])
                     });
@@ -495,10 +598,6 @@
             } catch (e) { console.error('Error cargando calles:', e); }
         }
 
-        // ============================================
-        // CARGAR DIRECCIONES
-        // ============================================
-        let direccionesIndex = [];
         async function cargarDirecciones() {
             try {
                 const resp = await fetch('data/direcciones.geojson');
@@ -513,13 +612,11 @@
                     if (isNaN(numero)) return;
                     let lat, lng, exacto = false;
                     if (f.geometry.type === 'Point') {
-                        lng = f.geometry.coordinates[0]; lat = f.geometry.coordinates[1];
-                        exacto = true;
+                        lng = f.geometry.coordinates[0]; lat = f.geometry.coordinates[1]; exacto = true;
                     } else if (f.geometry.type === 'LineString') {
                         const coords = f.geometry.coordinates;
                         const medio = coords[Math.floor(coords.length / 2)];
-                        lng = medio[0]; lat = medio[1];
-                        exacto = false;
+                        lng = medio[0]; lat = medio[1]; exacto = false;
                     } else return;
                     direccionesIndex.push({
                         calle: normalizar(calle), calleOriginal: calle,
@@ -531,9 +628,6 @@
             } catch (e) { console.error('Error cargando direcciones:', e); }
         }
 
-        // ============================================
-        // BÚSQUEDAS
-        // ============================================
         function buscarCalle(termino) {
             const t = normalizar(termino);
             if (t.length < 2) return [];
@@ -560,9 +654,6 @@
             return mejor;
         }
 
-        // ============================================
-        // PARSEO QUERY
-        // ============================================
         function parsearQuery(query) {
             const q = query.trim();
             const matchEsquina = q.match(/^(.+?)\s+y\s+(.+?)(?:\s+(\d+))?$/i);
@@ -581,9 +672,6 @@
             return { tipo: 'calle', calle: q };
         }
 
-        // ============================================
-        // GEOMETRÍA
-        // ============================================
         function interseccionSegmentos(p1, p2, p3, p4) {
             const x1 = p1[1], y1 = p1[0], x2 = p2[1], y2 = p2[0];
             const x3 = p3[1], y3 = p3[0], x4 = p4[1], y4 = p4[0];
@@ -628,34 +716,6 @@
             return intersecciones;
         }
 
-        // ============================================
-        // HAVERSINE
-        // ============================================
-        function haversine(lat1, lng1, lat2, lng2) {
-            const R = 6371000;
-            const toRad = (deg) => deg * Math.PI / 180;
-            const dLat = toRad(lat2 - lat1);
-            const dLng = toRad(lng2 - lng1);
-            const a = Math.sin(dLat/2)**2 +
-                      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-                      Math.sin(dLng/2)**2;
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        }
-        function formatearDistancia(metros) {
-            if (metros < 1000) return `${Math.round(metros)} m`;
-            return `${(metros / 1000).toFixed(2)} km`;
-        }
-        function formatearTiempo(segundos) {
-            const min = Math.round(segundos / 60);
-            if (min < 60) return `${min} min`;
-            const h = Math.floor(min / 60);
-            const m = min % 60;
-            return `${h}h ${m}m`;
-        }
-
-        // ============================================
-        // MOSTRAR EN MAPA
-        // ============================================
         function limpiarBusqueda() {
             if (marcadorCalle) { map.removeLayer(marcadorCalle); marcadorCalle = null; }
             if (trazoCalle) { map.removeLayer(trazoCalle); trazoCalle = null; }
@@ -675,7 +735,6 @@
                 icon: L.divIcon({ className: 'punto-calle', iconSize: [14, 14] })
             }).addTo(map).bindPopup(`<strong>${calle.nombreOriginal}</strong>`);
             map.fitBounds(L.featureGroup(lineas).getBounds(), { padding: [50, 50] });
-
             ultimaBusqueda = { texto: calle.nombreOriginal, lat: calle.lat, lng: calle.lng };
             mostrarBotonIr(calle.lat, calle.lng, calle.nombreOriginal);
         }
@@ -694,7 +753,6 @@
                 <small>Numeración ${precision}${!direccion.exacto ? ' (interpolada)' : ''}</small>
             `).openPopup();
             map.setView([direccion.lat, direccion.lng], 18);
-
             ultimaBusqueda = { texto: `${direccion.calleOriginal} ${direccion.numero}`, lat: direccion.lat, lng: direccion.lng };
             mostrarBotonIr(direccion.lat, direccion.lng, `${direccion.calleOriginal} ${direccion.numero}`);
         }
@@ -736,7 +794,6 @@
                 `).openPopup();
             }
             map.setView(unicas[0], 17);
-
             ultimaBusqueda = { texto: `${calleA.nombreOriginal} y ${calleB.nombreOriginal}`, lat: unicas[0][0], lng: unicas[0][1] };
             mostrarBotonIr(unicas[0][0], unicas[0][1], `${calleA.nombreOriginal} y ${calleB.nombreOriginal}`);
         }
@@ -746,7 +803,6 @@
         // ============================================
         const input = document.getElementById('inputBusqueda');
         const lista = document.getElementById('listaResultados');
-
         input.addEventListener('input', (e) => {
             const query = e.target.value;
             lista.innerHTML = '';
@@ -778,7 +834,7 @@
                     const li = document.createElement('li');
                     li.className = 'direccion';
                     if (dir) {
-                        const precision = dir.exacto ? 'exacta' : `aprox. (${dir.interpolacion === 'odd' ? 'impares' : dir.interpolacion === 'even' ? 'pares' : 'interpolada'})`;
+                        const precision = dir.exacto ? 'exacta' : `aprox.`;
                         li.innerHTML = `🏠 <strong>${calle.nombreOriginal} ${parsed.numero}</strong><br><small>Numeración ${precision}</small>`;
                     } else {
                         li.innerHTML = `🏠 <strong>${calle.nombreOriginal} ${parsed.numero}</strong><br><small>⚠️ Número no encontrado, se mostrará la calle</small>`;
@@ -795,8 +851,7 @@
                     lista.appendChild(li);
                 }
             } else {
-                const resultados = buscarCalle(query);
-                resultados.forEach(calle => {
+                buscarCalle(query).forEach(calle => {
                     const li = document.createElement('li');
                     li.textContent = calle.nombreOriginal;
                     li.addEventListener('click', () => {
@@ -828,24 +883,19 @@
         // MARCADORES DE SITIOS
         // ============================================
         const EMOJIS = {
-            hospital: '🏥', clinic: '🩺', pharmacy: '💊',
-            bank: '🏦', atm: '🏧',
+            hospital: '🏥', clinic: '🩺', pharmacy: '💊', bank: '🏦', atm: '🏧',
             restaurant: '🍽️', fast_food: '🍔', bar: '🍺', cafe: '☕',
-            supermarket: '🛒', convenience: '🏪',
-            police: '🚓', fire_station: '🚒',
-            bus_stop: '🚌', parking: '🅿️', fuel: '⛽',
-            school: '🏫', university: '🎓',
+            supermarket: '🛒', convenience: '🏪', police: '🚓', fire_station: '🚒',
+            bus_stop: '🚌', parking: '🅿️', fuel: '⛽', school: '🏫', university: '🎓',
             townhall: '🏛️', hotel: '🏨', hostel: '🛏️',
         };
         const NOMBRES = {
-            hospital: 'Hospitales', clinic: 'Clínicas', pharmacy: 'Farmacias',
-            bank: 'Bancos', atm: 'Cajeros',
+            hospital: 'Hospitales', clinic: 'Clínicas', pharmacy: 'Farmacias', bank: 'Bancos', atm: 'Cajeros',
             restaurant: 'Restaurantes', fast_food: 'Comida rápida', bar: 'Bares', cafe: 'Cafés',
-            supermarket: 'Supermercados', convenience: 'Almacenes',
-            police: 'Comisarías', fire_station: 'Bomberos',
+            supermarket: 'Supermercados', convenience: 'Almacenes', police: 'Comisarías', fire_station: 'Bomberos',
             bus_stop: 'Paradas SAETA', parking: 'Estacionamientos', fuel: 'Estaciones de servicio',
-            school: 'Escuelas', university: 'Universidades',
-            townhall: 'Oficinas públicas', hotel: 'Hoteles', hostel: 'Hostales',
+            school: 'Escuelas', university: 'Universidades', townhall: 'Oficinas públicas',
+            hotel: 'Hoteles', hostel: 'Hostales',
         };
         const capas = {};
         const capasActivas = {};
@@ -855,7 +905,7 @@
             for (const archivo of archivos) {
                 try {
                     const resp = await fetch(archivo);
-                    if (!resp.ok) { console.warn(`⚠️ No se encontró ${archivo}`); continue; }
+                    if (!resp.ok) continue;
                     const data = await resp.json();
                     data.features.forEach(f => {
                         const props = f.properties;
@@ -878,15 +928,9 @@
                             iconSize: [28, 28], iconAnchor: [14, 28], popupAnchor: [0, -28]
                         });
                         const nombre = props.name || props.official_name || 'Sin nombre';
-                        const dir = props['addr:street']
-                            ? `${props['addr:street']} ${props['addr:housenumber'] || ''}` : '';
+                        const dir = props['addr:street'] ? `${props['addr:street']} ${props['addr:housenumber'] || ''}` : '';
                         const marcador = L.marker([lat, lng], { icon: icono })
-                            .bindPopup(`
-                                <strong>${nombre}</strong><br>
-                                <small>${NOMBRES[categoria] || categoria}</small>
-                                ${dir ? '<br><small>📍 ' + dir + '</small>' : ''}
-                                ${props.phone ? '<br><small>📞 ' + props.phone + '</small>' : ''}
-                            `);
+                            .bindPopup(`<strong>${nombre}</strong><br><small>${NOMBRES[categoria] || categoria}</small>${dir ? '<br><small>📍 ' + dir + '</small>' : ''}${props.phone ? '<br><small>📞 ' + props.phone + '</small>' : ''}`);
                         capas[categoria].addLayer(marcador);
                     });
                 } catch (e) { console.error(`Error cargando ${archivo}:`, e); }
@@ -896,8 +940,7 @@
         }
         function generarBotonesFiltros() {
             const panel = document.getElementById('panelFiltros');
-            const categorias = Object.keys(capas).sort((a, b) =>
-                (NOMBRES[a] || a).localeCompare(NOMBRES[b] || b));
+            const categorias = Object.keys(capas).sort((a, b) => (NOMBRES[a] || a).localeCompare(NOMBRES[b] || b));
             categorias.forEach(cat => {
                 const btn = document.createElement('button');
                 btn.id = 'btn-' + cat;
@@ -927,15 +970,13 @@
                     if (capasActivas[cat]) {
                         map.removeLayer(capas[cat]);
                         capasActivas[cat] = false;
-                        const b = document.getElementById('btn-' + cat);
-                        if (b) b.classList.remove('activo');
+                        document.getElementById('btn-' + cat)?.classList.remove('activo');
                     }
                 } else {
                     if (!capasActivas[cat]) {
                         map.addLayer(capas[cat]);
                         capasActivas[cat] = true;
-                        const b = document.getElementById('btn-' + cat);
-                        if (b) b.classList.add('activo');
+                        document.getElementById('btn-' + cat)?.classList.add('activo');
                     }
                 }
             });
@@ -944,13 +985,12 @@
         cargarSitios();
 
         // ============================================
-        // BOTONES FLOTANTES
+        // BOTONES
         // ============================================
         document.getElementById('btnCentrar').addEventListener('click', () => {
-            if (ultimaPos) map.setView(ultimaPos, 17);
-            else alert('Todavía no se detectó tu ubicación. Activá el GPS.');
+            if (posicionUsuario) map.setView(posicionUsuario, 17);
+            else alert('Todavía no se detectó tu ubicación.');
         });
-
         document.getElementById('btnModoOscuro').addEventListener('click', (e) => {
             modoOscuro = !modoOscuro;
             const tiles = document.querySelector('.leaflet-tile-pane');
@@ -964,18 +1004,14 @@
                 e.target.textContent = '🌙';
             }
         });
-
         document.getElementById('btnCompartir').addEventListener('click', () => {
             if (!ultimaBusqueda) return;
-            const { texto, lat, lng } = ultimaBusqueda;
-            const url = `https://www.google.com/maps?q=${lat},${lng}`;
-            const mensaje = `📍 ${texto}\nVer en el mapa: ${url}`;
-            const whatsapp = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
-            window.open(whatsapp, '_blank');
+            const url = `https://www.google.com/maps?q=${ultimaBusqueda.lat},${ultimaBusqueda.lng}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(`📍 ${ultimaBusqueda.texto}\n${url}`)}`, '_blank');
         });
 
         // ============================================
-        // MEDIR DISTANCIA
+        // MEDIR
         // ============================================
         let modoMedir = false, puntoA = null, puntoB = null;
         let lineaMedir = null, marcadorA = null, marcadorB = null;
@@ -984,7 +1020,6 @@
             html: '<div style="width:14px;height:14px;background:#e67e22;border:3px solid white;border-radius:50%;box-shadow:0 0 8px rgba(230,126,34,1);"></div>',
             iconSize: [14, 14], iconAnchor: [7, 7]
         });
-
         document.getElementById('btnMedir').addEventListener('click', () => {
             modoMedir = !modoMedir;
             const btn = document.getElementById('btnMedir');
@@ -1002,7 +1037,6 @@
                 limpiarMedicion();
             }
         });
-
         function resetearMedicion() {
             if (lineaMedir) { map.removeLayer(lineaMedir); lineaMedir = null; }
             if (marcadorA) { map.removeLayer(marcadorA); marcadorA = null; }
@@ -1010,7 +1044,6 @@
             puntoA = null; puntoB = null;
         }
         function limpiarMedicion() { resetearMedicion(); }
-
         map.on('click', (e) => {
             if (!modoMedir) return;
             const latlng = e.latlng;
@@ -1041,7 +1074,6 @@
         const STORAGE_KEY = 'salta_mis_lugares';
         let misLugares = [];
         const capaLugares = L.layerGroup().addTo(map);
-
         function cargarLugaresGuardados() {
             try {
                 const guardados = localStorage.getItem(STORAGE_KEY);
@@ -1050,8 +1082,7 @@
             pintarLugaresEnMapa();
         }
         function guardarLugaresEnStorage() {
-            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(misLugares)); }
-            catch (e) { console.warn('Error al guardar lugares:', e); }
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(misLugares)); } catch (e) {}
         }
         const iconoMio = L.divIcon({
             className: 'punto-mio',
@@ -1060,27 +1091,22 @@
         function pintarLugaresEnMapa() {
             capaLugares.clearLayers();
             misLugares.forEach((lugar) => {
-                const m = L.marker([lugar.lat, lugar.lng], { icon: iconoMio })
-                    .bindPopup(`<strong>⭐ ${lugar.nombre}</strong><br><small>${lugar.fecha || ''}</small>`);
-                capaLugares.addLayer(m);
+                capaLugares.addLayer(L.marker([lugar.lat, lugar.lng], { icon: iconoMio })
+                    .bindPopup(`<strong>⭐ ${lugar.nombre}</strong><br><small>${lugar.fecha || ''}</small>`));
             });
         }
         document.getElementById('btnLugares').addEventListener('click', abrirModalLugares);
         function abrirModalLugares() {
             const ul = document.getElementById('listaLugares');
             ul.innerHTML = '';
-            if (misLugares.length === 0) {
-                ul.innerHTML = '<li class="vacio">Todavía no guardaste ningún lugar.</li>';
-            } else {
+            if (misLugares.length === 0) ul.innerHTML = '<li class="vacio">Todavía no guardaste ningún lugar.</li>';
+            else {
                 misLugares.forEach((lugar, idx) => {
                     const li = document.createElement('li');
                     const nombre = document.createElement('span');
                     nombre.className = 'nombre';
                     nombre.textContent = '⭐ ' + lugar.nombre;
-                    nombre.addEventListener('click', () => {
-                        map.setView([lugar.lat, lugar.lng], 17);
-                        cerrarModalLugares();
-                    });
+                    nombre.addEventListener('click', () => { map.setView([lugar.lat, lugar.lng], 17); cerrarModalLugares(); });
                     const borrar = document.createElement('button');
                     borrar.className = 'borrar';
                     borrar.textContent = '🗑️';
@@ -1093,17 +1119,13 @@
                             abrirModalLugares();
                         }
                     });
-                    li.appendChild(nombre);
-                    li.appendChild(borrar);
-                    ul.appendChild(li);
+                    li.appendChild(nombre); li.appendChild(borrar); ul.appendChild(li);
                 });
             }
             document.getElementById('modalLugares').classList.add('activo');
         }
         function cerrarModalLugares() { document.getElementById('modalLugares').classList.remove('activo'); }
-        document.getElementById('btnAgregarDesdeLista').addEventListener('click', () => {
-            cerrarModalLugares(); abrirModalLugar();
-        });
+        document.getElementById('btnAgregarDesdeLista').addEventListener('click', () => { cerrarModalLugares(); abrirModalLugar(); });
         function abrirModalLugar() {
             document.getElementById('inputNombreLugar').value = '';
             document.getElementById('modalLugar').classList.add('activo');
@@ -1112,32 +1134,33 @@
         function cerrarModalLugar() { document.getElementById('modalLugar').classList.remove('activo'); }
         function confirmarGuardarLugar() {
             const nombre = document.getElementById('inputNombreLugar').value.trim();
-            if (!nombre) { alert('Poné un nombre para el lugar'); return; }
-            const centro = map.getCenter();
-            misLugares.push({
-                nombre: nombre, lat: centro.lat, lng: centro.lng,
-                fecha: new Date().toLocaleDateString('es-AR')
-            });
+            if (!nombre) { alert('Poné un nombre'); return; }
+            const c = map.getCenter();
+            misLugares.push({ nombre, lat: c.lat, lng: c.lng, fecha: new Date().toLocaleDateString('es-AR') });
             guardarLugaresEnStorage();
             pintarLugaresEnMapa();
             cerrarModalLugar();
-            const aviso = document.getElementById('aviso');
-            aviso.textContent = `⭐ "${nombre}" guardado`;
-            aviso.style.display = 'block';
-            setTimeout(() => { aviso.style.display = 'none'; }, 2500);
+            mostrarNotificacion(`⭐ "${nombre}" guardado`, 'exito');
         }
         map.on('dblclick', (e) => {
             if (modoMedir) return;
             map.setView(e.latlng, map.getZoom());
-            setTimeout(() => abrirModalLugar(), 100);
+            setTimeout(abrirModalLugar, 100);
         });
 
         // ============================================
-        // 🛣️ ROUTING - RUTA HASTA EL DESTINO
+        // 🛣️ ROUTING CON RECÁLCULO AUTOMÁTICO
         // ============================================
         let rutaActual = null;
+        let rutaLineas = null;
         let marcadorDestino = null;
-        let modoTransporte = 'auto'; // auto | pie | bici
+        let modoTransporte = 'auto';
+        let autoRecalcActivo = true;
+        let ultimaPosRecalc = null;
+        let recalculoEnProgreso = false;
+        let pasosActuales = [];
+        let coordsRuta = [];
+        let distanciaMinRecalc = 30; // metros para recalcular
 
         const iconoDestino = L.divIcon({
             className: '',
@@ -1147,48 +1170,66 @@
 
         document.getElementById('btnIr').addEventListener('click', () => {
             if (!destinoActual) { alert('Primero buscá una calle o dirección'); return; }
-            if (!ultimaPos) { alert('Todavía no se detectó tu ubicación. Activá el GPS.'); return; }
-            calcularRuta(ultimaPos[0], ultimaPos[1], destinoActual.lat, destinoActual.lng, destinoActual.nombre);
+            if (!posicionUsuario) { alert('Todavía no se detectó tu ubicación'); return; }
+            calcularRuta(posicionUsuario[0], posicionUsuario[1], destinoActual.lat, destinoActual.lng, destinoActual.nombre, false);
         });
 
-        // Cambiar modo de transporte
         function cambiarModo(modo) {
             modoTransporte = modo;
             document.querySelectorAll('.panel-ruta .modo button').forEach(b => b.classList.remove('activo'));
             document.getElementById('modo' + modo.charAt(0).toUpperCase() + modo.slice(1)).classList.add('activo');
-            if (destinoActual && ultimaPos) {
-                calcularRuta(ultimaPos[0], ultimaPos[1], destinoActual.lat, destinoActual.lng, destinoActual.nombre);
+            if (destinoActual && posicionUsuario) {
+                calcularRuta(posicionUsuario[0], posicionUsuario[1], destinoActual.lat, destinoActual.lng, destinoActual.nombre, false);
             }
+        }
+
+        function toggleAutoRecalc() {
+            autoRecalcActivo = !autoRecalcActivo;
+            const btn = document.getElementById('btnAutoRecalc');
+            btn.textContent = autoRecalcActivo ? '📡 Auto: ON' : '📡 Auto: OFF';
+            btn.classList.toggle('activo', autoRecalcActivo);
+            mostrarNotificacion(autoRecalcActivo ? '🔄 Recálculo automático ACTIVADO' : '⏸️ Recálculo automático DESACTIVADO', 'info', 2000);
+        }
+
+        function forzarRecalculo() {
+            if (!destinoActual || !posicionUsuario) return;
+            calcularRuta(posicionUsuario[0], posicionUsuario[1], destinoActual.lat, destinoActual.lng, destinoActual.nombre, true);
         }
 
         function cerrarPanelRuta() {
             document.getElementById('panelRuta').classList.remove('activo');
-            if (rutaActual) { map.removeLayer(rutaActual); rutaActual = null; }
+            if (rutaLineas) { map.removeLayer(rutaLineas); rutaLineas = null; }
             if (marcadorDestino) { map.removeLayer(marcadorDestino); marcadorDestino = null; }
+            pasosActuales = [];
+            coordsRuta = [];
+            ultimaPosRecalc = null;
+            // Ocultar velocímetro si estaba
+            document.getElementById('velocimetro').classList.remove('activo');
         }
 
-        async function calcularRuta(lat1, lng1, lat2, lng2, nombreDestino) {
+        async function calcularRuta(lat1, lng1, lat2, lng2, nombreDestino, esRecalculo) {
+            if (recalculoEnProgreso && !esRecalculo) return;
+            recalculoEnProgreso = true;
+
             // Mostrar panel
             document.getElementById('panelRuta').classList.add('activo');
             document.getElementById('tituloRuta').textContent = `🛣️ Hacia: ${nombreDestino}`;
-            document.getElementById('statDistancia').textContent = '...';
-            document.getElementById('statTiempo').textContent = '...';
-            document.getElementById('listaPasos').innerHTML = '<li>Cargando ruta...</li>';
-            document.getElementById('infoAdicional').style.display = 'none';
+            if (!esRecalculo) {
+                document.getElementById('statDistancia').textContent = '...';
+                document.getElementById('statTiempo').textContent = '...';
+                document.getElementById('listaPasos').innerHTML = '<li>Cargando ruta...</li>';
+            }
 
-            // Limpiar ruta anterior
-            if (rutaActual) { map.removeLayer(rutaActual); rutaActual = null; }
+            // Limpiar anterior
+            if (rutaLineas) { map.removeLayer(rutaLineas); rutaLineas = null; }
             if (marcadorDestino) { map.removeLayer(marcadorDestino); marcadorDestino = null; }
 
-            // Marcador de destino
             marcadorDestino = L.marker([lat2, lng2], {
                 icon: iconoDestino, zIndexOffset: 3000
             }).addTo(map).bindPopup(`<strong>🏁 ${nombreDestino}</strong>`);
 
-            // Modo OSRM: driving | foot | bike
             const perfilOSRM = modoTransporte === 'auto' ? 'driving'
-                             : modoTransporte === 'pie' ? 'foot'
-                             : 'bike';
+                             : modoTransporte === 'pie' ? 'foot' : 'bike';
 
             const url = `https://router.project-osrm.org/route/v1/${perfilOSRM}/` +
                         `${lng1},${lat1};${lng2},${lat2}` +
@@ -1196,119 +1237,155 @@
 
             try {
                 const resp = await fetch(url);
-                if (!resp.ok) throw new Error('Error HTTP ' + resp.status);
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
                 const data = await resp.json();
-
-                if (!data.routes || data.routes.length === 0) {
-                    throw new Error('Sin ruta');
-                }
+                if (!data.routes || data.routes.length === 0) throw new Error('Sin ruta');
 
                 const ruta = data.routes[0];
-                const coords = ruta.geometry.coordinates.map(c => [c[1], c[0]]);
+                coordsRuta = ruta.geometry.coordinates.map(c => [c[1], c[0]]);
 
-                // Dibujar línea de ruta
-                rutaActual = L.polyline(coords, {
-                    color: '#2c3e50',
-                    weight: 8,
-                    opacity: 0.5,
-                    lineCap: 'round',
-                    lineJoin: 'round'
-                }).addTo(map);
-                // Segunda línea más brillante encima
-                L.polyline(coords, {
-                    color: '#3498db',
-                    weight: 5,
-                    opacity: 0.95,
-                    lineCap: 'round',
-                    lineJoin: 'round'
-                }).addTo(rutaActual);
+                // Dibujar ruta (línea oscura gruesa + línea clara encima)
+                const lineaFondo = L.polyline(coordsRuta, {
+                    color: '#2c3e50', weight: 9, opacity: 0.5,
+                    lineCap: 'round', lineJoin: 'round'
+                });
+                const lineaFrente = L.polyline(coordsRuta, {
+                    color: '#3498db', weight: 5, opacity: 0.95,
+                    lineCap: 'round', lineJoin: 'round'
+                });
+                rutaLineas = L.layerGroup([lineaFondo, lineaFrente]).addTo(map);
 
-                // Ajustar vista
-                map.fitBounds(rutaActual.getBounds(), { padding: [80, 80, 80, 80] });
+                // Guardar coords para el progreso
+                pasosActuales = ruta.legs[0].steps || [];
+                ultimaPosRecalc = posicionUsuario ? [...posicionUsuario] : [lat1, lng1];
 
-                // Stats
-                const distancia = ruta.distance;
-                const tiempo = ruta.duration;
-
-                document.getElementById('statDistancia').textContent = formatearDistancia(distancia);
-                document.getElementById('statTiempo').textContent = formatearTiempo(tiempo);
-
-                // Mostrar pasos
-                const listaPasos = document.getElementById('listaPasos');
-                listaPasos.innerHTML = '';
-
-                if (ruta.legs && ruta.legs[0] && ruta.legs[0].steps) {
-                    ruta.legs[0].steps.forEach(step => {
-                        const li = document.createElement('li');
-                        const icono = iconoDeManiobra(step.maneuver);
-                        const distanciaStep = step.distance < 1000
-                            ? `${Math.round(step.distance)} m`
-                            : `${(step.distance / 1000).toFixed(1)} km`;
-                        const nombreCalle = step.name || 'Continuar';
-
-                        li.innerHTML = `
-                            <span class="icono">${icono}</span>
-                            <span>
-                                <strong>${nombreCalle}</strong><br>
-                                <small>${distanciaStep}</small>
-                            </span>
-                        `;
-                        listaPasos.appendChild(li);
-                    });
-                } else {
-                    listaPasos.innerHTML = '<li>No hay instrucciones paso a paso disponibles.</li>';
+                // Ajustar vista solo si no es recálculo
+                if (!esRecalculo) {
+                    map.fitBounds(rutaLineas.getBounds(), { padding: [80, 80, 80, 80] });
                 }
 
+                // Stats
+                document.getElementById('statDistancia').textContent = formatearDistancia(ruta.distance);
+                document.getElementById('statTiempo').textContent = formatearTiempo(ruta.duration);
+
+                // Pasos
+                renderizarPasos(pasosActuales);
+
+                if (esRecalculo) {
+                    mostrarNotificacion('🔄 Ruta recalculada', 'exito', 2000);
+                }
+
+                // Actualizar progreso inicial
+                actualizarProgresoRuta();
+
             } catch (e) {
-                console.warn('⚠️ Falló OSRM, usando línea recta:', e.message);
+                console.warn('⚠️ Falló OSRM:', e.message);
 
                 // Fallback: línea recta
-                rutaActual = L.polyline([[lat1, lng1], [lat2, lng2]], {
-                    color: '#e67e22',
-                    weight: 5,
-                    dashArray: '10, 8',
-                    opacity: 0.9
+                rutaLineas = L.polyline([[lat1, lng1], [lat2, lng2]], {
+                    color: '#e67e22', weight: 5, dashArray: '10, 8', opacity: 0.9
                 }).addTo(map);
-
-                map.fitBounds(rutaActual.getBounds(), { padding: [80, 80, 80, 80] });
+                coordsRuta = [[lat1, lng1], [lat2, lng2]];
+                if (!esRecalculo) map.fitBounds(rutaLineas.getBounds(), { padding: [80, 80, 80, 80] });
 
                 const dist = haversine(lat1, lng1, lat2, lng2);
-                document.getElementById('statDistancia').textContent = formatearDistancia(dist) + ' (línea recta)';
+                document.getElementById('statDistancia').textContent = formatearDistancia(dist) + ' (recta)';
                 const vel = modoTransporte === 'auto' ? 40 : modoTransporte === 'bici' ? 15 : 5;
-                const tiempoSeg = (dist / 1000) / vel * 3600;
-                document.getElementById('statTiempo').textContent = '~' + formatearTiempo(tiempoSeg);
-                document.getElementById('listaPasos').innerHTML =
-                    '<li><span class="icono">📡</span><span>Sin conexión a internet: se muestra línea recta. La ruta real por calles necesita internet.</span></li>';
-
-                const info = document.getElementById('infoAdicional');
-                info.style.display = 'block';
-                info.innerHTML = '⚠️ <strong>Sin conexión:</strong> no se pudo calcular la ruta por calles. Se muestra una estimación en línea recta.';
+                document.getElementById('statTiempo').textContent = '~' + formatearTiempo((dist / 1000) / vel * 3600);
+                document.getElementById('listaPasos').innerHTML = '<li><span class="icono">📡</span><span>Sin conexión: se muestra línea recta. La ruta por calles necesita internet.</span></li>';
+                if (esRecalculo) mostrarNotificacion('⚠️ Sin conexión, no se pudo recalcular', 'aviso', 3000);
             }
+
+            recalculoEnProgreso = false;
+        }
+
+        function renderizarPasos(pasos) {
+            const ul = document.getElementById('listaPasos');
+            ul.innerHTML = '';
+            pasos.forEach((step, idx) => {
+                const li = document.createElement('li');
+                const icono = iconoDeManiobra(step.maneuver);
+                const dist = step.distance < 1000 ? `${Math.round(step.distance)} m` : `${(step.distance / 1000).toFixed(1)} km`;
+                li.dataset.idx = idx;
+                li.innerHTML = `<span class="icono">${icono}</span><span><strong>${step.name || 'Continuar'}</strong><br><small>${dist}</small></span>`;
+                ul.appendChild(li);
+            });
         }
 
         function iconoDeManiobra(maneuver) {
             if (!maneuver) return '➡️';
             const tipo = maneuver.type || '';
             const mod = maneuver.modifier || '';
-
             if (tipo === 'depart') return '🚩';
             if (tipo === 'arrive') return '🏁';
-
             if (tipo === 'turn') {
-                if (mod.includes('left')) return '⬅️';
-                if (mod.includes('right')) return '➡️';
                 if (mod.includes('slight left')) return '↖️';
                 if (mod.includes('slight right')) return '↗️';
-                if (mod.includes('sharp left')) return '↰';
-                if (mod.includes('sharp right')) return '↱';
+                if (mod.includes('left')) return '⬅️';
+                if (mod.includes('right')) return '➡️';
                 return '🔄';
             }
             if (tipo === 'roundabout' || tipo === 'rotary') return '🔄';
             if (tipo === 'merge') return '🔀';
             if (tipo === 'fork') return '🍴';
             if (tipo === 'continue' || tipo === 'new name') return '⬆️';
-            if (tipo === 'end of road') return '⏹️';
             return '➡️';
+        }
+
+        // --------------------------------------------------
+        // VERIFICAR SI HAY QUE RECALCULAR
+        // --------------------------------------------------
+        function verificarRecalculo() {
+            if (!autoRecalcActivo) return;
+            if (!destinoActual || !posicionUsuario) return;
+            if (recalculoEnProgreso) return;
+            if (!ultimaPosRecalc) return;
+            if (!document.getElementById('panelRuta').classList.contains('activo')) return;
+
+            const dist = haversine(
+                ultimaPosRecalc[0], ultimaPosRecalc[1],
+                posicionUsuario[0], posicionUsuario[1]
+            );
+
+            if (dist >= distanciaMinRecalc) {
+                console.log(`🔄 Recalculando (movimiento: ${dist.toFixed(0)}m)`);
+                calcularRuta(
+                    posicionUsuario[0], posicionUsuario[1],
+                    destinoActual.lat, destinoActual.lng,
+                    destinoActual.nombre, true
+                );
+            }
+        }
+
+        // --------------------------------------------------
+        // ACTUALIZAR PROGRESO DE RUTA (paso actual resaltado)
+        // --------------------------------------------------
+        function actualizarProgresoRuta() {
+            if (!posicionUsuario || !coordsRuta || coordsRuta.length < 2) return;
+            if (!document.getElementById('panelRuta').classList.contains('activo')) return;
+
+            // Encontrar el punto más cercano de la ruta a la posición actual
+            let idxMasCercano = 0;
+            let distMin = Infinity;
+            // Muestreo cada 3 puntos para no matar el rendimiento
+            for (let i = 0; i < coordsRuta.length; i += 3) {
+                const d = haversine(posicionUsuario[0], posicionUsuario[1], coordsRuta[i][0], coordsRuta[i][1]);
+                if (d < distMin) { distMin = d; idxMasCercano = i; }
+            }
+
+            // Calcular distancia al destino
+            const distRestante = haversine(
+                posicionUsuario[0], posicionUsuario[1],
+                destinoActual.lat, destinoActual.lng
+            );
+
+            // Actualizar la distancia restante en pantalla
+            if (distRestante > 5) {
+                document.getElementById('statDistancia').textContent = formatearDistancia(distRestante) + ' restantes';
+            } else {
+                document.getElementById('statDistancia').textContent = '¡Llegaste!';
+                mostrarNotificacion('🏁 ¡Llegaste a destino!', 'exito', 4000);
+            }
         }
 
         // ============================================
