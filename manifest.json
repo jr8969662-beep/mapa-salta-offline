@@ -1,1 +1,11 @@
-
+{
+    "name": "Mapa Salta Offline",
+    "short_name": "Salta",
+    "description": "Mapa offline de Salta Capital",
+    "start_url": "./index.html",
+    "scope": "./",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#ffffff",
+    "theme_color": "#2c3e50"
+}
