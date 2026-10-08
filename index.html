@@ -21,7 +21,9 @@
             height: 100vh;
         }
 
-        /* Buscador */
+        /* ============================
+           BUSCADOR DE CALLES
+           ============================ */
         .buscador {
             position: absolute;
             top: 10px;
@@ -62,7 +64,9 @@
         .resultados li:last-child { border-bottom: none; }
         .resultados li:hover { background: #f0f8ff; }
 
-        /* Punto azul de ubicación */
+        /* ============================
+           PUNTO AZUL DE UBICACIÓN
+           ============================ */
         .punto-usuario {
             width: 18px;
             height: 18px;
@@ -78,7 +82,9 @@
             100% { box-shadow: 0 0 10px rgba(0,120,255,0.8); }
         }
 
-        /* Punto de calle buscada */
+        /* ============================
+           PUNTO ROJO DE CALLE BUSCADA
+           ============================ */
         .punto-calle {
             width: 14px;
             height: 14px;
@@ -86,9 +92,17 @@
             border: 3px solid white;
             border-radius: 50%;
             box-shadow: 0 0 8px rgba(231, 76, 60, 0.9);
+            animation: pulso-calle 2s infinite;
+        }
+        @keyframes pulso-calle {
+            0%   { box-shadow: 0 0 8px rgba(231,76,60,0.9); }
+            50%  { box-shadow: 0 0 16px rgba(231,76,60,1); }
+            100% { box-shadow: 0 0 8px rgba(231,76,60,0.9); }
         }
 
-        /* Marcadores de sitios */
+        /* ============================
+           MARCADORES DE SITIOS
+           ============================ */
         .marcador-sitio {
             display: flex;
             align-items: center;
@@ -107,7 +121,9 @@
             display: block;
         }
 
-        /* Panel de filtros */
+        /* ============================
+           PANEL DE FILTROS
+           ============================ */
         .panel-filtros {
             position: absolute;
             bottom: 20px;
@@ -122,21 +138,24 @@
             gap: 6px;
             max-height: 70vh;
             overflow-y: auto;
+            max-width: 200px;
         }
         .panel-filtros button {
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             gap: 6px;
             padding: 8px 12px;
             border: none;
             border-radius: 8px;
             background: #f0f0f0;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
             color: #2c3e50;
             transition: background 0.2s;
             white-space: nowrap;
+            text-align: left;
+            width: 100%;
         }
         .panel-filtros button:hover { background: #e0e0e0; }
         .panel-filtros button.activo {
@@ -147,10 +166,13 @@
             background: #3498db;
             color: white;
             font-weight: bold;
+            justify-content: center;
         }
         .panel-filtros .toggle:hover { background: #2980b9; }
 
-        /* Aviso inferior */
+        /* ============================
+           AVISO INFERIOR
+           ============================ */
         .aviso-ubicacion {
             position: absolute;
             bottom: 20px;
@@ -177,15 +199,15 @@
 
     <div class="panel-filtros" id="panelFiltros">
         <button class="toggle" id="toggleTodo" onclick="toggleTodo()">👁️ Mostrar todo</button>
-        <!-- Los botones se generan automáticamente por JavaScript -->
+        <!-- Los botones de categorías se generan automáticamente por JavaScript -->
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        // ============================
+        // ============================================
         // MAPA BASE
-        // ============================
+        // ============================================
         const CENTRO_SALTA = [-24.789, -65.411];
         const map = L.map('map').setView(CENTRO_SALTA, 14);
 
@@ -194,9 +216,9 @@
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // ============================
-        // UBICACIÓN DEL USUARIO
-        // ============================
+        // ============================================
+        // UBICACIÓN DEL USUARIO EN TIEMPO REAL
+        // ============================================
         let marcadorUsuario = null;
         let primerUbicacion = false;
         const iconoUsuario = L.divIcon({ className: 'punto-usuario', iconSize: [18, 18] });
@@ -234,11 +256,12 @@
             });
         }
 
-        // ============================
-        // BUSCADOR DE CALLES
-        // ============================
+        // ============================================
+        // BUSCADOR DE CALLES (con trazo completo)
+        // ============================================
         let callesIndex = [];
         let marcadorCalle = null;
+        let trazoCalle = null;
 
         async function cargarCalles() {
             try {
@@ -250,15 +273,16 @@
                     const nombre = f.properties.name;
                     if (!nombre) return;
 
-                    let lat, lng;
+                    let lat, lng, coordenadas;
+
                     if (f.geometry && f.geometry.type === 'LineString') {
-                        const coords = f.geometry.coordinates;
-                        const medio = coords[Math.floor(coords.length / 2)];
+                        coordenadas = f.geometry.coordinates;
+                        const medio = coordenadas[Math.floor(coordenadas.length / 2)];
                         lng = medio[0];
                         lat = medio[1];
                     } else if (f.geometry && f.geometry.type === 'Polygon') {
-                        const coords = f.geometry.coordinates[0];
-                        const medio = coords[Math.floor(coords.length / 2)];
+                        coordenadas = f.geometry.coordinates[0];
+                        const medio = coordenadas[Math.floor(coordenadas.length / 2)];
                         lng = medio[0];
                         lat = medio[1];
                     } else {
@@ -269,15 +293,27 @@
                         nombre: nombre.toLowerCase(),
                         nombreOriginal: nombre,
                         lat: lat,
-                        lng: lng
+                        lng: lng,
+                        coordenadas: coordenadas.map(c => [c[1], c[0]])
                     });
                 });
 
-                const unicas = {};
+                // Agrupar todas las geometrías por nombre de calle
+                const agrupadas = {};
                 callesIndex.forEach(c => {
-                    if (!unicas[c.nombre]) unicas[c.nombre] = c;
+                    if (!agrupadas[c.nombre]) {
+                        agrupadas[c.nombre] = {
+                            nombre: c.nombre,
+                            nombreOriginal: c.nombreOriginal,
+                            lat: c.lat,
+                            lng: c.lng,
+                            tramos: [c.coordenadas]
+                        };
+                    } else {
+                        agrupadas[c.nombre].tramos.push(c.coordenadas);
+                    }
                 });
-                callesIndex = Object.values(unicas);
+                callesIndex = Object.values(agrupadas);
 
                 console.log(`✅ ${callesIndex.length} calles cargadas`);
                 document.getElementById('inputBusqueda').placeholder = '🔎 ¿Dónde queda...? Ej: Mitre';
@@ -311,12 +347,40 @@
                 const li = document.createElement('li');
                 li.textContent = calle.nombreOriginal;
                 li.addEventListener('click', () => {
-                    map.setView([calle.lat, calle.lng], 17);
-                    if (marcadorCalle) map.removeLayer(marcadorCalle);
+                    // Limpiar selección anterior
+                    if (marcadorCalle) {
+                        map.removeLayer(marcadorCalle);
+                        marcadorCalle = null;
+                    }
+                    if (trazoCalle) {
+                        map.removeLayer(trazoCalle);
+                        trazoCalle = null;
+                    }
+
+                    // Dibujar TODOS los tramos de la calle como líneas rojas
+                    const todosLosTramos = calle.tramos.map(tramo =>
+                        L.polyline(tramo, {
+                            color: '#e74c3c',
+                            weight: 6,
+                            opacity: 0.85,
+                            lineCap: 'round',
+                            lineJoin: 'round'
+                        })
+                    );
+
+                    // Agrupar en una capa para borrar juntos después
+                    trazoCalle = L.layerGroup(todosLosTramos).addTo(map);
+
+                    // Marcador en el punto medio
                     marcadorCalle = L.marker([calle.lat, calle.lng], {
                         icon: L.divIcon({ className: 'punto-calle', iconSize: [14, 14] })
-                    }).addTo(map).bindPopup(calle.nombreOriginal).openPopup();
+                    }).addTo(map).bindPopup(calle.nombreOriginal);
 
+                    // Ajustar la vista para que se vea TODA la calle
+                    const grupo = L.featureGroup(todosLosTramos);
+                    map.fitBounds(grupo.getBounds(), { padding: [50, 50] });
+
+                    // Limpiar UI
                     lista.classList.remove('activo');
                     lista.innerHTML = '';
                     input.value = calle.nombreOriginal;
@@ -336,38 +400,29 @@
 
         cargarCalles();
 
-        // ============================
+        // ============================================
         // MARCADORES DE SITIOS (hospitales, bancos, etc.)
-        // ============================
+        // ============================================
         const EMOJIS = {
-            // Salud
             hospital: '🏥',
             clinic: '🩺',
             pharmacy: '💊',
-            // Finanzas
             bank: '🏦',
             atm: '🏧',
-            // Comida
             restaurant: '🍽️',
             fast_food: '🍔',
             bar: '🍺',
             cafe: '☕',
-            // Compras
             supermarket: '🛒',
             convenience: '🏪',
-            // Seguridad
             police: '🚓',
             fire_station: '🚒',
-            // Transporte
             bus_stop: '🚌',
             parking: '🅿️',
             fuel: '⛽',
-            // Educación
             school: '🏫',
             university: '🎓',
-            // Gobierno
             townhall: '🏛️',
-            // Alojamiento
             hotel: '🏨',
             hostel: '🛏️',
         };
@@ -396,8 +451,8 @@
             hostel: 'Hostales',
         };
 
-        const capas = {}; // { categoria: L.layerGroup }
-        const capasActivas = {}; // { categoria: true/false }
+        const capas = {};
+        const capasActivas = {};
 
         async function cargarSitios() {
             const archivos = [
@@ -408,15 +463,17 @@
             for (const archivo of archivos) {
                 try {
                     const resp = await fetch(archivo);
+                    if (!resp.ok) {
+                        console.warn(`⚠️ No se encontró ${archivo} (${resp.status})`);
+                        continue;
+                    }
                     const data = await resp.json();
 
                     data.features.forEach(f => {
-                        // Detectar categoría
                         const props = f.properties;
                         let categoria = props.amenity || props.shop || props.tourism || props.highway;
                         if (!categoria) return;
 
-                        // Coordenadas
                         let lat, lng;
                         if (f.geometry.type === 'Point') {
                             lng = f.geometry.coordinates[0];
@@ -428,13 +485,11 @@
                             return;
                         }
 
-                        // Inicializar capa si no existe
                         if (!capas[categoria]) {
                             capas[categoria] = L.layerGroup();
                             capasActivas[categoria] = false;
                         }
 
-                        // Ícono
                         const emoji = EMOJIS[categoria] || '📍';
                         const icono = L.divIcon({
                             className: '',
@@ -464,15 +519,12 @@
                 }
             }
 
-            // Generar botones para cada categoría
             generarBotonesFiltros();
-
             console.log('✅ Sitios cargados:', Object.keys(capas).length, 'categorías');
         }
 
         function generarBotonesFiltros() {
             const panel = document.getElementById('panelFiltros');
-            // Ordenar categorías alfabéticamente por su nombre visible
             const categorias = Object.keys(capas).sort((a, b) => {
                 return (NOMBRES[a] || a).localeCompare(NOMBRES[b] || b);
             });
@@ -488,7 +540,6 @@
 
         function toggleCapa(categoria) {
             if (!capas[categoria]) return;
-
             const btn = document.getElementById('btn-' + categoria);
 
             if (capasActivas[categoria]) {
@@ -508,7 +559,6 @@
 
             Object.keys(capas).forEach(cat => {
                 if (algoActivo) {
-                    // Apagar todo
                     if (capasActivas[cat]) {
                         map.removeLayer(capas[cat]);
                         capasActivas[cat] = false;
@@ -516,7 +566,6 @@
                         if (b) b.classList.remove('activo');
                     }
                 } else {
-                    // Prender todo
                     if (!capasActivas[cat]) {
                         map.addLayer(capas[cat]);
                         capasActivas[cat] = true;
@@ -532,7 +581,9 @@
         cargarSitios();
     </script>
 
-    <!-- Registro del Service Worker -->
+    <!-- ============================================
+         REGISTRO DEL SERVICE WORKER
+         ============================================ -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
