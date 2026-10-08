@@ -26,10 +26,12 @@
         .resultados li:last-child { border-bottom: none; }
         .resultados li:hover { background: #f0f8ff; }
         .resultados li.esquina { background: linear-gradient(90deg, #fff9e6 0%, #fff 100%); border-left: 4px solid #f39c12; font-weight: 500; }
+        .resultados li.esquina:hover { background: #fff3cd; }
         .resultados li.direccion { background: linear-gradient(90deg, #e8f8ec 0%, #fff 100%); border-left: 4px solid #27ae60; font-weight: 500; }
+        .resultados li.direccion:hover { background: #d4edda; }
         .resultados li small { color: #888; font-weight: normal; }
 
-        /* PUNTO USUARIO */
+        /* PUNTO USUARIO CON FLECHA */
         .punto-usuario { width: 22px; height: 22px; position: relative; }
         .punto-usuario .circulo { width: 100%; height: 100%; background: #0078ff; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(0, 120, 255, 0.8); animation: pulso 2s infinite; box-sizing: border-box; }
         .punto-usuario .flecha { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 14px solid #0078ff; filter: drop-shadow(0 0 3px rgba(0,120,255,0.8)); transform-origin: 50% 25px; }
@@ -53,7 +55,19 @@
         .marcador-sitio { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: white; border: 2px solid #2c3e50; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 14px; }
         .marcador-sitio > span { transform: rotate(45deg); display: block; }
 
-        .panel-filtros { position: absolute; bottom: 20px; right: 20px; z-index: 1000; background: white; border-radius: 12px; padding: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; flex-direction: column; gap: 6px; max-height: 60vh; overflow-y: auto; max-width: 200px; }
+        /* Marcador especial para paradas SAETA */
+        .marcador-sitio.marcador-saeta {
+            background: #e74c3c;
+            border-color: #c0392b;
+            border-width: 3px;
+            font-size: 16px;
+            box-shadow: 0 0 10px rgba(231,76,60,0.6);
+        }
+        .marcador-sitio.marcador-saeta > span {
+            filter: drop-shadow(0 0 2px white);
+        }
+
+        .panel-filtros { position: absolute; bottom: 20px; right: 20px; z-index: 1000; background: white; border-radius: 12px; padding: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; flex-direction: column; gap: 6px; max-height: 60vh; overflow-y: auto; max-width: 220px; }
         .panel-filtros button { display: flex; align-items: center; justify-content: flex-start; gap: 6px; padding: 8px 12px; border: none; border-radius: 8px; background: #f0f0f0; cursor: pointer; font-size: 12px; color: #2c3e50; transition: background 0.2s; white-space: nowrap; text-align: left; width: 100%; }
         .panel-filtros button:hover { background: #e0e0e0; }
         .panel-filtros button.activo { background: #2c3e50; color: white; }
@@ -119,11 +133,7 @@
         .barra { width: 100%; height: 20px; background: #ecf0f1; border-radius: 10px; overflow: hidden; margin: 16px 0 8px 0; }
         .barra-fill { height: 100%; background: linear-gradient(90deg, #27ae60, #2ecc71); width: 0%; transition: width 0.3s; }
         .info-progreso { font-size: 13px; color: #7f8c8d; text-align: center; }
-        .estado-offline {
-            background: #f8f9fa; border-radius: 8px; padding: 12px;
-            margin: 12px 0; font-size: 13px; color: #2c3e50; line-height: 1.6;
-        }
-        .estado-offline strong { color: #2c3e50; }
+        .estado-offline { background: #f8f9fa; border-radius: 8px; padding: 12px; margin: 12px 0; font-size: 13px; color: #2c3e50; line-height: 1.6; }
 
         .lista-lugares { list-style: none; padding: 0; margin: 12px 0 0 0; max-height: 300px; overflow-y: auto; }
         .lista-lugares li { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid #eee; font-size: 14px; }
@@ -188,9 +198,7 @@
         <div class="modal">
             <h3 id="tituloOffline">📥 Mapa offline</h3>
             <div id="contenidoOffline">
-                <div class="estado-offline" id="estadoOffline">
-                    Calculando estado...
-                </div>
+                <div class="estado-offline" id="estadoOffline">Calculando estado...</div>
                 <p id="textoOffline" style="font-size:13px;color:#666;"></p>
                 <div class="barra" id="barraOffline" style="display:none;"><div class="barra-fill" id="barraOfflineFill"></div></div>
                 <div class="info-progreso" id="infoProgreso"></div>
@@ -636,7 +644,7 @@
         })();
 
         // ============================================
-        // SITIOS
+        // SITIOS (incluye SAETA)
         // ============================================
         const EMOJIS = { hospital: '🏥', clinic: '🩺', pharmacy: '💊', bank: '🏦', atm: '🏧', restaurant: '🍽️', fast_food: '🍔', bar: '🍺', cafe: '☕', supermarket: '🛒', convenience: '🏪', police: '🚓', fire_station: '🚒', bus_stop: '🚌', parking: '🅿️', fuel: '⛽', school: '🏫', university: '🎓', townhall: '🏛️', hotel: '🏨', hostel: '🛏️' };
         const NOMBRES = { hospital: 'Hospitales', clinic: 'Clínicas', pharmacy: 'Farmacias', bank: 'Bancos', atm: 'Cajeros', restaurant: 'Restaurantes', fast_food: 'Comida rápida', bar: 'Bares', cafe: 'Cafés', supermarket: 'Supermercados', convenience: 'Almacenes', police: 'Comisarías', fire_station: 'Bomberos', bus_stop: 'Paradas SAETA', parking: 'Estacionamientos', fuel: 'Estaciones de servicio', school: 'Escuelas', university: 'Universidades', townhall: 'Oficinas públicas', hotel: 'Hoteles', hostel: 'Hostales' };
@@ -644,14 +652,22 @@
         const capasActivas = {};
 
         async function cargarSitios() {
-            for (const archivo of ['data/hospitales.geojson', 'data/sitios.geojson']) {
+            // Ahora incluimos saeta.geojson
+            const archivos = ['data/hospitales.geojson', 'data/sitios.geojson', 'data/saeta.geojson'];
+            for (const archivo of archivos) {
                 try {
                     const resp = await fetch(archivo);
-                    if (!resp.ok) continue;
+                    if (!resp.ok) {
+                        console.warn(`⚠️ No se encontró ${archivo}`);
+                        continue;
+                    }
                     const data = await resp.json();
+                    let contadorArchivo = 0;
                     data.features.forEach(f => {
                         const props = f.properties;
-                        let cat = props.amenity || props.shop || props.tourism || props.highway;
+                        let cat = props.amenity || props.shop || props.tourism || props.highway || props.public_transport;
+                        // Normalizar: public_transport=platform lo tratamos como bus_stop
+                        if (cat === 'platform') cat = 'bus_stop';
                         if (!cat) return;
                         let lat, lng;
                         if (f.geometry.type === 'Point') { lng = f.geometry.coordinates[0]; lat = f.geometry.coordinates[1]; }
@@ -659,12 +675,42 @@
                         else return;
                         if (!capas[cat]) { capas[cat] = L.layerGroup(); capasActivas[cat] = false; }
                         const emoji = EMOJIS[cat] || '📍';
-                        const icono = L.divIcon({ className: '', html: `<div class="marcador-sitio"><span>${emoji}</span></div>`, iconSize: [28, 28], iconAnchor: [14, 28], popupAnchor: [0, -28] });
-                        const nombre = props.name || props.official_name || 'Sin nombre';
+                        const esSaeta = cat === 'bus_stop';
+                        const size = esSaeta ? 34 : 28;
+                        const icono = L.divIcon({
+                            className: '',
+                            html: `<div class="marcador-sitio${esSaeta ? ' marcador-saeta' : ''}"><span>${emoji}</span></div>`,
+                            iconSize: [size, size],
+                            iconAnchor: [size / 2, size],
+                            popupAnchor: [0, -size]
+                        });
+                        const nombre = props.name || props.official_name || (esSaeta ? 'Parada SAETA' : 'Sin nombre');
                         const dir = props['addr:street'] ? `${props['addr:street']} ${props['addr:housenumber'] || ''}` : '';
+
+                        // Info adicional para SAETA
+                        let infoSaeta = '';
+                        if (esSaeta) {
+                            const lineas = props.route_ref || props.ref || props['route_ref'];
+                            const codigo = props.local_ref;
+                            const operador = props.operator || props.network;
+                            const ref = props.ref;
+                            if (codigo) infoSaeta += `<br><small>🏷️ Código: ${codigo}</small>`;
+                            else if (ref) infoSaeta += `<br><small>🏷️ Ref: ${ref}</small>`;
+                            if (lineas) infoSaeta += `<br><small>🚌 Líneas: ${lineas}</small>`;
+                            if (operador) infoSaeta += `<br><small>🏢 ${operador}</small>`;
+                        }
+
                         capas[cat].addLayer(L.marker([lat, lng], { icon: icono })
-                            .bindPopup(`<strong>${nombre}</strong><br><small>${NOMBRES[cat] || cat}</small>${dir ? '<br><small>📍 ' + dir + '</small>' : ''}${props.phone ? '<br><small>📞 ' + props.phone + '</small>' : ''}`));
+                            .bindPopup(
+                                `<strong>${esSaeta ? '🚌 ' : ''}${nombre}</strong><br>` +
+                                `<small>${NOMBRES[cat] || cat}</small>` +
+                                infoSaeta +
+                                (dir ? '<br><small>📍 ' + dir + '</small>' : '') +
+                                (props.phone ? '<br><small>📞 ' + props.phone + '</small>' : '')
+                            ));
+                        contadorArchivo++;
                     });
+                    console.log(`✅ ${archivo}: ${contadorArchivo} elementos`);
                 } catch (e) { console.error(`Error cargando ${archivo}:`, e); }
             }
             generarBotonesFiltros();
@@ -959,19 +1005,10 @@
         }
 
         // ============================================
-        // 📥 DESCARGA OFFLINE DE TESELAS
+        // DESCARGA OFFLINE
         // ============================================
-        // Bounding box de Salta Capital
-        const BBOX = {
-            sur:   -24.92,
-            norte: -24.65,
-            oeste: -65.52,
-            este:  -65.30
-        };
-        // Niveles de zoom a descargar (13-16 = ~7 MB)
-        // Si querés más detalle: agregá 17 (~25 MB total)
+        const BBOX = { sur: -24.92, norte: -24.65, oeste: -65.52, este: -65.30 };
         const ZOOMS = [13, 14, 15, 16];
-
         let descargaEnCurso = false;
 
         function lng2tile(lon, zoom) { return Math.floor((lon + 180) / 360 * Math.pow(2, zoom)); }
@@ -1008,7 +1045,6 @@
             const teselas = generarListaTeselas();
             const total = teselas.length;
 
-            // Contar cuántas ya tenemos
             let yaDescargadas = 0;
             if ('caches' in window) {
                 try {
@@ -1020,7 +1056,7 @@
             }
 
             const faltantes = total - yaDescargadas;
-            const tamañoMB = Math.round(total * 20 / 1024); // ~20 KB por tesela
+            const tamañoMB = Math.round(total * 20 / 1024);
 
             document.getElementById('estadoOffline').innerHTML = `
                 <strong>📊 Estado actual:</strong><br>
@@ -1067,7 +1103,6 @@
             const teselas = generarListaTeselas();
             const total = teselas.length;
 
-            // Ver qué ya está descargado
             let urlsYaDescargadas = new Set();
             try {
                 const cache = await caches.open('salta-tiles-v7');
@@ -1098,7 +1133,6 @@
                 const prog = Math.round(((i + tanda.length) / totalPendientes) * 100);
                 barraFill.style.width = prog + '%';
                 info.textContent = `${i + tanda.length} / ${totalPendientes} teselas (${prog}%)`;
-                // Pausa entre tandas para no saturar OSM
                 await new Promise(r => setTimeout(r, 100));
             }
 
@@ -1111,7 +1145,7 @@
             document.getElementById('estadoOffline').innerHTML = `
                 <strong>✅ Descarga completa</strong><br>
                 Se descargaron <strong>${descargadas}</strong> teselas.
-                ${errores > 0 ? `<br><span style="color:#e67e22;">⚠️ ${errores} fallaron (reintentar más tarde).</span>` : ''}
+                ${errores > 0 ? `<br><span style="color:#e67e22;">⚠️ ${errores} fallaron.</span>` : ''}
                 <br><br>
                 <strong>El mapa ya funciona sin internet.</strong>
                 Probá activar modo avión y recargar la app.
