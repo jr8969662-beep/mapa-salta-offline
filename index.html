@@ -5,205 +5,238 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa Salta Capital</title>
 
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📍</text></svg>">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#2c3e50">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            font-family: Arial, sans-serif;
-        }
-        #map {
-            width: 100%;
-            height: 100vh;
-        }
+        body, html { margin: 0; padding: 0; height: 100%; font-family: Arial, sans-serif; }
+        #map { width: 100%; height: 100vh; }
 
         /* BUSCADOR */
         .buscador {
-            position: absolute;
-            top: 10px;
-            left: 50px;
-            right: 10px;
-            z-index: 1000;
-            max-width: 400px;
+            position: absolute; top: 10px; left: 50px; right: 60px;
+            z-index: 1000; max-width: 400px;
         }
         .buscador input {
-            width: 100%;
-            padding: 12px 16px;
-            border: none;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            font-size: 16px;
-            outline: none;
-            box-sizing: border-box;
+            width: 100%; padding: 12px 16px; border: none;
+            border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            font-size: 16px; outline: none; box-sizing: border-box;
         }
         .resultados {
-            list-style: none;
-            margin: 4px 0 0 0;
-            padding: 0;
-            background: white;
-            border-radius: 8px;
+            list-style: none; margin: 4px 0 0 0; padding: 0;
+            background: white; border-radius: 8px;
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            max-height: 340px;
-            overflow-y: auto;
-            display: none;
+            max-height: 340px; overflow-y: auto; display: none;
         }
         .resultados.activo { display: block; }
         .resultados li {
-            padding: 12px 16px;
-            border-bottom: 1px solid #eee;
-            cursor: pointer;
-            font-size: 15px;
-            color: #2c3e50;
+            padding: 12px 16px; border-bottom: 1px solid #eee;
+            cursor: pointer; font-size: 15px; color: #2c3e50;
         }
         .resultados li:last-child { border-bottom: none; }
         .resultados li:hover { background: #f0f8ff; }
         .resultados li.esquina {
             background: linear-gradient(90deg, #fff9e6 0%, #fff 100%);
-            border-left: 4px solid #f39c12;
-            font-weight: 500;
+            border-left: 4px solid #f39c12; font-weight: 500;
         }
         .resultados li.esquina:hover { background: #fff3cd; }
         .resultados li.direccion {
             background: linear-gradient(90deg, #e8f8ec 0%, #fff 100%);
-            border-left: 4px solid #27ae60;
-            font-weight: 500;
+            border-left: 4px solid #27ae60; font-weight: 500;
         }
         .resultados li.direccion:hover { background: #d4edda; }
         .resultados li small { color: #888; font-weight: normal; }
 
-        /* PUNTO AZUL DE UBICACIÓN */
+        /* PUNTO AZUL */
         .punto-usuario {
-            width: 18px; height: 18px;
-            background: #0078ff;
-            border: 3px solid white;
-            border-radius: 50%;
+            width: 18px; height: 18px; background: #0078ff;
+            border: 3px solid white; border-radius: 50%;
             box-shadow: 0 0 10px rgba(0, 120, 255, 0.8);
             animation: pulso 2s infinite;
         }
         @keyframes pulso {
-            0%   { box-shadow: 0 0 10px rgba(0,120,255,0.8); }
-            50%  { box-shadow: 0 0 20px rgba(0,120,255,1); }
+            0% { box-shadow: 0 0 10px rgba(0,120,255,0.8); }
+            50% { box-shadow: 0 0 20px rgba(0,120,255,1); }
             100% { box-shadow: 0 0 10px rgba(0,120,255,0.8); }
         }
 
-        /* PUNTO ROJO DE CALLE */
+        /* PUNTO ROJO */
         .punto-calle {
-            width: 14px; height: 14px;
-            background: #e74c3c;
-            border: 3px solid white;
-            border-radius: 50%;
+            width: 14px; height: 14px; background: #e74c3c;
+            border: 3px solid white; border-radius: 50%;
             box-shadow: 0 0 8px rgba(231, 76, 60, 0.9);
         }
 
-        /* PUNTO AMARILLO DE ESQUINA */
+        /* PUNTO AMARILLO */
         .punto-esquina {
-            width: 22px; height: 22px;
-            background: #f39c12;
-            border: 4px solid white;
-            border-radius: 50%;
+            width: 22px; height: 22px; background: #f39c12;
+            border: 4px solid white; border-radius: 50%;
             box-shadow: 0 0 12px rgba(243, 156, 18, 1);
             animation: pulso-esquina 1.5s infinite;
         }
         @keyframes pulso-esquina {
-            0%   { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 0 rgba(243,156,18,0.7); }
-            70%  { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 20px rgba(243,156,18,0); }
+            0% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 0 rgba(243,156,18,0.7); }
+            70% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 20px rgba(243,156,18,0); }
             100% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 0 rgba(243,156,18,0); }
         }
 
-        /* PUNTO VERDE DE DIRECCIÓN EXACTA */
+        /* PUNTO VERDE DIRECCIÓN */
         .punto-direccion {
-            width: 24px; height: 24px;
-            background: #27ae60;
-            border: 4px solid white;
-            border-radius: 50% 50% 50% 0;
+            width: 24px; height: 24px; background: #27ae60;
+            border: 4px solid white; border-radius: 50% 50% 50% 0;
             transform: rotate(-45deg);
             box-shadow: 0 0 12px rgba(39, 174, 96, 1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             font-size: 12px;
         }
-        .punto-direccion::after {
-            content: '🏠';
-            transform: rotate(45deg);
-        }
+        .punto-direccion::after { content: '🏠'; transform: rotate(45deg); }
 
-        /* MARCADORES DE SITIOS */
+        /* PUNTO MORADO MIS LUGARES */
+        .punto-mio {
+            width: 26px; height: 26px; background: #9b59b6;
+            border: 4px solid white; border-radius: 50% 50% 50% 0;
+            transform: rotate(-45deg);
+            box-shadow: 0 0 12px rgba(155, 89, 182, 1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px;
+        }
+        .punto-mio::after { content: '⭐'; transform: rotate(45deg); }
+
+        /* MARCADORES SITIOS */
         .marcador-sitio {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px; height: 28px;
-            background: white;
+            display: flex; align-items: center; justify-content: center;
+            width: 28px; height: 28px; background: white;
             border: 2px solid #2c3e50;
             border-radius: 50% 50% 50% 0;
             transform: rotate(-45deg);
             box-shadow: 0 2px 4px rgba(0,0,0,0.3);
             font-size: 14px;
         }
-        .marcador-sitio > span {
-            transform: rotate(45deg);
-            display: block;
-        }
+        .marcador-sitio > span { transform: rotate(45deg); display: block; }
 
-        /* PANEL DE FILTROS */
+        /* PANEL FILTROS */
         .panel-filtros {
-            position: absolute;
-            bottom: 20px; right: 20px;
-            z-index: 1000;
-            background: white;
-            border-radius: 12px;
-            padding: 8px;
+            position: absolute; bottom: 20px; right: 20px;
+            z-index: 1000; background: white;
+            border-radius: 12px; padding: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            max-height: 70vh;
-            overflow-y: auto;
-            max-width: 200px;
+            display: flex; flex-direction: column; gap: 6px;
+            max-height: 60vh; overflow-y: auto; max-width: 200px;
         }
         .panel-filtros button {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            gap: 6px;
-            padding: 8px 12px;
-            border: none;
-            border-radius: 8px;
-            background: #f0f0f0;
-            cursor: pointer;
-            font-size: 12px;
-            color: #2c3e50;
-            transition: background 0.2s;
-            white-space: nowrap;
-            text-align: left;
-            width: 100%;
+            display: flex; align-items: center; justify-content: flex-start;
+            gap: 6px; padding: 8px 12px; border: none;
+            border-radius: 8px; background: #f0f0f0; cursor: pointer;
+            font-size: 12px; color: #2c3e50; transition: background 0.2s;
+            white-space: nowrap; text-align: left; width: 100%;
         }
         .panel-filtros button:hover { background: #e0e0e0; }
         .panel-filtros button.activo { background: #2c3e50; color: white; }
         .panel-filtros .toggle {
-            background: #3498db;
-            color: white;
-            font-weight: bold;
-            justify-content: center;
+            background: #3498db; color: white;
+            font-weight: bold; justify-content: center;
         }
         .panel-filtros .toggle:hover { background: #2980b9; }
 
-        /* AVISO INFERIOR */
+        /* BOTONES FLOTANTES (esquina superior derecha) */
+        .botones-flotantes {
+            position: absolute; top: 10px; right: 10px;
+            z-index: 1000; display: flex; flex-direction: column; gap: 8px;
+        }
+        .btn-flotante {
+            width: 44px; height: 44px; border: none;
+            border-radius: 50%; background: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            cursor: pointer; font-size: 20px;
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.15s, background 0.2s;
+        }
+        .btn-flotante:hover { transform: scale(1.08); background: #f0f8ff; }
+        .btn-flotante.activo { background: #2c3e50; color: white; }
+        .btn-flotante.oculto { display: none; }
+
+        /* AVISO UBICACIÓN */
         .aviso-ubicacion {
-            position: absolute;
-            bottom: 20px; left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            background: rgba(0,0,0,0.75);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 14px;
+            position: absolute; bottom: 20px; left: 50%;
+            transform: translateX(-50%); z-index: 1000;
+            background: rgba(0,0,0,0.75); color: white;
+            padding: 10px 20px; border-radius: 20px; font-size: 14px;
+        }
+
+        /* AVISO MEDIR */
+        .aviso-medir {
+            position: absolute; top: 70px; left: 50%;
+            transform: translateX(-50%); z-index: 1000;
+            background: #e67e22; color: white;
+            padding: 10px 20px; border-radius: 20px; font-size: 14px;
+            display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .aviso-medir.activo { display: block; }
+
+        /* MODALES */
+        .modal-overlay {
+            display: none; position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            justify-content: center; align-items: center;
+        }
+        .modal-overlay.activo { display: flex; }
+        .modal {
+            background: white; border-radius: 12px;
+            padding: 24px; max-width: 400px; width: 90%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            max-height: 80vh; overflow-y: auto;
+        }
+        .modal h3 { margin: 0 0 12px 0; color: #2c3e50; font-size: 18px; }
+        .modal p { color: #555; font-size: 14px; line-height: 1.5; margin: 8px 0; }
+        .modal input[type="text"] {
+            width: 100%; padding: 10px 12px;
+            border: 2px solid #ddd; border-radius: 8px;
+            font-size: 15px; box-sizing: border-box;
+            outline: none; margin-top: 8px;
+        }
+        .modal input[type="text"]:focus { border-color: #3498db; }
+        .modal .botones {
+            display: flex; gap: 8px; margin-top: 16px;
+        }
+        .modal .botones button {
+            flex: 1; padding: 10px; border: none;
+            border-radius: 8px; font-size: 14px;
+            cursor: pointer; font-weight: bold;
+        }
+        .modal .btn-cancelar { background: #ecf0f1; color: #2c3e50; }
+        .modal .btn-cancelar:hover { background: #d5dbdb; }
+        .modal .btn-ok { background: #27ae60; color: white; }
+        .modal .btn-ok:hover { background: #229954; }
+        .modal .btn-peligro { background: #e74c3c; color: white; }
+        .modal .btn-peligro:hover { background: #c0392b; }
+
+        /* LISTA DE MIS LUGARES */
+        .lista-lugares {
+            list-style: none; padding: 0; margin: 12px 0 0 0;
+            max-height: 300px; overflow-y: auto;
+        }
+        .lista-lugares li {
+            display: flex; justify-content: space-between;
+            align-items: center; padding: 10px 12px;
+            border-bottom: 1px solid #eee; font-size: 14px;
+        }
+        .lista-lugares li:last-child { border-bottom: none; }
+        .lista-lugares li .nombre {
+            flex: 1; cursor: pointer; color: #2c3e50;
+        }
+        .lista-lugares li .nombre:hover { color: #3498db; }
+        .lista-lugares li .borrar {
+            background: none; border: none;
+            cursor: pointer; font-size: 16px; color: #e74c3c;
+            padding: 4px 8px;
+        }
+        .lista-lugares .vacio {
+            text-align: center; color: #999;
+            padding: 20px; font-size: 14px;
         }
     </style>
 </head>
@@ -214,11 +247,45 @@
         <ul class="resultados" id="listaResultados"></ul>
     </div>
 
+    <div class="botones-flotantes">
+        <button class="btn-flotante" id="btnCentrar" title="Centrar en mi ubicación">🎯</button>
+        <button class="btn-flotante" id="btnModoOscuro" title="Modo oscuro">🌙</button>
+        <button class="btn-flotante" id="btnMedir" title="Medir distancia">📏</button>
+        <button class="btn-flotante" id="btnLugares" title="Mis lugares">⭐</button>
+        <button class="btn-flotante" id="btnCompartir" title="Compartir búsqueda" style="display:none;">📤</button>
+    </div>
+
     <div id="map"></div>
     <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
+    <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa para medir</div>
 
     <div class="panel-filtros" id="panelFiltros">
         <button class="toggle" id="toggleTodo" onclick="toggleTodo()">👁️ Mostrar todo</button>
+    </div>
+
+    <!-- MODAL: AGREGAR LUGAR -->
+    <div class="modal-overlay" id="modalLugar">
+        <div class="modal">
+            <h3>⭐ Guardar lugar</h3>
+            <p>Se guardará el centro actual del mapa como un lugar favorito.</p>
+            <input type="text" id="inputNombreLugar" placeholder="Nombre (ej: Casa, Trabajo...)" maxlength="40">
+            <div class="botones">
+                <button class="btn-cancelar" onclick="cerrarModalLugar()">Cancelar</button>
+                <button class="btn-ok" onclick="confirmarGuardarLugar()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: MIS LUGARES -->
+    <div class="modal-overlay" id="modalLugares">
+        <div class="modal">
+            <h3>⭐ Mis lugares</h3>
+            <ul class="lista-lugares" id="listaLugares"></ul>
+            <div class="botones">
+                <button class="btn-cancelar" onclick="cerrarModalLugares()">Cerrar</button>
+                <button class="btn-ok" id="btnAgregarDesdeLista">➕ Agregar</button>
+            </div>
+        </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -230,21 +297,30 @@
         const CENTRO_SALTA = [-24.789, -65.411];
         const map = L.map('map').setView(CENTRO_SALTA, 14);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap'
-        }).addTo(map);
+        // Capas de mapa (claro y oscuro)
+        const capaClara = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19, attribution: '© OpenStreetMap'
+        });
+        const capaOscura = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19, attribution: '© OpenStreetMap © CARTO'
+        });
+        capaClara.addTo(map);
+
+        let modoOscuro = false;
 
         // ============================================
-        // UBICACIÓN DEL USUARIO
+        // UBICACIÓN
         // ============================================
         let marcadorUsuario = null;
         let primerUbicacion = false;
+        let ultimaPos = null;
         const iconoUsuario = L.divIcon({ className: 'punto-usuario', iconSize: [18, 18] });
 
         function actualizarUbicacion(pos) {
             const lat = pos.coords.latitude;
             const lng = pos.coords.longitude;
+            ultimaPos = [lat, lng];
+
             if (marcadorUsuario) {
                 marcadorUsuario.setLatLng([lat, lng]);
             } else {
@@ -258,12 +334,10 @@
                 document.getElementById('aviso').style.display = 'none';
             }
         }
-
         function errorUbicacion(err) {
             console.warn('Error GPS:', err.message);
             document.getElementById('aviso').textContent = 'No se pudo obtener tu ubicación.';
         }
-
         if ('geolocation' in navigator) {
             navigator.geolocation.watchPosition(actualizarUbicacion, errorUbicacion, {
                 enableHighAccuracy: true, timeout: 15000, maximumAge: 5000
@@ -271,18 +345,14 @@
         }
 
         // ============================================
-        // NORMALIZAR TEXTO
+        // NORMALIZAR
         // ============================================
         function normalizar(texto) {
             if (!texto) return '';
-            return texto
-                .toLowerCase()
-                .normalize('NFD')
+            return texto.toLowerCase().normalize('NFD')
                 .replace(/[\u0300-\u036f]/g, '')
                 .replace(/\b(avenida|av\.?|calle|pasaje|pje\.?|ruta|rn|rp)\b/g, '')
-                .replace(/[.,]/g, '')
-                .replace(/\s+/g, ' ')
-                .trim();
+                .replace(/[.,]/g, '').replace(/\s+/g, ' ').trim();
         }
 
         // ============================================
@@ -291,16 +361,15 @@
         let callesIndex = [];
         let marcadorCalle = null;
         let trazoCalle = null;
+        let ultimaBusqueda = null;
 
         async function cargarCalles() {
             try {
                 const resp = await fetch('data/calles.geojson');
                 const data = await resp.json();
-
                 data.features.forEach(f => {
                     const nombre = f.properties.name;
                     if (!nombre) return;
-
                     let lat, lng, coordenadas;
                     if (f.geometry && f.geometry.type === 'LineString') {
                         coordenadas = f.geometry.coordinates;
@@ -310,10 +379,7 @@
                         coordenadas = f.geometry.coordinates[0];
                         const medio = coordenadas[Math.floor(coordenadas.length / 2)];
                         lng = medio[0]; lat = medio[1];
-                    } else {
-                        return;
-                    }
-
+                    } else return;
                     callesIndex.push({
                         nombre: normalizar(nombre),
                         nombreOriginal: nombre,
@@ -321,79 +387,54 @@
                         coordenadas: coordenadas.map(c => [c[1], c[0]])
                     });
                 });
-
                 const agrupadas = {};
                 callesIndex.forEach(c => {
                     if (!agrupadas[c.nombre]) {
                         agrupadas[c.nombre] = {
-                            nombre: c.nombre,
-                            nombreOriginal: c.nombreOriginal,
-                            lat: c.lat, lng: c.lng,
-                            tramos: [c.coordenadas]
+                            nombre: c.nombre, nombreOriginal: c.nombreOriginal,
+                            lat: c.lat, lng: c.lng, tramos: [c.coordenadas]
                         };
-                    } else {
-                        agrupadas[c.nombre].tramos.push(c.coordenadas);
-                    }
+                    } else agrupadas[c.nombre].tramos.push(c.coordenadas);
                 });
                 callesIndex = Object.values(agrupadas);
-
                 console.log(`✅ ${callesIndex.length} calles cargadas`);
-            } catch (e) {
-                console.error('Error cargando calles:', e);
-            }
+            } catch (e) { console.error('Error cargando calles:', e); }
         }
 
         // ============================================
         // CARGAR DIRECCIONES
         // ============================================
         let direccionesIndex = [];
-
         async function cargarDirecciones() {
             try {
                 const resp = await fetch('data/direcciones.geojson');
-                if (!resp.ok) {
-                    console.warn('⚠️ No se encontró direcciones.geojson');
-                    return;
-                }
+                if (!resp.ok) { console.warn('⚠️ No se encontró direcciones.geojson'); return; }
                 const data = await resp.json();
-
                 data.features.forEach(f => {
                     const props = f.properties;
                     const calle = props['addr:street'];
                     const numeroStr = props['addr:housenumber'];
                     if (!calle || !numeroStr) return;
-
                     const numero = parseInt(numeroStr);
                     if (isNaN(numero)) return;
-
                     let lat, lng, exacto = false;
                     if (f.geometry.type === 'Point') {
-                        lng = f.geometry.coordinates[0];
-                        lat = f.geometry.coordinates[1];
+                        lng = f.geometry.coordinates[0]; lat = f.geometry.coordinates[1];
                         exacto = true;
                     } else if (f.geometry.type === 'LineString') {
                         const coords = f.geometry.coordinates;
                         const medio = coords[Math.floor(coords.length / 2)];
                         lng = medio[0]; lat = medio[1];
                         exacto = false;
-                    } else {
-                        return;
-                    }
-
+                    } else return;
                     direccionesIndex.push({
-                        calle: normalizar(calle),
-                        calleOriginal: calle,
-                        numero: numero,
-                        lat: lat, lng: lng,
-                        exacto: exacto,
+                        calle: normalizar(calle), calleOriginal: calle,
+                        numero: numero, lat: lat, lng: lng, exacto: exacto,
                         interpolacion: props['addr:interpolation'] || null
                     });
                 });
-
                 console.log(`✅ ${direccionesIndex.length} direcciones cargadas`);
-            } catch (e) {
-                console.error('Error cargando direcciones:', e);
-            }
+            } catch (e) { console.error('Error cargando direcciones:', e); }
         }
 
         // ============================================
@@ -404,7 +445,6 @@
             if (t.length < 2) return [];
             return callesIndex.filter(c => c.nombre.includes(t)).slice(0, 10);
         }
-
         function buscarCalleExacta(nombre) {
             const n = normalizar(nombre);
             let encontrada = callesIndex.find(c => c.nombre === n);
@@ -414,12 +454,10 @@
                 .sort((a, b) => Math.abs(a.nombre.length - n.length) - Math.abs(b.nombre.length - n.length));
             return candidatas[0] || null;
         }
-
         function buscarDireccion(calle, numero) {
             const c = normalizar(calle);
             const candidatas = direccionesIndex.filter(d => d.calle === c || d.calle.includes(c) || c.includes(d.calle));
             if (candidatas.length === 0) return null;
-
             let mejor = null, mejorDist = Infinity;
             for (const d of candidatas) {
                 const dist = Math.abs(d.numero - numero);
@@ -429,12 +467,10 @@
         }
 
         // ============================================
-        // PARSEO DEL INPUT
+        // PARSEO QUERY
         // ============================================
         function parsearQuery(query) {
             const q = query.trim();
-
-            // "calle1 y calle2 [número]"
             const matchEsquina = q.match(/^(.+?)\s+y\s+(.+?)(?:\s+(\d+))?$/i);
             if (matchEsquina) {
                 return {
@@ -444,28 +480,19 @@
                     numero: matchEsquina[3] ? parseInt(matchEsquina[3]) : null
                 };
             }
-
-            // "calle número"
             const matchDir = q.match(/^(.+?)\s+(\d+)$/);
             if (matchDir) {
-                return {
-                    tipo: 'direccion',
-                    calle: matchDir[1].trim(),
-                    numero: parseInt(matchDir[2])
-                };
+                return { tipo: 'direccion', calle: matchDir[1].trim(), numero: parseInt(matchDir[2]) };
             }
-
             return { tipo: 'calle', calle: q };
         }
 
         // ============================================
-        // GEOMETRÍA: INTERSECCIÓN DE SEGMENTOS
+        // GEOMETRÍA
         // ============================================
         function interseccionSegmentos(p1, p2, p3, p4) {
-            const x1 = p1[1], y1 = p1[0];
-            const x2 = p2[1], y2 = p2[0];
-            const x3 = p3[1], y3 = p3[0];
-            const x4 = p4[1], y4 = p4[0];
+            const x1 = p1[1], y1 = p1[0], x2 = p2[1], y2 = p2[0];
+            const x3 = p3[1], y3 = p3[0], x4 = p4[1], y4 = p4[0];
             const denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
             if (Math.abs(denom) < 1e-12) return null;
             const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denom;
@@ -473,10 +500,8 @@
             if (ua < 0 || ua > 1 || ub < 0 || ub > 1) return null;
             return [y1 + ua * (y2 - y1), x1 + ua * (x2 - x1)];
         }
-
         function obtenerBBox(tramos) {
-            let minLat = Infinity, maxLat = -Infinity;
-            let minLng = Infinity, maxLng = -Infinity;
+            let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
             for (const tramo of tramos) for (const [lat, lng] of tramo) {
                 if (lat < minLat) minLat = lat;
                 if (lat > maxLat) maxLat = lat;
@@ -485,16 +510,12 @@
             }
             return { minLat, maxLat, minLng, maxLng };
         }
-
         function segmentoEnBBox(p1, p2, bbox) {
-            const minLatS = Math.min(p1[0], p2[0]);
-            const maxLatS = Math.max(p1[0], p2[0]);
-            const minLngS = Math.min(p1[1], p2[1]);
-            const maxLngS = Math.max(p1[1], p2[1]);
+            const minLatS = Math.min(p1[0], p2[0]), maxLatS = Math.max(p1[0], p2[0]);
+            const minLngS = Math.min(p1[1], p2[1]), maxLngS = Math.max(p1[1], p2[1]);
             return !(maxLatS < bbox.minLat || minLatS > bbox.maxLat ||
                      maxLngS < bbox.minLng || minLngS > bbox.maxLng);
         }
-
         function calcularIntersecciones(calleA, calleB) {
             const intersecciones = [];
             const bboxB = obtenerBBox(calleB.tramos);
@@ -514,16 +535,30 @@
         }
 
         // ============================================
-        // LIMPIAR BÚSQUEDA
+        // HAVERSINE (distancia entre dos puntos en metros)
+        // ============================================
+        function haversine(lat1, lng1, lat2, lng2) {
+            const R = 6371000;
+            const toRad = (deg) => deg * Math.PI / 180;
+            const dLat = toRad(lat2 - lat1);
+            const dLng = toRad(lng2 - lng1);
+            const a = Math.sin(dLat/2)**2 +
+                      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                      Math.sin(dLng/2)**2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        }
+        function formatearDistancia(metros) {
+            if (metros < 1000) return `${Math.round(metros)} m`;
+            return `${(metros / 1000).toFixed(2)} km`;
+        }
+
+        // ============================================
+        // MOSTRAR CALLES / DIRECCIONES / ESQUINAS
         // ============================================
         function limpiarBusqueda() {
             if (marcadorCalle) { map.removeLayer(marcadorCalle); marcadorCalle = null; }
             if (trazoCalle) { map.removeLayer(trazoCalle); trazoCalle = null; }
         }
-
-        // ============================================
-        // MOSTRAR CALLE
-        // ============================================
         function mostrarCalle(calle) {
             limpiarBusqueda();
             const lineas = calle.tramos.map(tramo =>
@@ -534,41 +569,31 @@
                 icon: L.divIcon({ className: 'punto-calle', iconSize: [14, 14] })
             }).addTo(map).bindPopup(`<strong>${calle.nombreOriginal}</strong>`);
             map.fitBounds(L.featureGroup(lineas).getBounds(), { padding: [50, 50] });
-        }
 
-        // ============================================
-        // MOSTRAR DIRECCIÓN
-        // ============================================
+            ultimaBusqueda = { texto: calle.nombreOriginal, lat: calle.lat, lng: calle.lng };
+            document.getElementById('btnCompartir').style.display = 'flex';
+        }
         function mostrarDireccion(calle, direccion) {
             limpiarBusqueda();
-
             const lineas = calle.tramos.map(tramo =>
                 L.polyline(tramo, { color: '#e74c3c', weight: 4, opacity: 0.6, lineCap: 'round', lineJoin: 'round' })
             );
             trazoCalle = L.layerGroup(lineas).addTo(map);
-
             const precision = direccion.exacto ? 'exacta' : 'aproximada';
             marcadorCalle = L.marker([direccion.lat, direccion.lng], {
-                icon: L.divIcon({
-                    className: 'punto-direccion',
-                    iconSize: [24, 24],
-                    iconAnchor: [12, 24]
-                }),
+                icon: L.divIcon({ className: 'punto-direccion', iconSize: [24, 24], iconAnchor: [12, 24] }),
                 zIndexOffset: 2000
             }).addTo(map).bindPopup(`
                 <strong>📍 ${direccion.calleOriginal} ${direccion.numero}</strong><br>
                 <small>Numeración ${precision}${!direccion.exacto ? ' (interpolada)' : ''}</small>
             `).openPopup();
-
             map.setView([direccion.lat, direccion.lng], 18);
-        }
 
-        // ============================================
-        // MOSTRAR INTERSECCIÓN
-        // ============================================
+            ultimaBusqueda = { texto: `${direccion.calleOriginal} ${direccion.numero}`, lat: direccion.lat, lng: direccion.lng };
+            document.getElementById('btnCompartir').style.display = 'flex';
+        }
         function mostrarInterseccion(calleA, calleB, numero, direccionCercana) {
             limpiarBusqueda();
-
             const lineasA = calleA.tramos.map(tramo =>
                 L.polyline(tramo, { color: '#e74c3c', weight: 6, opacity: 0.85, lineCap: 'round', lineJoin: 'round' })
             );
@@ -576,23 +601,18 @@
                 L.polyline(tramo, { color: '#3498db', weight: 6, opacity: 0.85, lineCap: 'round', lineJoin: 'round' })
             );
             trazoCalle = L.layerGroup([...lineasA, ...lineasB]).addTo(map);
-
             const intersecciones = calcularIntersecciones(calleA, calleB);
-
             if (intersecciones.length === 0) {
                 alert(`No se encontró esquina entre "${calleA.nombreOriginal}" y "${calleB.nombreOriginal}".`);
                 map.fitBounds(L.featureGroup([...lineasA, ...lineasB]).getBounds(), { padding: [50, 50] });
                 return;
             }
-
             const unicas = [];
             for (const inter of intersecciones) {
                 const yaExiste = unicas.some(u =>
-                    Math.abs(u[0] - inter[0]) < 0.0002 &&
-                    Math.abs(u[1] - inter[1]) < 0.0002);
+                    Math.abs(u[0] - inter[0]) < 0.0002 && Math.abs(u[1] - inter[1]) < 0.0002);
                 if (!yaExiste) unicas.push(inter);
             }
-
             const marcadoresEsquina = unicas.map(([lat, lng]) =>
                 L.marker([lat, lng], {
                     icon: L.divIcon({ className: 'punto-esquina', iconSize: [22, 22] }),
@@ -600,26 +620,23 @@
                 }).bindPopup(`<strong>📍 Esquina</strong><br>${calleA.nombreOriginal} y ${calleB.nombreOriginal}`)
             );
             marcadorCalle = L.layerGroup(marcadoresEsquina).addTo(map);
-
             if (direccionCercana) {
                 L.marker([direccionCercana.lat, direccionCercana.lng], {
-                    icon: L.divIcon({
-                        className: 'punto-direccion',
-                        iconSize: [24, 24],
-                        iconAnchor: [12, 24]
-                    }),
+                    icon: L.divIcon({ className: 'punto-direccion', iconSize: [24, 24], iconAnchor: [12, 24] }),
                     zIndexOffset: 2500
                 }).addTo(map).bindPopup(`
                     <strong>🏠 ${direccionCercana.calleOriginal} ${direccionCercana.numero}</strong><br>
                     <small>Altura aproximada</small>
                 `).openPopup();
             }
-
             map.setView(unicas[0], 17);
+
+            ultimaBusqueda = { texto: `${calleA.nombreOriginal} y ${calleB.nombreOriginal}`, lat: unicas[0][0], lng: unicas[0][1] };
+            document.getElementById('btnCompartir').style.display = 'flex';
         }
 
         // ============================================
-        // MANEJO DEL INPUT
+        // INPUT
         // ============================================
         const input = document.getElementById('inputBusqueda');
         const lista = document.getElementById('listaResultados');
@@ -627,15 +644,9 @@
         input.addEventListener('input', (e) => {
             const query = e.target.value;
             lista.innerHTML = '';
-
-            if (query.trim().length < 2) {
-                lista.classList.remove('activo');
-                return;
-            }
-
+            if (query.trim().length < 2) { lista.classList.remove('activo'); return; }
             const parsed = parsearQuery(query);
 
-            // ESQUINA
             if (parsed.tipo === 'esquina') {
                 const li = document.createElement('li');
                 li.className = 'esquina';
@@ -645,23 +656,16 @@
                     const calleB = buscarCalleExacta(parsed.calle2);
                     if (!calleA) { alert(`No se encontró "${parsed.calle1}"`); return; }
                     if (!calleB) { alert(`No se encontró "${parsed.calle2}"`); return; }
-
                     let dirCercana = null;
                     if (parsed.numero) {
                         dirCercana = buscarDireccion(parsed.calle1, parsed.numero) ||
                                      buscarDireccion(parsed.calle2, parsed.numero);
                     }
-
                     mostrarInterseccion(calleA, calleB, parsed.numero, dirCercana);
-                    lista.classList.remove('activo');
-                    lista.innerHTML = '';
-                    input.blur();
+                    lista.classList.remove('activo'); lista.innerHTML = ''; input.blur();
                 });
                 lista.appendChild(li);
-            }
-
-            // DIRECCIÓN
-            else if (parsed.tipo === 'direccion') {
+            } else if (parsed.tipo === 'direccion') {
                 const calle = buscarCalleExacta(parsed.calle);
                 if (calle) {
                     const dir = buscarDireccion(parsed.calle, parsed.numero);
@@ -676,9 +680,7 @@
                     li.addEventListener('click', () => {
                         if (dir) mostrarDireccion(calle, dir);
                         else mostrarCalle(calle);
-                        lista.classList.remove('activo');
-                        lista.innerHTML = '';
-                        input.blur();
+                        lista.classList.remove('activo'); lista.innerHTML = ''; input.blur();
                     });
                     lista.appendChild(li);
                 } else {
@@ -686,29 +688,22 @@
                     li.innerHTML = `❌ No se encontró "${parsed.calle}"`;
                     lista.appendChild(li);
                 }
-            }
-
-            // SOLO CALLE
-            else {
+            } else {
                 const resultados = buscarCalle(query);
                 resultados.forEach(calle => {
                     const li = document.createElement('li');
                     li.textContent = calle.nombreOriginal;
                     li.addEventListener('click', () => {
                         mostrarCalle(calle);
-                        lista.classList.remove('activo');
-                        lista.innerHTML = '';
-                        input.value = calle.nombreOriginal;
-                        input.blur();
+                        lista.classList.remove('activo'); lista.innerHTML = '';
+                        input.value = calle.nombreOriginal; input.blur();
                     });
                     lista.appendChild(li);
                 });
             }
-
             if (lista.children.length > 0) lista.classList.add('activo');
             else lista.classList.remove('activo');
         });
-
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.buscador')) lista.classList.remove('activo');
         });
@@ -720,6 +715,7 @@
             await cargarCalles();
             await cargarDirecciones();
             input.placeholder = '🔎 Calle, esquina o dirección...';
+            cargarLugaresGuardados();
         })();
 
         // ============================================
@@ -735,7 +731,6 @@
             school: '🏫', university: '🎓',
             townhall: '🏛️', hotel: '🏨', hostel: '🛏️',
         };
-
         const NOMBRES = {
             hospital: 'Hospitales', clinic: 'Clínicas', pharmacy: 'Farmacias',
             bank: 'Bancos', atm: 'Cajeros',
@@ -746,7 +741,6 @@
             school: 'Escuelas', university: 'Universidades',
             townhall: 'Oficinas públicas', hotel: 'Hoteles', hostel: 'Hostales',
         };
-
         const capas = {};
         const capasActivas = {};
 
@@ -757,35 +751,29 @@
                     const resp = await fetch(archivo);
                     if (!resp.ok) { console.warn(`⚠️ No se encontró ${archivo}`); continue; }
                     const data = await resp.json();
-
                     data.features.forEach(f => {
                         const props = f.properties;
                         let categoria = props.amenity || props.shop || props.tourism || props.highway;
                         if (!categoria) return;
-
                         let lat, lng;
                         if (f.geometry.type === 'Point') {
                             lng = f.geometry.coordinates[0]; lat = f.geometry.coordinates[1];
                         } else if (props['@geometry'] === 'center' && f.geometry.coordinates) {
                             lng = f.geometry.coordinates[0]; lat = f.geometry.coordinates[1];
                         } else return;
-
                         if (!capas[categoria]) {
                             capas[categoria] = L.layerGroup();
                             capasActivas[categoria] = false;
                         }
-
                         const emoji = EMOJIS[categoria] || '📍';
                         const icono = L.divIcon({
                             className: '',
                             html: `<div class="marcador-sitio"><span>${emoji}</span></div>`,
                             iconSize: [28, 28], iconAnchor: [14, 28], popupAnchor: [0, -28]
                         });
-
                         const nombre = props.name || props.official_name || 'Sin nombre';
                         const dir = props['addr:street']
                             ? `${props['addr:street']} ${props['addr:housenumber'] || ''}` : '';
-
                         const marcador = L.marker([lat, lng], { icon: icono })
                             .bindPopup(`
                                 <strong>${nombre}</strong><br>
@@ -793,16 +781,13 @@
                                 ${dir ? '<br><small>📍 ' + dir + '</small>' : ''}
                                 ${props.phone ? '<br><small>📞 ' + props.phone + '</small>' : ''}
                             `);
-
                         capas[categoria].addLayer(marcador);
                     });
                 } catch (e) { console.error(`Error cargando ${archivo}:`, e); }
             }
-
             generarBotonesFiltros();
             console.log('✅ Sitios cargados:', Object.keys(capas).length, 'categorías');
         }
-
         function generarBotonesFiltros() {
             const panel = document.getElementById('panelFiltros');
             const categorias = Object.keys(capas).sort((a, b) =>
@@ -815,7 +800,6 @@
                 panel.appendChild(btn);
             });
         }
-
         function toggleCapa(categoria) {
             if (!capas[categoria]) return;
             const btn = document.getElementById('btn-' + categoria);
@@ -829,7 +813,6 @@
                 if (btn) btn.classList.add('activo');
             }
         }
-
         function toggleTodo() {
             const btn = document.getElementById('toggleTodo');
             const algoActivo = Object.values(capasActivas).some(v => v);
@@ -852,8 +835,256 @@
             });
             btn.textContent = algoActivo ? '👁️ Mostrar todo' : '🚫 Ocultar todo';
         }
-
         cargarSitios();
+
+        // ============================================
+        // BOTÓN: CENTRAR EN MÍ
+        // ============================================
+        document.getElementById('btnCentrar').addEventListener('click', () => {
+            if (ultimaPos) {
+                map.setView(ultimaPos, 17);
+            } else {
+                alert('Todavía no se detectó tu ubicación. Activá el GPS.');
+            }
+        });
+
+        // ============================================
+        // BOTÓN: MODO OSCURO
+        // ============================================
+        document.getElementById('btnModoOscuro').addEventListener('click', (e) => {
+            modoOscuro = !modoOscuro;
+            if (modoOscuro) {
+                map.removeLayer(capaClara);
+                capaOscura.addTo(map);
+                e.target.classList.add('activo');
+                e.target.textContent = '☀️';
+            } else {
+                map.removeLayer(capaOscura);
+                capaClara.addTo(map);
+                e.target.classList.remove('activo');
+                e.target.textContent = '🌙';
+            }
+        });
+
+        // ============================================
+        // BOTÓN: MEDIR DISTANCIA
+        // ============================================
+        let modoMedir = false;
+        let puntoA = null;
+        let puntoB = null;
+        let lineaMedir = null;
+        let marcadorA = null;
+        let marcadorB = null;
+
+        const iconoPuntoMedida = L.divIcon({
+            className: '',
+            html: '<div style="width:14px;height:14px;background:#e67e22;border:3px solid white;border-radius:50%;box-shadow:0 0 8px rgba(230,126,34,1);"></div>',
+            iconSize: [14, 14], iconAnchor: [7, 7]
+        });
+
+        document.getElementById('btnMedir').addEventListener('click', () => {
+            modoMedir = !modoMedir;
+            const btn = document.getElementById('btnMedir');
+            const aviso = document.getElementById('avisoMedir');
+
+            if (modoMedir) {
+                btn.classList.add('activo');
+                aviso.classList.add('activo');
+                aviso.textContent = '📏 Tocá dos puntos en el mapa';
+                map.getContainer().style.cursor = 'crosshair';
+                resetearMedicion();
+            } else {
+                btn.classList.remove('activo');
+                aviso.classList.remove('activo');
+                map.getContainer().style.cursor = '';
+                limpiarMedicion();
+            }
+        });
+
+        function resetearMedicion() {
+            if (lineaMedir) { map.removeLayer(lineaMedir); lineaMedir = null; }
+            if (marcadorA) { map.removeLayer(marcadorA); marcadorA = null; }
+            if (marcadorB) { map.removeLayer(marcadorB); marcadorB = null; }
+            puntoA = null; puntoB = null;
+        }
+        function limpiarMedicion() {
+            resetearMedicion();
+        }
+
+        map.on('click', (e) => {
+            if (!modoMedir) return;
+            const latlng = e.latlng;
+
+            if (!puntoA) {
+                puntoA = latlng;
+                marcadorA = L.marker(latlng, { icon: iconoPuntoMedida }).addTo(map).bindPopup('Punto A');
+                document.getElementById('avisoMedir').textContent = '📏 Ahora tocá el segundo punto';
+            } else if (!puntoB) {
+                puntoB = latlng;
+                marcadorB = L.marker(latlng, { icon: iconoPuntoMedida }).addTo(map).bindPopup('Punto B');
+                lineaMedir = L.polyline([puntoA, puntoB], {
+                    color: '#e67e22', weight: 4, dashArray: '8, 6'
+                }).addTo(map);
+
+                const distancia = haversine(puntoA.lat, puntoA.lng, puntoB.lat, puntoB.lng);
+                const texto = formatearDistancia(distancia);
+                document.getElementById('avisoMedir').textContent = `📏 Distancia: ${texto} (tocá de nuevo para reiniciar)`;
+
+                const medio = L.latLng((puntoA.lat + puntoB.lat) / 2, (puntoA.lng + puntoB.lng) / 2);
+                L.popup().setLatLng(medio).setContent(`<strong>📏 ${texto}</strong>`).openOn(map);
+            } else {
+                resetearMedicion();
+                puntoA = latlng;
+                marcadorA = L.marker(latlng, { icon: iconoPuntoMedida }).addTo(map).bindPopup('Punto A');
+                document.getElementById('avisoMedir').textContent = '📏 Ahora tocá el segundo punto';
+            }
+        });
+
+        // ============================================
+        // BOTÓN: COMPARTIR
+        // ============================================
+        document.getElementById('btnCompartir').addEventListener('click', () => {
+            if (!ultimaBusqueda) return;
+            const { texto, lat, lng } = ultimaBusqueda;
+            const url = `https://www.google.com/maps?q=${lat},${lng}`;
+            const mensaje = `📍 ${texto}\nVer en el mapa: ${url}`;
+            const whatsapp = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+            window.open(whatsapp, '_blank');
+        });
+
+        // ============================================
+        // MIS LUGARES
+        // ============================================
+        const STORAGE_KEY = 'salta_mis_lugares';
+        let misLugares = [];
+        const capaLugares = L.layerGroup().addTo(map);
+
+        function cargarLugaresGuardados() {
+            try {
+                const guardados = localStorage.getItem(STORAGE_KEY);
+                if (guardados) {
+                    misLugares = JSON.parse(guardados);
+                }
+            } catch (e) {
+                console.warn('Error al cargar lugares:', e);
+                misLugares = [];
+            }
+            pintarLugaresEnMapa();
+        }
+
+        function guardarLugaresEnStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(misLugares));
+            } catch (e) {
+                console.warn('Error al guardar lugares:', e);
+            }
+        }
+
+        const iconoMio = L.divIcon({
+            className: 'punto-mio',
+            iconSize: [26, 26],
+            iconAnchor: [13, 26],
+            popupAnchor: [0, -26]
+        });
+
+        function pintarLugaresEnMapa() {
+            capaLugares.clearLayers();
+            misLugares.forEach((lugar, idx) => {
+                const m = L.marker([lugar.lat, lugar.lng], { icon: iconoMio })
+                    .bindPopup(`<strong>⭐ ${lugar.nombre}</strong><br><small>${lugar.fecha || ''}</small>`);
+                capaLugares.addLayer(m);
+            });
+        }
+
+        document.getElementById('btnLugares').addEventListener('click', () => {
+            abrirModalLugares();
+        });
+
+        function abrirModalLugares() {
+            const ul = document.getElementById('listaLugares');
+            ul.innerHTML = '';
+
+            if (misLugares.length === 0) {
+                ul.innerHTML = '<li class="vacio">Todavía no guardaste ningún lugar.</li>';
+            } else {
+                misLugares.forEach((lugar, idx) => {
+                    const li = document.createElement('li');
+                    const nombre = document.createElement('span');
+                    nombre.className = 'nombre';
+                    nombre.textContent = '⭐ ' + lugar.nombre;
+                    nombre.addEventListener('click', () => {
+                        map.setView([lugar.lat, lugar.lng], 17);
+                        cerrarModalLugares();
+                    });
+
+                    const borrar = document.createElement('button');
+                    borrar.className = 'borrar';
+                    borrar.textContent = '🗑️';
+                    borrar.title = 'Borrar';
+                    borrar.addEventListener('click', (ev) => {
+                        ev.stopPropagation();
+                        if (confirm(`¿Borrar "${lugar.nombre}"?`)) {
+                            misLugares.splice(idx, 1);
+                            guardarLugaresEnStorage();
+                            pintarLugaresEnMapa();
+                            abrirModalLugares();
+                        }
+                    });
+
+                    li.appendChild(nombre);
+                    li.appendChild(borrar);
+                    ul.appendChild(li);
+                });
+            }
+            document.getElementById('modalLugares').classList.add('activo');
+        }
+
+        function cerrarModalLugares() {
+            document.getElementById('modalLugares').classList.remove('activo');
+        }
+
+        document.getElementById('btnAgregarDesdeLista').addEventListener('click', () => {
+            cerrarModalLugares();
+            abrirModalLugar();
+        });
+
+        function abrirModalLugar() {
+            document.getElementById('inputNombreLugar').value = '';
+            document.getElementById('modalLugar').classList.add('activo');
+            setTimeout(() => document.getElementById('inputNombreLugar').focus(), 100);
+        }
+        function cerrarModalLugar() {
+            document.getElementById('modalLugar').classList.remove('activo');
+        }
+        function confirmarGuardarLugar() {
+            const nombre = document.getElementById('inputNombreLugar').value.trim();
+            if (!nombre) { alert('Poné un nombre para el lugar'); return; }
+
+            const centro = map.getCenter();
+            misLugares.push({
+                nombre: nombre,
+                lat: centro.lat,
+                lng: centro.lng,
+                fecha: new Date().toLocaleDateString('es-AR')
+            });
+            guardarLugaresEnStorage();
+            pintarLugaresEnMapa();
+            cerrarModalLugar();
+
+            // Aviso
+            const aviso = document.getElementById('aviso');
+            aviso.textContent = `⭐ "${nombre}" guardado`;
+            aviso.style.display = 'block';
+            setTimeout(() => { aviso.style.display = 'none'; }, 2500);
+        }
+
+        // Doble click en el mapa = agregar lugar ahí
+        map.on('dblclick', (e) => {
+            if (modoMedir) return;
+            const latlng = e.latlng;
+            map.setView(latlng, map.getZoom());
+            setTimeout(() => abrirModalLugar(), 100);
+        });
     </script>
 
     <script>
