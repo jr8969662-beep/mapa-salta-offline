@@ -14,6 +14,11 @@
         body, html { margin: 0; padding: 0; height: 100%; font-family: Arial, sans-serif; }
         #map { width: 100%; height: 100vh; }
 
+        /* MODO OSCURO (aplica filtro CSS a las teselas) */
+        .leaflet-tile-pane.mapa-oscuro {
+            filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9);
+        }
+
         /* BUSCADOR */
         .buscador {
             position: absolute; top: 10px; left: 50px; right: 60px;
@@ -140,7 +145,7 @@
         }
         .panel-filtros .toggle:hover { background: #2980b9; }
 
-        /* BOTONES FLOTANTES (esquina superior derecha) */
+        /* BOTONES FLOTANTES */
         .botones-flotantes {
             position: absolute; top: 10px; right: 10px;
             z-index: 1000; display: flex; flex-direction: column; gap: 8px;
@@ -155,7 +160,6 @@
         }
         .btn-flotante:hover { transform: scale(1.08); background: #f0f8ff; }
         .btn-flotante.activo { background: #2c3e50; color: white; }
-        .btn-flotante.oculto { display: none; }
 
         /* AVISO UBICACIÓN */
         .aviso-ubicacion {
@@ -199,9 +203,7 @@
             outline: none; margin-top: 8px;
         }
         .modal input[type="text"]:focus { border-color: #3498db; }
-        .modal .botones {
-            display: flex; gap: 8px; margin-top: 16px;
-        }
+        .modal .botones { display: flex; gap: 8px; margin-top: 16px; }
         .modal .botones button {
             flex: 1; padding: 10px; border: none;
             border-radius: 8px; font-size: 14px;
@@ -211,8 +213,6 @@
         .modal .btn-cancelar:hover { background: #d5dbdb; }
         .modal .btn-ok { background: #27ae60; color: white; }
         .modal .btn-ok:hover { background: #229954; }
-        .modal .btn-peligro { background: #e74c3c; color: white; }
-        .modal .btn-peligro:hover { background: #c0392b; }
 
         /* LISTA DE MIS LUGARES */
         .lista-lugares {
@@ -292,18 +292,17 @@
 
     <script>
         // ============================================
-        // MAPA BASE
+        // MAPA BASE (solo OSM)
         // ============================================
         const CENTRO_SALTA = [-24.789, -65.411];
         const map = L.map('map').setView(CENTRO_SALTA, 14);
 
-        // Capa única (siempre OSM)
-const capaBase = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19, attribution: '© OpenStreetMap'
-});
-capaBase.addTo(map);
+        const capaBase = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19, attribution: '© OpenStreetMap'
+        });
+        capaBase.addTo(map);
 
-let modoOscuro = false;
+        let modoOscuro = false;
 
         // ============================================
         // UBICACIÓN
@@ -532,7 +531,7 @@ let modoOscuro = false;
         }
 
         // ============================================
-        // HAVERSINE (distancia entre dos puntos en metros)
+        // HAVERSINE
         // ============================================
         function haversine(lat1, lng1, lat2, lng2) {
             const R = 6371000;
@@ -846,21 +845,21 @@ let modoOscuro = false;
         });
 
         // ============================================
-        // BOTÓN: MODO OSCURO
+        // BOTÓN: MODO OSCURO (via CSS filter)
         // ============================================
-       document.getElementById('btnModoOscuro').addEventListener('click', (e) => {
-    modoOscuro = !modoOscuro;
-    const tiles = document.querySelector('.leaflet-tile-pane');
-    if (modoOscuro) {
-        tiles.classList.add('mapa-oscuro');
-        e.target.classList.add('activo');
-        e.target.textContent = '☀️';
-    } else {
-        tiles.classList.remove('mapa-oscuro');
-        e.target.classList.remove('activo');
-        e.target.textContent = '🌙';
-    }
-});
+        document.getElementById('btnModoOscuro').addEventListener('click', (e) => {
+            modoOscuro = !modoOscuro;
+            const tiles = document.querySelector('.leaflet-tile-pane');
+            if (modoOscuro) {
+                tiles.classList.add('mapa-oscuro');
+                e.target.classList.add('activo');
+                e.target.textContent = '☀️';
+            } else {
+                tiles.classList.remove('mapa-oscuro');
+                e.target.classList.remove('activo');
+                e.target.textContent = '🌙';
+            }
+        });
 
         // ============================================
         // BOTÓN: MEDIR DISTANCIA
@@ -903,9 +902,7 @@ let modoOscuro = false;
             if (marcadorB) { map.removeLayer(marcadorB); marcadorB = null; }
             puntoA = null; puntoB = null;
         }
-        function limpiarMedicion() {
-            resetearMedicion();
-        }
+        function limpiarMedicion() { resetearMedicion(); }
 
         map.on('click', (e) => {
             if (!modoMedir) return;
@@ -958,16 +955,13 @@ let modoOscuro = false;
         function cargarLugaresGuardados() {
             try {
                 const guardados = localStorage.getItem(STORAGE_KEY);
-                if (guardados) {
-                    misLugares = JSON.parse(guardados);
-                }
+                if (guardados) misLugares = JSON.parse(guardados);
             } catch (e) {
                 console.warn('Error al cargar lugares:', e);
                 misLugares = [];
             }
             pintarLugaresEnMapa();
         }
-
         function guardarLugaresEnStorage() {
             try {
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(misLugares));
@@ -978,23 +972,19 @@ let modoOscuro = false;
 
         const iconoMio = L.divIcon({
             className: 'punto-mio',
-            iconSize: [26, 26],
-            iconAnchor: [13, 26],
-            popupAnchor: [0, -26]
+            iconSize: [26, 26], iconAnchor: [13, 26], popupAnchor: [0, -26]
         });
 
         function pintarLugaresEnMapa() {
             capaLugares.clearLayers();
-            misLugares.forEach((lugar, idx) => {
+            misLugares.forEach((lugar) => {
                 const m = L.marker([lugar.lat, lugar.lng], { icon: iconoMio })
                     .bindPopup(`<strong>⭐ ${lugar.nombre}</strong><br><small>${lugar.fecha || ''}</small>`);
                 capaLugares.addLayer(m);
             });
         }
 
-        document.getElementById('btnLugares').addEventListener('click', () => {
-            abrirModalLugares();
-        });
+        document.getElementById('btnLugares').addEventListener('click', abrirModalLugares);
 
         function abrirModalLugares() {
             const ul = document.getElementById('listaLugares');
@@ -1034,7 +1024,6 @@ let modoOscuro = false;
             }
             document.getElementById('modalLugares').classList.add('activo');
         }
-
         function cerrarModalLugares() {
             document.getElementById('modalLugares').classList.remove('activo');
         }
@@ -1067,14 +1056,13 @@ let modoOscuro = false;
             pintarLugaresEnMapa();
             cerrarModalLugar();
 
-            // Aviso
             const aviso = document.getElementById('aviso');
             aviso.textContent = `⭐ "${nombre}" guardado`;
             aviso.style.display = 'block';
             setTimeout(() => { aviso.style.display = 'none'; }, 2500);
         }
 
-        // Doble click en el mapa = agregar lugar ahí
+        // Doble clic en el mapa = agregar lugar
         map.on('dblclick', (e) => {
             if (modoMedir) return;
             const latlng = e.latlng;
