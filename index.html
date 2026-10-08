@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa Salta Capital</title>
 
-    <!-- Leaflet CSS (mapa) desde CDN por ahora -->
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <style>
@@ -31,34 +31,130 @@
             font-weight: bold;
             color: #2c3e50;
         }
+
+        /* Estilo del punto azul de ubicación */
+        .punto-usuario {
+            width: 18px;
+            height: 18px;
+            background: #0078ff;
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 120, 255, 0.8);
+            animation: pulso 2s infinite;
+        }
+
+        @keyframes pulso {
+            0%   { box-shadow: 0 0 10px rgba(0,120,255,0.8); }
+            50%  { box-shadow: 0 0 20px rgba(0,120,255,1); }
+            100% { box-shadow: 0 0 10px rgba(0,120,255,0.8); }
+        }
+
+        /* Aviso cuando la ubicación está cargando */
+        .aviso-ubicacion {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(0,0,0,0.75);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
 
     <div class="titulo">📍 Salta Capital</div>
     <div id="map"></div>
+    <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 
-    <!-- Leaflet JS (mapa) desde CDN por ahora -->
+    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
     <script>
-        // Coordenadas del centro de Salta Capital
+        // Centro de Salta Capital (por si no hay GPS todavía)
         const CENTRO_SALTA = [-24.789, -65.411];
 
         // Crear el mapa
         const map = L.map('map').setView(CENTRO_SALTA, 14);
 
-        // Capa de teselas de OpenStreetMap (por ahora online)
+        // Capa de teselas (por ahora online)
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // Un marcador en el centro para probar
-        L.marker(CENTRO_SALTA)
-            .addTo(map)
-            .bindPopup('Centro de Salta Capital')
-            .openPopup();
+        // Variables para guardar la referencia al marcador del usuario
+        let marcadorUsuario = null;
+        let primerUbicacionRecibida = false;
+
+        // Crear el ícono personalizado (punto azul)
+        const iconoUsuario = L.divIcon({
+            className: 'punto-usuario',
+            iconSize: [18, 18]
+        });
+
+        // Función que se ejecuta cada vez que el GPS nos da una nueva posición
+        function actualizarUbicacion(posicion) {
+            const lat = posicion.coords.latitude;
+            const lng = posicion.coords.longitude;
+
+            console.log('📍 Ubicación:', lat, lng, 'Precisión:', posicion.coords.accuracy, 'm');
+
+            if (marcadorUsuario) {
+                // Si ya existe, solo movemos el marcador
+                marcadorUsuario.setLatLng([lat, lng]);
+            } else {
+                // Primera vez: creamos el marcador
+                marcadorUsuario = L.marker([lat, lng], {
+                    icon: iconoUsuario,
+                    zIndexOffset: 1000 // que quede arriba de otros marcadores
+                }).addTo(map);
+            }
+
+            // La primera vez, centramos el mapa en el usuario
+            if (!primerUbicacionRecibida) {
+                map.setView([lat, lng], 16);
+                primerUbicacionRecibida = true;
+                document.getElementById('aviso').style.display = 'none';
+            }
+        }
+
+        // Función si hay error al obtener la ubicación
+        function errorUbicacion(error) {
+            let mensaje = 'No se pudo obtener tu ubicación.';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    mensaje = 'Permiso de ubicación denegado. Activalo en el navegador.';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    mensaje = 'Ubicación no disponible. Revisá el GPS.';
+                    break;
+                case error.TIMEOUT:
+                    mensaje = 'Tiempo agotado buscando tu ubicación.';
+                    break;
+            }
+            console.warn('⚠️', mensaje, error);
+            document.getElementById('aviso').textContent = mensaje;
+        }
+
+        // Verificar que el navegador soporte geolocalización
+        if ('geolocation' in navigator) {
+            // watchPosition: nos avisa CADA VEZ que la posición cambia
+            navigator.geolocation.watchPosition(
+                actualizarUbicacion,
+                errorUbicacion,
+                {
+                    enableHighAccuracy: true,  // usar GPS real, no solo Wi-Fi
+                    timeout: 15000,            // esperar hasta 15 seg
+                    maximumAge: 5000           // aceptar posición de hasta 5 seg de antigüedad
+                }
+            );
+        } else {
+            document.getElementById('aviso').textContent = 'Tu navegador no soporta geolocalización.';
+        }
     </script>
 
 </body>
