@@ -26,233 +26,104 @@
         .resultados li:last-child { border-bottom: none; }
         .resultados li:hover { background: #f0f8ff; }
         .resultados li.esquina { background: linear-gradient(90deg, #fff9e6 0%, #fff 100%); border-left: 4px solid #f39c12; font-weight: 500; }
-        .resultados li.esquina:hover { background: #fff3cd; }
         .resultados li.direccion { background: linear-gradient(90deg, #e8f8ec 0%, #fff 100%); border-left: 4px solid #27ae60; font-weight: 500; }
-        .resultados li.direccion:hover { background: #d4edda; }
         .resultados li small { color: #888; font-weight: normal; }
 
-        /* PUNTO USUARIO CON FLECHA */
-        .punto-usuario {
-            width: 22px; height: 22px;
-            position: relative;
-        }
-        .punto-usuario .circulo {
-            width: 100%; height: 100%;
-            background: #0078ff;
-            border: 3px solid white;
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(0, 120, 255, 0.8);
-            animation: pulso 2s infinite;
-            box-sizing: border-box;
-        }
-        .punto-usuario .flecha {
-            position: absolute;
-            top: -14px; left: 50%;
-            transform: translateX(-50%);
-            width: 0; height: 0;
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-bottom: 14px solid #0078ff;
-            filter: drop-shadow(0 0 3px rgba(0,120,255,0.8));
-            transform-origin: 50% 25px;
-        }
+        /* PUNTO USUARIO */
+        .punto-usuario { width: 22px; height: 22px; position: relative; }
+        .punto-usuario .circulo { width: 100%; height: 100%; background: #0078ff; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(0, 120, 255, 0.8); animation: pulso 2s infinite; box-sizing: border-box; }
+        .punto-usuario .flecha { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 14px solid #0078ff; filter: drop-shadow(0 0 3px rgba(0,120,255,0.8)); transform-origin: 50% 25px; }
         @keyframes pulso {
             0% { box-shadow: 0 0 10px rgba(0,120,255,0.8); }
             50% { box-shadow: 0 0 20px rgba(0,120,255,1); }
             100% { box-shadow: 0 0 10px rgba(0,120,255,0.8); }
         }
 
-        /* OTROS PUNTOS */
         .punto-calle { width: 14px; height: 14px; background: #e74c3c; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 8px rgba(231, 76, 60, 0.9); }
-        .punto-esquina {
-            width: 22px; height: 22px; background: #f39c12; border: 4px solid white; border-radius: 50%;
-            box-shadow: 0 0 12px rgba(243, 156, 18, 1); animation: pulso-esquina 1.5s infinite;
-        }
+        .punto-esquina { width: 22px; height: 22px; background: #f39c12; border: 4px solid white; border-radius: 50%; box-shadow: 0 0 12px rgba(243, 156, 18, 1); animation: pulso-esquina 1.5s infinite; }
         @keyframes pulso-esquina {
             0% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 0 rgba(243,156,18,0.7); }
             70% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 20px rgba(243,156,18,0); }
             100% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 0 rgba(243,156,18,0); }
         }
-        .punto-direccion {
-            width: 24px; height: 24px; background: #27ae60; border: 4px solid white;
-            border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
-            box-shadow: 0 0 12px rgba(39, 174, 96, 1);
-            display: flex; align-items: center; justify-content: center; font-size: 12px;
-        }
+        .punto-direccion { width: 24px; height: 24px; background: #27ae60; border: 4px solid white; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 0 12px rgba(39, 174, 96, 1); display: flex; align-items: center; justify-content: center; font-size: 12px; }
         .punto-direccion::after { content: '🏠'; transform: rotate(45deg); }
-        .punto-mio {
-            width: 26px; height: 26px; background: #9b59b6; border: 4px solid white;
-            border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
-            box-shadow: 0 0 12px rgba(155, 89, 182, 1);
-            display: flex; align-items: center; justify-content: center; font-size: 12px;
-        }
+        .punto-mio { width: 26px; height: 26px; background: #9b59b6; border: 4px solid white; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 0 12px rgba(155, 89, 182, 1); display: flex; align-items: center; justify-content: center; font-size: 12px; }
         .punto-mio::after { content: '⭐'; transform: rotate(45deg); }
-        .marcador-sitio {
-            display: flex; align-items: center; justify-content: center;
-            width: 28px; height: 28px; background: white; border: 2px solid #2c3e50;
-            border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 14px;
-        }
+        .marcador-sitio { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: white; border: 2px solid #2c3e50; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 14px; }
         .marcador-sitio > span { transform: rotate(45deg); display: block; }
 
-        /* PANEL FILTROS */
-        .panel-filtros {
-            position: absolute; bottom: 20px; right: 20px; z-index: 1000; background: white;
-            border-radius: 12px; padding: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-            display: flex; flex-direction: column; gap: 6px; max-height: 60vh; overflow-y: auto; max-width: 200px;
-        }
-        .panel-filtros button {
-            display: flex; align-items: center; justify-content: flex-start; gap: 6px;
-            padding: 8px 12px; border: none; border-radius: 8px; background: #f0f0f0;
-            cursor: pointer; font-size: 12px; color: #2c3e50; transition: background 0.2s;
-            white-space: nowrap; text-align: left; width: 100%;
-        }
+        .panel-filtros { position: absolute; bottom: 20px; right: 20px; z-index: 1000; background: white; border-radius: 12px; padding: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; flex-direction: column; gap: 6px; max-height: 60vh; overflow-y: auto; max-width: 200px; }
+        .panel-filtros button { display: flex; align-items: center; justify-content: flex-start; gap: 6px; padding: 8px 12px; border: none; border-radius: 8px; background: #f0f0f0; cursor: pointer; font-size: 12px; color: #2c3e50; transition: background 0.2s; white-space: nowrap; text-align: left; width: 100%; }
         .panel-filtros button:hover { background: #e0e0e0; }
         .panel-filtros button.activo { background: #2c3e50; color: white; }
         .panel-filtros .toggle { background: #3498db; color: white; font-weight: bold; justify-content: center; }
-        .panel-filtros .toggle:hover { background: #2980b9; }
 
-        /* BOTONES FLOTANTES */
-        .botones-flotantes {
-            position: absolute; top: 10px; right: 10px; z-index: 1000;
-            display: flex; flex-direction: column; gap: 8px;
-        }
-        .btn-flotante {
-            width: 44px; height: 44px; border: none; border-radius: 50%; background: white;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; font-size: 20px;
-            display: flex; align-items: center; justify-content: center;
-            transition: transform 0.15s, background 0.2s;
-        }
+        .botones-flotantes { position: absolute; top: 10px; right: 10px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
+        .btn-flotante { width: 44px; height: 44px; border: none; border-radius: 50%; background: white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: transform 0.15s, background 0.2s; }
         .btn-flotante:hover { transform: scale(1.08); background: #f0f8ff; }
         .btn-flotante.activo { background: #2c3e50; color: white; }
         .btn-flotante.rojo { background: #e74c3c; color: white; }
-        .btn-flotante.rojo:hover { background: #c0392b; }
+        .btn-flotante.verde { background: #27ae60; color: white; }
+        .btn-flotante.verde.completo { background: #2980b9; }
 
-        /* AVISOS */
-        .aviso-ubicacion {
-            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; background: rgba(0,0,0,0.75); color: white;
-            padding: 10px 20px; border-radius: 20px; font-size: 14px;
-        }
-        .aviso-medir {
-            position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; background: #e67e22; color: white;
-            padding: 10px 20px; border-radius: 20px; font-size: 14px;
-            display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        }
+        .aviso-ubicacion { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(0,0,0,0.75); color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; }
+        .aviso-medir { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); z-index: 1000; background: #e67e22; color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
         .aviso-medir.activo { display: block; }
-
-        /* VELOCÍMETRO */
-        .velocimetro {
-            position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
-            z-index: 1000; background: rgba(44, 62, 80, 0.9); color: white;
-            padding: 8px 18px; border-radius: 30px; font-size: 15px;
-            display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-            font-weight: bold;
-        }
+        .velocimetro { position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(44, 62, 80, 0.9); color: white; padding: 8px 18px; border-radius: 30px; font-size: 15px; display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: bold; }
         .velocimetro.activo { display: block; }
         .velocimetro .num { font-size: 20px; }
-
-        /* NOTIFICACIÓN DE RECÁLCULO */
-        .notificacion {
-            position: absolute; top: 70px; left: 50%; transform: translateX(-50%);
-            z-index: 3000; background: #3498db; color: white;
-            padding: 12px 24px; border-radius: 25px; font-size: 14px;
-            font-weight: bold;
-            display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-            animation: slideDown 0.3s ease-out;
-        }
+        .notificacion { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); z-index: 3000; background: #3498db; color: white; padding: 12px 24px; border-radius: 25px; font-size: 14px; font-weight: bold; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
         .notificacion.activo { display: block; }
         .notificacion.aviso { background: #f39c12; }
         .notificacion.exito { background: #27ae60; }
-        @keyframes slideDown {
-            from { opacity: 0; transform: translate(-50%, -20px); }
-            to { opacity: 1; transform: translate(-50%, 0); }
-        }
 
-        /* PANEL DE RUTA */
-        .panel-ruta {
-            position: absolute; bottom: 0; left: 0; right: 0; z-index: 2000;
-            background: white; border-radius: 16px 16px 0 0;
-            box-shadow: 0 -4px 20px rgba(0,0,0,0.3); padding: 16px;
-            transform: translateY(100%); transition: transform 0.3s;
-            max-height: 55vh; overflow-y: auto;
-        }
+        .panel-ruta { position: absolute; bottom: 0; left: 0; right: 0; z-index: 2000; background: white; border-radius: 16px 16px 0 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.3); padding: 16px; transform: translateY(100%); transition: transform 0.3s; max-height: 55vh; overflow-y: auto; }
         .panel-ruta.activo { transform: translateY(0); }
         .panel-ruta .encabezado { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .panel-ruta .encabezado h3 { margin: 0; color: #2c3e50; font-size: 16px; flex: 1; }
-        .panel-ruta .cerrar {
-            background: #ecf0f1; border: none; width: 32px; height: 32px;
-            border-radius: 50%; cursor: pointer; font-size: 16px; color: #2c3e50;
-        }
-        .panel-ruta .cerrar:hover { background: #d5dbdb; }
+        .panel-ruta .cerrar { background: #ecf0f1; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 16px; color: #2c3e50; }
         .panel-ruta .stats { display: flex; gap: 12px; margin-bottom: 12px; }
         .panel-ruta .stat { flex: 1; background: #f8f9fa; border-radius: 10px; padding: 12px; text-align: center; }
         .panel-ruta .stat .valor { font-size: 20px; font-weight: bold; color: #2c3e50; }
         .panel-ruta .stat .etiqueta { font-size: 11px; color: #7f8c8d; margin-top: 4px; }
         .panel-ruta .modo { display: flex; gap: 8px; margin-bottom: 12px; }
-        .panel-ruta .modo button {
-            flex: 1; padding: 8px; border: 2px solid #ecf0f1; border-radius: 8px;
-            background: white; cursor: pointer; font-size: 14px; transition: all 0.2s;
-        }
+        .panel-ruta .modo button { flex: 1; padding: 8px; border: 2px solid #ecf0f1; border-radius: 8px; background: white; cursor: pointer; font-size: 14px; transition: all 0.2s; }
         .panel-ruta .modo button.activo { border-color: #3498db; background: #e8f4fd; color: #2980b9; font-weight: bold; }
-        .panel-ruta .barra-acciones {
-            display: flex; gap: 8px; margin-bottom: 12px;
-        }
-        .panel-ruta .barra-acciones button {
-            flex: 1; padding: 8px; border: none; border-radius: 8px;
-            cursor: pointer; font-size: 13px; font-weight: bold;
-        }
+        .panel-ruta .barra-acciones { display: flex; gap: 8px; margin-bottom: 12px; }
+        .panel-ruta .barra-acciones button { flex: 1; padding: 8px; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; }
         .panel-ruta .btn-recalcular { background: #3498db; color: white; }
-        .panel-ruta .btn-recalcular:hover { background: #2980b9; }
         .panel-ruta .btn-auto { background: #ecf0f1; color: #2c3e50; }
         .panel-ruta .btn-auto.activo { background: #27ae60; color: white; }
         .panel-ruta .pasos { list-style: none; padding: 0; margin: 0; }
-        .panel-ruta .pasos li {
-            display: flex; gap: 10px; padding: 10px 0;
-            border-bottom: 1px solid #eee; font-size: 13px; color: #555;
-        }
+        .panel-ruta .pasos li { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #eee; font-size: 13px; color: #555; }
         .panel-ruta .pasos li:last-child { border-bottom: none; }
-        .panel-ruta .pasos li.paso-actual {
-            background: #e8f4fd; border-radius: 8px; padding: 12px;
-            border-left: 4px solid #3498db; margin: 4px 0;
-        }
         .panel-ruta .pasos .icono { font-size: 20px; flex-shrink: 0; }
-        .panel-ruta .info-adicional {
-            margin-top: 12px; padding: 10px; background: #fff9e6;
-            border-left: 4px solid #f39c12; border-radius: 6px;
-            font-size: 12px; color: #555;
-        }
 
-        /* MODALES */
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.7); z-index: 9999;
-            justify-content: center; align-items: center;
-        }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center; }
         .modal-overlay.activo { display: flex; }
-        .modal {
-            background: white; border-radius: 12px; padding: 24px;
-            max-width: 400px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            max-height: 80vh; overflow-y: auto;
-        }
+        .modal { background: white; border-radius: 12px; padding: 24px; max-width: 420px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.3); max-height: 85vh; overflow-y: auto; }
         .modal h3 { margin: 0 0 12px 0; color: #2c3e50; font-size: 18px; }
         .modal p { color: #555; font-size: 14px; line-height: 1.5; margin: 8px 0; }
-        .modal input[type="text"] {
-            width: 100%; padding: 10px 12px; border: 2px solid #ddd;
-            border-radius: 8px; font-size: 15px; box-sizing: border-box;
-            outline: none; margin-top: 8px;
-        }
+        .modal input[type="text"] { width: 100%; padding: 10px 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; box-sizing: border-box; outline: none; margin-top: 8px; }
         .modal input[type="text"]:focus { border-color: #3498db; }
         .modal .botones { display: flex; gap: 8px; margin-top: 16px; }
-        .modal .botones button {
-            flex: 1; padding: 10px; border: none; border-radius: 8px;
-            font-size: 14px; cursor: pointer; font-weight: bold;
-        }
+        .modal .botones button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: bold; }
         .modal .btn-cancelar { background: #ecf0f1; color: #2c3e50; }
-        .modal .btn-cancelar:hover { background: #d5dbdb; }
         .modal .btn-ok { background: #27ae60; color: white; }
         .modal .btn-ok:hover { background: #229954; }
+        .modal .btn-ok:disabled { background: #95a5a6; cursor: not-allowed; }
+        .modal .btn-peligro { background: #e74c3c; color: white; }
+        .modal .btn-peligro:hover { background: #c0392b; }
+
+        .barra { width: 100%; height: 20px; background: #ecf0f1; border-radius: 10px; overflow: hidden; margin: 16px 0 8px 0; }
+        .barra-fill { height: 100%; background: linear-gradient(90deg, #27ae60, #2ecc71); width: 0%; transition: width 0.3s; }
+        .info-progreso { font-size: 13px; color: #7f8c8d; text-align: center; }
+        .estado-offline {
+            background: #f8f9fa; border-radius: 8px; padding: 12px;
+            margin: 12px 0; font-size: 13px; color: #2c3e50; line-height: 1.6;
+        }
+        .estado-offline strong { color: #2c3e50; }
 
         .lista-lugares { list-style: none; padding: 0; margin: 12px 0 0 0; max-height: 300px; overflow-y: auto; }
         .lista-lugares li { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid #eee; font-size: 14px; }
@@ -275,7 +146,8 @@
         <button class="btn-flotante" id="btnModoOscuro" title="Modo oscuro">🌙</button>
         <button class="btn-flotante" id="btnMedir" title="Medir distancia">📏</button>
         <button class="btn-flotante" id="btnLugares" title="Mis lugares">⭐</button>
-        <button class="btn-flotante" id="btnCompartir" title="Compartir búsqueda" style="display:none;">📤</button>
+        <button class="btn-flotante verde" id="btnOffline" title="Mapa offline">📥</button>
+        <button class="btn-flotante" id="btnCompartir" title="Compartir" style="display:none;">📤</button>
         <button class="btn-flotante rojo" id="btnIr" title="Ir hasta ahí" style="display:none;">🛣️</button>
     </div>
 
@@ -301,24 +173,37 @@
             <button id="modoBici" onclick="cambiarModo('bici')">🚲 Bici</button>
         </div>
         <div class="stats">
-            <div class="stat">
-                <div class="valor" id="statDistancia">--</div>
-                <div class="etiqueta">Distancia</div>
-            </div>
-            <div class="stat">
-                <div class="valor" id="statTiempo">--</div>
-                <div class="etiqueta">Tiempo est.</div>
-            </div>
+            <div class="stat"><div class="valor" id="statDistancia">--</div><div class="etiqueta">Distancia</div></div>
+            <div class="stat"><div class="valor" id="statTiempo">--</div><div class="etiqueta">Tiempo est.</div></div>
         </div>
         <div class="barra-acciones">
             <button class="btn-recalcular" id="btnRecalcular" onclick="forzarRecalculo()">🔄 Recalcular</button>
             <button class="btn-auto activo" id="btnAutoRecalc" onclick="toggleAutoRecalc()">📡 Auto: ON</button>
         </div>
         <ul class="pasos" id="listaPasos"></ul>
-        <div class="info-adicional" id="infoAdicional" style="display:none;"></div>
     </div>
 
-    <!-- MODALES -->
+    <!-- MODAL: DESCARGAR OFFLINE -->
+    <div class="modal-overlay" id="modalOffline">
+        <div class="modal">
+            <h3 id="tituloOffline">📥 Mapa offline</h3>
+            <div id="contenidoOffline">
+                <div class="estado-offline" id="estadoOffline">
+                    Calculando estado...
+                </div>
+                <p id="textoOffline" style="font-size:13px;color:#666;"></p>
+                <div class="barra" id="barraOffline" style="display:none;"><div class="barra-fill" id="barraOfflineFill"></div></div>
+                <div class="info-progreso" id="infoProgreso"></div>
+            </div>
+            <div class="botones" id="botonesOffline">
+                <button class="btn-cancelar" onclick="cerrarModalOffline()">Cerrar</button>
+                <button class="btn-peligro" id="btnBorrarTeselas" onclick="borrarTeselas()" style="display:none;">🗑️ Borrar</button>
+                <button class="btn-ok" id="btnIniciarOffline" onclick="iniciarDescargaOffline()">📥 Descargar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: AGREGAR LUGAR -->
     <div class="modal-overlay" id="modalLugar">
         <div class="modal">
             <h3>⭐ Guardar lugar</h3>
@@ -330,6 +215,8 @@
             </div>
         </div>
     </div>
+
+    <!-- MODAL: MIS LUGARES -->
     <div class="modal-overlay" id="modalLugares">
         <div class="modal">
             <h3>⭐ Mis lugares</h3>
@@ -373,16 +260,15 @@
             const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
             return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
-        function formatearDistancia(metros) {
-            if (metros < 1000) return `${Math.round(metros)} m`;
-            return `${(metros / 1000).toFixed(2)} km`;
+        function formatearDistancia(m) {
+            if (m < 1000) return `${Math.round(m)} m`;
+            return `${(m / 1000).toFixed(2)} km`;
         }
-        function formatearTiempo(segundos) {
-            const min = Math.round(segundos / 60);
+        function formatearTiempo(s) {
+            const min = Math.round(s / 60);
             if (min < 60) return `${min} min`;
             const h = Math.floor(min / 60);
-            const m = min % 60;
-            return `${h}h ${m}m`;
+            return `${h}h ${min % 60}m`;
         }
         function mostrarNotificacion(texto, tipo = 'info', duracion = 3000) {
             const notif = document.getElementById('notificacion');
@@ -393,162 +279,95 @@
         }
 
         // ============================================
-        // UBICACIÓN CON ORIENTACIÓN (BRÚJULA)
+        // UBICACIÓN
         // ============================================
-        let posicionUsuario = null;       // [lat, lng]
-        let headingUsuario = null;        // grados 0-360 (0 = norte)
-        let posicionAnterior = null;      // Para calcular el rumbo por GPS
+        let posicionUsuario = null;
+        let headingUsuario = null;
+        let posicionAnterior = null;
         let timestampAnterior = null;
-        let ultimaVelocidad = 0;          // km/h
+        let ultimaVelocidad = 0;
         let marcadorUsuario = null;
         let primerUbicacion = false;
         let usarBrujulaDispositivo = false;
 
         const iconoUsuario = L.divIcon({
             className: 'punto-usuario',
-            html: '<div class="flecha" id="flechaUsuario" style="transform: translateX(-50%) rotate(0deg);"></div><div class="circulo"></div>',
-            iconSize: [22, 22],
-            iconAnchor: [11, 11]
+            html: '<div class="flecha" id="flechaUsuario" style="transform: translateX(-50%) rotate(0deg); display:none;"></div><div class="circulo"></div>',
+            iconSize: [22, 22], iconAnchor: [11, 11]
         });
 
         function actualizarFlecha() {
             const flecha = document.getElementById('flechaUsuario');
             if (!flecha) return;
-            const grados = headingUsuario != null ? headingUsuario : 0;
-            flecha.style.transform = `translateX(-50%) rotate(${grados}deg)`;
-            // Ocultar la flecha si no tenemos orientación confiable
+            flecha.style.transform = `translateX(-50%) rotate(${headingUsuario || 0}deg)`;
             flecha.style.display = headingUsuario != null ? 'block' : 'none';
         }
-
         function manejarPosicion(pos) {
             const lat = pos.coords.latitude;
             const lng = pos.coords.longitude;
             const ahora = Date.now();
-
-            // Velocidad desde el GPS (en m/s → km/h)
-            if (pos.coords.speed != null && pos.coords.speed >= 0) {
-                ultimaVelocidad = pos.coords.speed * 3.6;
-            }
-
-            // Calcular rumbo por GPS si nos movemos
+            if (pos.coords.speed != null && pos.coords.speed >= 0) ultimaVelocidad = pos.coords.speed * 3.6;
             if (posicionAnterior && timestampAnterior) {
                 const dist = haversine(posicionAnterior[0], posicionAnterior[1], lat, lng);
-                if (dist > 3) { // más de 3 metros para considerar movimiento
-                    const rumbo = calcularRumbo(posicionAnterior[0], posicionAnterior[1], lat, lng);
-                    // Solo usar GPS si no tenemos brújula del dispositivo
-                    if (!usarBrujulaDispositivo) {
-                        headingUsuario = rumbo;
-                    }
+                if (dist > 3 && !usarBrujulaDispositivo) {
+                    headingUsuario = calcularRumbo(posicionAnterior[0], posicionAnterior[1], lat, lng);
                 }
             }
-            posicionAnterior = [lat, lng];
-            timestampAnterior = ahora;
+            posicionAnterior = [lat, lng]; timestampAnterior = ahora;
             posicionUsuario = [lat, lng];
-
-            // Actualizar/crear marcador
-            if (marcadorUsuario) {
-                marcadorUsuario.setLatLng([lat, lng]);
-            } else {
-                marcadorUsuario = L.marker([lat, lng], {
-                    icon: iconoUsuario, zIndexOffset: 1000
-                }).addTo(map);
-            }
+            if (marcadorUsuario) marcadorUsuario.setLatLng([lat, lng]);
+            else marcadorUsuario = L.marker([lat, lng], { icon: iconoUsuario, zIndexOffset: 1000 }).addTo(map);
             actualizarFlecha();
-
-            if (!primerUbicacion) {
-                map.setView([lat, lng], 16);
-                primerUbicacion = true;
-                document.getElementById('aviso').style.display = 'none';
-            }
-
-            // Actualizar velocímetro
+            if (!primerUbicacion) { map.setView([lat, lng], 16); primerUbicacion = true; document.getElementById('aviso').style.display = 'none'; }
             actualizarVelocimetro();
-
-            // Verificar recálculo de ruta
             verificarRecalculo();
-
-            // Actualizar progreso de ruta (paso actual)
             actualizarProgresoRuta();
         }
-
         function calcularRumbo(lat1, lng1, lat2, lng2) {
             const toRad = (d) => d * Math.PI / 180;
             const toDeg = (r) => r * 180 / Math.PI;
             const dLng = toRad(lng2 - lng1);
             const y = Math.sin(dLng) * Math.cos(toRad(lat2));
-            const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) -
-                      Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLng);
-            let rumbo = toDeg(Math.atan2(y, x));
-            return (rumbo + 360) % 360;
+            const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) - Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLng);
+            return (toDeg(Math.atan2(y, x)) + 360) % 360;
         }
-
         function errorUbicacion(err) {
             console.warn('Error GPS:', err.message);
             document.getElementById('aviso').textContent = 'No se pudo obtener tu ubicación.';
         }
-
         if ('geolocation' in navigator) {
             navigator.geolocation.watchPosition(manejarPosicion, errorUbicacion, {
                 enableHighAccuracy: true, timeout: 15000, maximumAge: 2000
             });
         }
 
-        // --------------------------------------------------
-        // BRÚJULA DEL DISPOSITIVO (si está disponible)
-        // --------------------------------------------------
+        // Brújula
         function manejarOrientacion(event) {
             let heading = null;
-            if (event.webkitCompassHeading != null) {
-                // iOS: heading absoluto
-                heading = event.webkitCompassHeading;
-            } else if (event.absolute === true && event.alpha != null) {
-                // Android: alpha = rotación respecto al norte
-                heading = 360 - event.alpha;
-            } else if (event.alpha != null) {
-                heading = 360 - event.alpha;
-            }
-            if (heading != null && !isNaN(heading)) {
-                headingUsuario = heading;
-                usarBrujulaDispositivo = true;
-                actualizarFlecha();
-            }
+            if (event.webkitCompassHeading != null) heading = event.webkitCompassHeading;
+            else if (event.alpha != null) heading = 360 - event.alpha;
+            if (heading != null && !isNaN(heading)) { headingUsuario = heading; usarBrujulaDispositivo = true; actualizarFlecha(); }
         }
-
         function activarBrujula() {
             if (typeof DeviceOrientationEvent !== 'undefined') {
                 if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                    // iOS 13+ requiere permiso
-                    DeviceOrientationEvent.requestPermission()
-                        .then((permiso) => {
-                            if (permiso === 'granted') {
-                                window.addEventListener('deviceorientation', manejarOrientacion, true);
-                                console.log('🧭 Brújula activada (iOS)');
-                            }
-                        })
-                        .catch((e) => console.warn('Sin permiso para brújula:', e));
+                    DeviceOrientationEvent.requestPermission().then((p) => {
+                        if (p === 'granted') window.addEventListener('deviceorientation', manejarOrientacion, true);
+                    }).catch(() => {});
                 } else {
                     window.addEventListener('deviceorientationabsolute', manejarOrientacion, true);
                     window.addEventListener('deviceorientation', manejarOrientacion, true);
-                    console.log('🧭 Brújula activada');
                 }
             }
         }
-        // Activar la brújula al primer toque en el mapa (requerido por iOS)
         document.addEventListener('touchstart', activarBrujula, { once: true });
         document.addEventListener('click', activarBrujula, { once: true });
 
-        // ============================================
-        // VELOCÍMETRO
-        // ============================================
         function actualizarVelocimetro() {
             const vel = document.getElementById('velocimetro');
             const num = document.getElementById('velocidadNum');
-            if (ultimaVelocidad > 2) { // Mostrar solo si se mueve
-                vel.classList.add('activo');
-                num.textContent = ultimaVelocidad.toFixed(0);
-            } else {
-                vel.classList.remove('activo');
-            }
+            if (ultimaVelocidad > 2) { vel.classList.add('activo'); num.textContent = ultimaVelocidad.toFixed(0); }
+            else vel.classList.remove('activo');
         }
 
         // ============================================
@@ -580,28 +399,22 @@
                     } else return;
                     callesIndex.push({
                         nombre: normalizar(nombre), nombreOriginal: nombre,
-                        lat: lat, lng: lng,
-                        coordenadas: coordenadas.map(c => [c[1], c[0]])
+                        lat, lng, coordenadas: coordenadas.map(c => [c[1], c[0]])
                     });
                 });
                 const agrupadas = {};
                 callesIndex.forEach(c => {
-                    if (!agrupadas[c.nombre]) {
-                        agrupadas[c.nombre] = {
-                            nombre: c.nombre, nombreOriginal: c.nombreOriginal,
-                            lat: c.lat, lng: c.lng, tramos: [c.coordenadas]
-                        };
-                    } else agrupadas[c.nombre].tramos.push(c.coordenadas);
+                    if (!agrupadas[c.nombre]) agrupadas[c.nombre] = { nombre: c.nombre, nombreOriginal: c.nombreOriginal, lat: c.lat, lng: c.lng, tramos: [c.coordenadas] };
+                    else agrupadas[c.nombre].tramos.push(c.coordenadas);
                 });
                 callesIndex = Object.values(agrupadas);
                 console.log(`✅ ${callesIndex.length} calles cargadas`);
             } catch (e) { console.error('Error cargando calles:', e); }
         }
-
         async function cargarDirecciones() {
             try {
                 const resp = await fetch('data/direcciones.geojson');
-                if (!resp.ok) { console.warn('⚠️ No se encontró direcciones.geojson'); return; }
+                if (!resp.ok) return;
                 const data = await resp.json();
                 data.features.forEach(f => {
                     const props = f.properties;
@@ -611,23 +424,20 @@
                     const numero = parseInt(numeroStr);
                     if (isNaN(numero)) return;
                     let lat, lng, exacto = false;
-                    if (f.geometry.type === 'Point') {
-                        lng = f.geometry.coordinates[0]; lat = f.geometry.coordinates[1]; exacto = true;
-                    } else if (f.geometry.type === 'LineString') {
+                    if (f.geometry.type === 'Point') { lng = f.geometry.coordinates[0]; lat = f.geometry.coordinates[1]; exacto = true; }
+                    else if (f.geometry.type === 'LineString') {
                         const coords = f.geometry.coordinates;
                         const medio = coords[Math.floor(coords.length / 2)];
-                        lng = medio[0]; lat = medio[1]; exacto = false;
+                        lng = medio[0]; lat = medio[1];
                     } else return;
                     direccionesIndex.push({
-                        calle: normalizar(calle), calleOriginal: calle,
-                        numero: numero, lat: lat, lng: lng, exacto: exacto,
+                        calle: normalizar(calle), calleOriginal: calle, numero, lat, lng, exacto,
                         interpolacion: props['addr:interpolation'] || null
                     });
                 });
                 console.log(`✅ ${direccionesIndex.length} direcciones cargadas`);
             } catch (e) { console.error('Error cargando direcciones:', e); }
         }
-
         function buscarCalle(termino) {
             const t = normalizar(termino);
             if (t.length < 2) return [];
@@ -635,43 +445,31 @@
         }
         function buscarCalleExacta(nombre) {
             const n = normalizar(nombre);
-            let encontrada = callesIndex.find(c => c.nombre === n);
-            if (encontrada) return encontrada;
-            const candidatas = callesIndex
-                .filter(c => c.nombre.includes(n) || n.includes(c.nombre))
+            let enc = callesIndex.find(c => c.nombre === n);
+            if (enc) return enc;
+            const cand = callesIndex.filter(c => c.nombre.includes(n) || n.includes(c.nombre))
                 .sort((a, b) => Math.abs(a.nombre.length - n.length) - Math.abs(b.nombre.length - n.length));
-            return candidatas[0] || null;
+            return cand[0] || null;
         }
         function buscarDireccion(calle, numero) {
             const c = normalizar(calle);
-            const candidatas = direccionesIndex.filter(d => d.calle === c || d.calle.includes(c) || c.includes(d.calle));
-            if (candidatas.length === 0) return null;
+            const cand = direccionesIndex.filter(d => d.calle === c || d.calle.includes(c) || c.includes(d.calle));
+            if (cand.length === 0) return null;
             let mejor = null, mejorDist = Infinity;
-            for (const d of candidatas) {
+            for (const d of cand) {
                 const dist = Math.abs(d.numero - numero);
                 if (dist < mejorDist) { mejorDist = dist; mejor = d; }
             }
             return mejor;
         }
-
         function parsearQuery(query) {
             const q = query.trim();
-            const matchEsquina = q.match(/^(.+?)\s+y\s+(.+?)(?:\s+(\d+))?$/i);
-            if (matchEsquina) {
-                return {
-                    tipo: 'esquina',
-                    calle1: matchEsquina[1].trim(),
-                    calle2: matchEsquina[2].trim(),
-                    numero: matchEsquina[3] ? parseInt(matchEsquina[3]) : null
-                };
-            }
-            const matchDir = q.match(/^(.+?)\s+(\d+)$/);
-            if (matchDir) {
-                return { tipo: 'direccion', calle: matchDir[1].trim(), numero: parseInt(matchDir[2]) };
-            }
+            const m1 = q.match(/^(.+?)\s+y\s+(.+?)(?:\s+(\d+))?$/i);
+            if (m1) return { tipo: 'esquina', calle1: m1[1].trim(), calle2: m1[2].trim(), numero: m1[3] ? parseInt(m1[3]) : null };
+            const m2 = q.match(/^(.+?)\s+(\d+)$/);
+            if (m2) return { tipo: 'direccion', calle: m2[1].trim(), numero: parseInt(m2[2]) };
             return { tipo: 'calle', calle: q };
         }
-
         function interseccionSegmentos(p1, p2, p3, p4) {
             const x1 = p1[1], y1 = p1[0], x2 = p2[1], y2 = p2[0];
             const x3 = p3[1], y3 = p3[0], x4 = p4[1], y4 = p4[0];
@@ -684,36 +482,29 @@
         }
         function obtenerBBox(tramos) {
             let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
-            for (const tramo of tramos) for (const [lat, lng] of tramo) {
-                if (lat < minLat) minLat = lat;
-                if (lat > maxLat) maxLat = lat;
-                if (lng < minLng) minLng = lng;
-                if (lng > maxLng) maxLng = lng;
+            for (const t of tramos) for (const [la, ln] of t) {
+                if (la < minLat) minLat = la; if (la > maxLat) maxLat = la;
+                if (ln < minLng) minLng = ln; if (ln > maxLng) maxLng = ln;
             }
             return { minLat, maxLat, minLng, maxLng };
         }
-        function segmentoEnBBox(p1, p2, bbox) {
-            const minLatS = Math.min(p1[0], p2[0]), maxLatS = Math.max(p1[0], p2[0]);
-            const minLngS = Math.min(p1[1], p2[1]), maxLngS = Math.max(p1[1], p2[1]);
-            return !(maxLatS < bbox.minLat || minLatS > bbox.maxLat ||
-                     maxLngS < bbox.minLng || minLngS > bbox.maxLng);
+        function segmentoEnBBox(p1, p2, b) {
+            const mnLa = Math.min(p1[0], p2[0]), mxLa = Math.max(p1[0], p2[0]);
+            const mnLn = Math.min(p1[1], p2[1]), mxLn = Math.max(p1[1], p2[1]);
+            return !(mxLa < b.minLat || mnLa > b.maxLat || mxLn < b.minLng || mnLn > b.maxLng);
         }
-        function calcularIntersecciones(calleA, calleB) {
-            const intersecciones = [];
-            const bboxB = obtenerBBox(calleB.tramos);
-            for (const tramoA of calleA.tramos) {
-                for (let i = 0; i < tramoA.length - 1; i++) {
-                    const p1 = tramoA[i], p2 = tramoA[i + 1];
-                    if (!segmentoEnBBox(p1, p2, bboxB)) continue;
-                    for (const tramoB of calleB.tramos) {
-                        for (let j = 0; j < tramoB.length - 1; j++) {
-                            const inter = interseccionSegmentos(p1, p2, tramoB[j], tramoB[j + 1]);
-                            if (inter) intersecciones.push(inter);
-                        }
-                    }
+        function calcularIntersecciones(cA, cB) {
+            const res = [];
+            const bboxB = obtenerBBox(cB.tramos);
+            for (const tA of cA.tramos) for (let i = 0; i < tA.length - 1; i++) {
+                const p1 = tA[i], p2 = tA[i + 1];
+                if (!segmentoEnBBox(p1, p2, bboxB)) continue;
+                for (const tB of cB.tramos) for (let j = 0; j < tB.length - 1; j++) {
+                    const inter = interseccionSegmentos(p1, p2, tB[j], tB[j + 1]);
+                    if (inter) res.push(inter);
                 }
             }
-            return intersecciones;
+            return res;
         }
 
         function limpiarBusqueda() {
@@ -727,80 +518,56 @@
         }
         function mostrarCalle(calle) {
             limpiarBusqueda();
-            const lineas = calle.tramos.map(tramo =>
-                L.polyline(tramo, { color: '#e74c3c', weight: 6, opacity: 0.85, lineCap: 'round', lineJoin: 'round' })
-            );
+            const lineas = calle.tramos.map(t => L.polyline(t, { color: '#e74c3c', weight: 6, opacity: 0.85, lineCap: 'round', lineJoin: 'round' }));
             trazoCalle = L.layerGroup(lineas).addTo(map);
-            marcadorCalle = L.marker([calle.lat, calle.lng], {
-                icon: L.divIcon({ className: 'punto-calle', iconSize: [14, 14] })
-            }).addTo(map).bindPopup(`<strong>${calle.nombreOriginal}</strong>`);
+            marcadorCalle = L.marker([calle.lat, calle.lng], { icon: L.divIcon({ className: 'punto-calle', iconSize: [14, 14] }) })
+                .addTo(map).bindPopup(`<strong>${calle.nombreOriginal}</strong>`);
             map.fitBounds(L.featureGroup(lineas).getBounds(), { padding: [50, 50] });
             ultimaBusqueda = { texto: calle.nombreOriginal, lat: calle.lat, lng: calle.lng };
             mostrarBotonIr(calle.lat, calle.lng, calle.nombreOriginal);
         }
-        function mostrarDireccion(calle, direccion) {
+        function mostrarDireccion(calle, dir) {
             limpiarBusqueda();
-            const lineas = calle.tramos.map(tramo =>
-                L.polyline(tramo, { color: '#e74c3c', weight: 4, opacity: 0.6, lineCap: 'round', lineJoin: 'round' })
-            );
+            const lineas = calle.tramos.map(t => L.polyline(t, { color: '#e74c3c', weight: 4, opacity: 0.6, lineCap: 'round', lineJoin: 'round' }));
             trazoCalle = L.layerGroup(lineas).addTo(map);
-            const precision = direccion.exacto ? 'exacta' : 'aproximada';
-            marcadorCalle = L.marker([direccion.lat, direccion.lng], {
+            const precision = dir.exacto ? 'exacta' : 'aproximada';
+            marcadorCalle = L.marker([dir.lat, dir.lng], {
                 icon: L.divIcon({ className: 'punto-direccion', iconSize: [24, 24], iconAnchor: [12, 24] }),
                 zIndexOffset: 2000
-            }).addTo(map).bindPopup(`
-                <strong>📍 ${direccion.calleOriginal} ${direccion.numero}</strong><br>
-                <small>Numeración ${precision}${!direccion.exacto ? ' (interpolada)' : ''}</small>
-            `).openPopup();
-            map.setView([direccion.lat, direccion.lng], 18);
-            ultimaBusqueda = { texto: `${direccion.calleOriginal} ${direccion.numero}`, lat: direccion.lat, lng: direccion.lng };
-            mostrarBotonIr(direccion.lat, direccion.lng, `${direccion.calleOriginal} ${direccion.numero}`);
+            }).addTo(map).bindPopup(`<strong>📍 ${dir.calleOriginal} ${dir.numero}</strong><br><small>Numeración ${precision}</small>`).openPopup();
+            map.setView([dir.lat, dir.lng], 18);
+            ultimaBusqueda = { texto: `${dir.calleOriginal} ${dir.numero}`, lat: dir.lat, lng: dir.lng };
+            mostrarBotonIr(dir.lat, dir.lng, `${dir.calleOriginal} ${dir.numero}`);
         }
-        function mostrarInterseccion(calleA, calleB, numero, direccionCercana) {
+        function mostrarInterseccion(cA, cB, numero, dirCercana) {
             limpiarBusqueda();
-            const lineasA = calleA.tramos.map(tramo =>
-                L.polyline(tramo, { color: '#e74c3c', weight: 6, opacity: 0.85, lineCap: 'round', lineJoin: 'round' })
-            );
-            const lineasB = calleB.tramos.map(tramo =>
-                L.polyline(tramo, { color: '#3498db', weight: 6, opacity: 0.85, lineCap: 'round', lineJoin: 'round' })
-            );
-            trazoCalle = L.layerGroup([...lineasA, ...lineasB]).addTo(map);
-            const intersecciones = calcularIntersecciones(calleA, calleB);
-            if (intersecciones.length === 0) {
-                alert(`No se encontró esquina entre "${calleA.nombreOriginal}" y "${calleB.nombreOriginal}".`);
-                map.fitBounds(L.featureGroup([...lineasA, ...lineasB]).getBounds(), { padding: [50, 50] });
+            const lA = cA.tramos.map(t => L.polyline(t, { color: '#e74c3c', weight: 6, opacity: 0.85, lineCap: 'round', lineJoin: 'round' }));
+            const lB = cB.tramos.map(t => L.polyline(t, { color: '#3498db', weight: 6, opacity: 0.85, lineCap: 'round', lineJoin: 'round' }));
+            trazoCalle = L.layerGroup([...lA, ...lB]).addTo(map);
+            const inters = calcularIntersecciones(cA, cB);
+            if (inters.length === 0) {
+                alert(`No se encontró esquina entre "${cA.nombreOriginal}" y "${cB.nombreOriginal}".`);
+                map.fitBounds(L.featureGroup([...lA, ...lB]).getBounds(), { padding: [50, 50] });
                 return;
             }
             const unicas = [];
-            for (const inter of intersecciones) {
-                const yaExiste = unicas.some(u =>
-                    Math.abs(u[0] - inter[0]) < 0.0002 && Math.abs(u[1] - inter[1]) < 0.0002);
-                if (!yaExiste) unicas.push(inter);
+            for (const i of inters) {
+                if (!unicas.some(u => Math.abs(u[0] - i[0]) < 0.0002 && Math.abs(u[1] - i[1]) < 0.0002)) unicas.push(i);
             }
-            const marcadoresEsquina = unicas.map(([lat, lng]) =>
-                L.marker([lat, lng], {
-                    icon: L.divIcon({ className: 'punto-esquina', iconSize: [22, 22] }),
-                    zIndexOffset: 2000
-                }).bindPopup(`<strong>📍 Esquina</strong><br>${calleA.nombreOriginal} y ${calleB.nombreOriginal}`)
-            );
-            marcadorCalle = L.layerGroup(marcadoresEsquina).addTo(map);
-            if (direccionCercana) {
-                L.marker([direccionCercana.lat, direccionCercana.lng], {
-                    icon: L.divIcon({ className: 'punto-direccion', iconSize: [24, 24], iconAnchor: [12, 24] }),
-                    zIndexOffset: 2500
-                }).addTo(map).bindPopup(`
-                    <strong>🏠 ${direccionCercana.calleOriginal} ${direccionCercana.numero}</strong><br>
-                    <small>Altura aproximada</small>
-                `).openPopup();
+            const marcadores = unicas.map(([la, ln]) => L.marker([la, ln], {
+                icon: L.divIcon({ className: 'punto-esquina', iconSize: [22, 22] }), zIndexOffset: 2000
+            }).bindPopup(`<strong>📍 Esquina</strong><br>${cA.nombreOriginal} y ${cB.nombreOriginal}`));
+            marcadorCalle = L.layerGroup(marcadores).addTo(map);
+            if (dirCercana) {
+                L.marker([dirCercana.lat, dirCercana.lng], {
+                    icon: L.divIcon({ className: 'punto-direccion', iconSize: [24, 24], iconAnchor: [12, 24] }), zIndexOffset: 2500
+                }).addTo(map).bindPopup(`<strong>🏠 ${dirCercana.calleOriginal} ${dirCercana.numero}</strong>`).openPopup();
             }
             map.setView(unicas[0], 17);
-            ultimaBusqueda = { texto: `${calleA.nombreOriginal} y ${calleB.nombreOriginal}`, lat: unicas[0][0], lng: unicas[0][1] };
-            mostrarBotonIr(unicas[0][0], unicas[0][1], `${calleA.nombreOriginal} y ${calleB.nombreOriginal}`);
+            ultimaBusqueda = { texto: `${cA.nombreOriginal} y ${cB.nombreOriginal}`, lat: unicas[0][0], lng: unicas[0][1] };
+            mostrarBotonIr(unicas[0][0], unicas[0][1], `${cA.nombreOriginal} y ${cB.nombreOriginal}`);
         }
 
-        // ============================================
-        // INPUT
-        // ============================================
         const input = document.getElementById('inputBusqueda');
         const lista = document.getElementById('listaResultados');
         input.addEventListener('input', (e) => {
@@ -808,22 +575,18 @@
             lista.innerHTML = '';
             if (query.trim().length < 2) { lista.classList.remove('activo'); return; }
             const parsed = parsearQuery(query);
-
             if (parsed.tipo === 'esquina') {
                 const li = document.createElement('li');
                 li.className = 'esquina';
                 li.innerHTML = `🚦 <strong>Buscar esquina:</strong> ${parsed.calle1} <em>y</em> ${parsed.calle2}${parsed.numero ? ` <small>(altura ${parsed.numero})</small>` : ''}`;
                 li.addEventListener('click', () => {
-                    const calleA = buscarCalleExacta(parsed.calle1);
-                    const calleB = buscarCalleExacta(parsed.calle2);
-                    if (!calleA) { alert(`No se encontró "${parsed.calle1}"`); return; }
-                    if (!calleB) { alert(`No se encontró "${parsed.calle2}"`); return; }
-                    let dirCercana = null;
-                    if (parsed.numero) {
-                        dirCercana = buscarDireccion(parsed.calle1, parsed.numero) ||
-                                     buscarDireccion(parsed.calle2, parsed.numero);
-                    }
-                    mostrarInterseccion(calleA, calleB, parsed.numero, dirCercana);
+                    const cA = buscarCalleExacta(parsed.calle1);
+                    const cB = buscarCalleExacta(parsed.calle2);
+                    if (!cA) { alert(`No se encontró "${parsed.calle1}"`); return; }
+                    if (!cB) { alert(`No se encontró "${parsed.calle2}"`); return; }
+                    let dc = null;
+                    if (parsed.numero) dc = buscarDireccion(parsed.calle1, parsed.numero) || buscarDireccion(parsed.calle2, parsed.numero);
+                    mostrarInterseccion(cA, cB, parsed.numero, dc);
                     lista.classList.remove('activo'); lista.innerHTML = ''; input.blur();
                 });
                 lista.appendChild(li);
@@ -833,15 +596,11 @@
                     const dir = buscarDireccion(parsed.calle, parsed.numero);
                     const li = document.createElement('li');
                     li.className = 'direccion';
-                    if (dir) {
-                        const precision = dir.exacto ? 'exacta' : `aprox.`;
-                        li.innerHTML = `🏠 <strong>${calle.nombreOriginal} ${parsed.numero}</strong><br><small>Numeración ${precision}</small>`;
-                    } else {
-                        li.innerHTML = `🏠 <strong>${calle.nombreOriginal} ${parsed.numero}</strong><br><small>⚠️ Número no encontrado, se mostrará la calle</small>`;
-                    }
+                    li.innerHTML = dir
+                        ? `🏠 <strong>${calle.nombreOriginal} ${parsed.numero}</strong><br><small>Numeración ${dir.exacto ? 'exacta' : 'aprox.'}</small>`
+                        : `🏠 <strong>${calle.nombreOriginal} ${parsed.numero}</strong><br><small>⚠️ Número no encontrado</small>`;
                     li.addEventListener('click', () => {
-                        if (dir) mostrarDireccion(calle, dir);
-                        else mostrarCalle(calle);
+                        if (dir) mostrarDireccion(calle, dir); else mostrarCalle(calle);
                         lista.classList.remove('activo'); lista.innerHTML = ''; input.blur();
                     });
                     lista.appendChild(li);
@@ -869,9 +628,6 @@
             if (!e.target.closest('.buscador')) lista.classList.remove('activo');
         });
 
-        // ============================================
-        // INICIALIZAR
-        // ============================================
         (async () => {
             await cargarCalles();
             await cargarDirecciones();
@@ -880,58 +636,34 @@
         })();
 
         // ============================================
-        // MARCADORES DE SITIOS
+        // SITIOS
         // ============================================
-        const EMOJIS = {
-            hospital: '🏥', clinic: '🩺', pharmacy: '💊', bank: '🏦', atm: '🏧',
-            restaurant: '🍽️', fast_food: '🍔', bar: '🍺', cafe: '☕',
-            supermarket: '🛒', convenience: '🏪', police: '🚓', fire_station: '🚒',
-            bus_stop: '🚌', parking: '🅿️', fuel: '⛽', school: '🏫', university: '🎓',
-            townhall: '🏛️', hotel: '🏨', hostel: '🛏️',
-        };
-        const NOMBRES = {
-            hospital: 'Hospitales', clinic: 'Clínicas', pharmacy: 'Farmacias', bank: 'Bancos', atm: 'Cajeros',
-            restaurant: 'Restaurantes', fast_food: 'Comida rápida', bar: 'Bares', cafe: 'Cafés',
-            supermarket: 'Supermercados', convenience: 'Almacenes', police: 'Comisarías', fire_station: 'Bomberos',
-            bus_stop: 'Paradas SAETA', parking: 'Estacionamientos', fuel: 'Estaciones de servicio',
-            school: 'Escuelas', university: 'Universidades', townhall: 'Oficinas públicas',
-            hotel: 'Hoteles', hostel: 'Hostales',
-        };
+        const EMOJIS = { hospital: '🏥', clinic: '🩺', pharmacy: '💊', bank: '🏦', atm: '🏧', restaurant: '🍽️', fast_food: '🍔', bar: '🍺', cafe: '☕', supermarket: '🛒', convenience: '🏪', police: '🚓', fire_station: '🚒', bus_stop: '🚌', parking: '🅿️', fuel: '⛽', school: '🏫', university: '🎓', townhall: '🏛️', hotel: '🏨', hostel: '🛏️' };
+        const NOMBRES = { hospital: 'Hospitales', clinic: 'Clínicas', pharmacy: 'Farmacias', bank: 'Bancos', atm: 'Cajeros', restaurant: 'Restaurantes', fast_food: 'Comida rápida', bar: 'Bares', cafe: 'Cafés', supermarket: 'Supermercados', convenience: 'Almacenes', police: 'Comisarías', fire_station: 'Bomberos', bus_stop: 'Paradas SAETA', parking: 'Estacionamientos', fuel: 'Estaciones de servicio', school: 'Escuelas', university: 'Universidades', townhall: 'Oficinas públicas', hotel: 'Hoteles', hostel: 'Hostales' };
         const capas = {};
         const capasActivas = {};
 
         async function cargarSitios() {
-            const archivos = ['data/hospitales.geojson', 'data/sitios.geojson'];
-            for (const archivo of archivos) {
+            for (const archivo of ['data/hospitales.geojson', 'data/sitios.geojson']) {
                 try {
                     const resp = await fetch(archivo);
                     if (!resp.ok) continue;
                     const data = await resp.json();
                     data.features.forEach(f => {
                         const props = f.properties;
-                        let categoria = props.amenity || props.shop || props.tourism || props.highway;
-                        if (!categoria) return;
+                        let cat = props.amenity || props.shop || props.tourism || props.highway;
+                        if (!cat) return;
                         let lat, lng;
-                        if (f.geometry.type === 'Point') {
-                            lng = f.geometry.coordinates[0]; lat = f.geometry.coordinates[1];
-                        } else if (props['@geometry'] === 'center' && f.geometry.coordinates) {
-                            lng = f.geometry.coordinates[0]; lat = f.geometry.coordinates[1];
-                        } else return;
-                        if (!capas[categoria]) {
-                            capas[categoria] = L.layerGroup();
-                            capasActivas[categoria] = false;
-                        }
-                        const emoji = EMOJIS[categoria] || '📍';
-                        const icono = L.divIcon({
-                            className: '',
-                            html: `<div class="marcador-sitio"><span>${emoji}</span></div>`,
-                            iconSize: [28, 28], iconAnchor: [14, 28], popupAnchor: [0, -28]
-                        });
+                        if (f.geometry.type === 'Point') { lng = f.geometry.coordinates[0]; lat = f.geometry.coordinates[1]; }
+                        else if (props['@geometry'] === 'center' && f.geometry.coordinates) { lng = f.geometry.coordinates[0]; lat = f.geometry.coordinates[1]; }
+                        else return;
+                        if (!capas[cat]) { capas[cat] = L.layerGroup(); capasActivas[cat] = false; }
+                        const emoji = EMOJIS[cat] || '📍';
+                        const icono = L.divIcon({ className: '', html: `<div class="marcador-sitio"><span>${emoji}</span></div>`, iconSize: [28, 28], iconAnchor: [14, 28], popupAnchor: [0, -28] });
                         const nombre = props.name || props.official_name || 'Sin nombre';
                         const dir = props['addr:street'] ? `${props['addr:street']} ${props['addr:housenumber'] || ''}` : '';
-                        const marcador = L.marker([lat, lng], { icon: icono })
-                            .bindPopup(`<strong>${nombre}</strong><br><small>${NOMBRES[categoria] || categoria}</small>${dir ? '<br><small>📍 ' + dir + '</small>' : ''}${props.phone ? '<br><small>📞 ' + props.phone + '</small>' : ''}`);
-                        capas[categoria].addLayer(marcador);
+                        capas[cat].addLayer(L.marker([lat, lng], { icon: icono })
+                            .bindPopup(`<strong>${nombre}</strong><br><small>${NOMBRES[cat] || cat}</small>${dir ? '<br><small>📍 ' + dir + '</small>' : ''}${props.phone ? '<br><small>📞 ' + props.phone + '</small>' : ''}`));
                     });
                 } catch (e) { console.error(`Error cargando ${archivo}:`, e); }
             }
@@ -940,8 +672,7 @@
         }
         function generarBotonesFiltros() {
             const panel = document.getElementById('panelFiltros');
-            const categorias = Object.keys(capas).sort((a, b) => (NOMBRES[a] || a).localeCompare(NOMBRES[b] || b));
-            categorias.forEach(cat => {
+            Object.keys(capas).sort((a, b) => (NOMBRES[a] || a).localeCompare(NOMBRES[b] || b)).forEach(cat => {
                 const btn = document.createElement('button');
                 btn.id = 'btn-' + cat;
                 btn.textContent = `${EMOJIS[cat] || '📍'} ${NOMBRES[cat] || cat}`;
@@ -949,35 +680,20 @@
                 panel.appendChild(btn);
             });
         }
-        function toggleCapa(categoria) {
-            if (!capas[categoria]) return;
-            const btn = document.getElementById('btn-' + categoria);
-            if (capasActivas[categoria]) {
-                map.removeLayer(capas[categoria]);
-                capasActivas[categoria] = false;
-                if (btn) btn.classList.remove('activo');
-            } else {
-                map.addLayer(capas[categoria]);
-                capasActivas[categoria] = true;
-                if (btn) btn.classList.add('activo');
-            }
+        function toggleCapa(cat) {
+            if (!capas[cat]) return;
+            const btn = document.getElementById('btn-' + cat);
+            if (capasActivas[cat]) { map.removeLayer(capas[cat]); capasActivas[cat] = false; btn?.classList.remove('activo'); }
+            else { map.addLayer(capas[cat]); capasActivas[cat] = true; btn?.classList.add('activo'); }
         }
         function toggleTodo() {
             const btn = document.getElementById('toggleTodo');
             const algoActivo = Object.values(capasActivas).some(v => v);
             Object.keys(capas).forEach(cat => {
                 if (algoActivo) {
-                    if (capasActivas[cat]) {
-                        map.removeLayer(capas[cat]);
-                        capasActivas[cat] = false;
-                        document.getElementById('btn-' + cat)?.classList.remove('activo');
-                    }
+                    if (capasActivas[cat]) { map.removeLayer(capas[cat]); capasActivas[cat] = false; document.getElementById('btn-' + cat)?.classList.remove('activo'); }
                 } else {
-                    if (!capasActivas[cat]) {
-                        map.addLayer(capas[cat]);
-                        capasActivas[cat] = true;
-                        document.getElementById('btn-' + cat)?.classList.add('activo');
-                    }
+                    if (!capasActivas[cat]) { map.addLayer(capas[cat]); capasActivas[cat] = true; document.getElementById('btn-' + cat)?.classList.add('activo'); }
                 }
             });
             btn.textContent = algoActivo ? '👁️ Mostrar todo' : '🚫 Ocultar todo';
@@ -985,7 +701,7 @@
         cargarSitios();
 
         // ============================================
-        // BOTONES
+        // BOTONES FLOTANTES
         // ============================================
         document.getElementById('btnCentrar').addEventListener('click', () => {
             if (posicionUsuario) map.setView(posicionUsuario, 17);
@@ -994,15 +710,8 @@
         document.getElementById('btnModoOscuro').addEventListener('click', (e) => {
             modoOscuro = !modoOscuro;
             const tiles = document.querySelector('.leaflet-tile-pane');
-            if (modoOscuro) {
-                tiles.classList.add('mapa-oscuro');
-                e.target.classList.add('activo');
-                e.target.textContent = '☀️';
-            } else {
-                tiles.classList.remove('mapa-oscuro');
-                e.target.classList.remove('activo');
-                e.target.textContent = '🌙';
-            }
+            if (modoOscuro) { tiles.classList.add('mapa-oscuro'); e.target.classList.add('activo'); e.target.textContent = '☀️'; }
+            else { tiles.classList.remove('mapa-oscuro'); e.target.classList.remove('activo'); e.target.textContent = '🌙'; }
         });
         document.getElementById('btnCompartir').addEventListener('click', () => {
             if (!ultimaBusqueda) return;
@@ -1013,57 +722,40 @@
         // ============================================
         // MEDIR
         // ============================================
-        let modoMedir = false, puntoA = null, puntoB = null;
-        let lineaMedir = null, marcadorA = null, marcadorB = null;
-        const iconoPuntoMedida = L.divIcon({
-            className: '',
-            html: '<div style="width:14px;height:14px;background:#e67e22;border:3px solid white;border-radius:50%;box-shadow:0 0 8px rgba(230,126,34,1);"></div>',
-            iconSize: [14, 14], iconAnchor: [7, 7]
-        });
+        let modoMedir = false, puntoA = null, puntoB = null, lineaMedir = null, marcadorA = null, marcadorB = null;
+        const iconoPuntoMedida = L.divIcon({ className: '', html: '<div style="width:14px;height:14px;background:#e67e22;border:3px solid white;border-radius:50%;box-shadow:0 0 8px rgba(230,126,34,1);"></div>', iconSize: [14, 14], iconAnchor: [7, 7] });
         document.getElementById('btnMedir').addEventListener('click', () => {
             modoMedir = !modoMedir;
             const btn = document.getElementById('btnMedir');
             const aviso = document.getElementById('avisoMedir');
-            if (modoMedir) {
-                btn.classList.add('activo');
-                aviso.classList.add('activo');
-                aviso.textContent = '📏 Tocá dos puntos en el mapa';
-                map.getContainer().style.cursor = 'crosshair';
-                resetearMedicion();
-            } else {
-                btn.classList.remove('activo');
-                aviso.classList.remove('activo');
-                map.getContainer().style.cursor = '';
-                limpiarMedicion();
-            }
+            if (modoMedir) { btn.classList.add('activo'); aviso.classList.add('activo'); aviso.textContent = '📏 Tocá dos puntos'; map.getContainer().style.cursor = 'crosshair'; resetearMedicion(); }
+            else { btn.classList.remove('activo'); aviso.classList.remove('activo'); map.getContainer().style.cursor = ''; resetearMedicion(); }
         });
         function resetearMedicion() {
-            if (lineaMedir) { map.removeLayer(lineaMedir); lineaMedir = null; }
-            if (marcadorA) { map.removeLayer(marcadorA); marcadorA = null; }
-            if (marcadorB) { map.removeLayer(marcadorB); marcadorB = null; }
-            puntoA = null; puntoB = null;
+            if (lineaMedir) map.removeLayer(lineaMedir);
+            if (marcadorA) map.removeLayer(marcadorA);
+            if (marcadorB) map.removeLayer(marcadorB);
+            lineaMedir = marcadorA = marcadorB = null; puntoA = puntoB = null;
         }
-        function limpiarMedicion() { resetearMedicion(); }
         map.on('click', (e) => {
             if (!modoMedir) return;
-            const latlng = e.latlng;
+            const ll = e.latlng;
             if (!puntoA) {
-                puntoA = latlng;
-                marcadorA = L.marker(latlng, { icon: iconoPuntoMedida }).addTo(map).bindPopup('Punto A');
+                puntoA = ll;
+                marcadorA = L.marker(ll, { icon: iconoPuntoMedida }).addTo(map).bindPopup('Punto A');
                 document.getElementById('avisoMedir').textContent = '📏 Ahora tocá el segundo punto';
             } else if (!puntoB) {
-                puntoB = latlng;
-                marcadorB = L.marker(latlng, { icon: iconoPuntoMedida }).addTo(map).bindPopup('Punto B');
+                puntoB = ll;
+                marcadorB = L.marker(ll, { icon: iconoPuntoMedida }).addTo(map).bindPopup('Punto B');
                 lineaMedir = L.polyline([puntoA, puntoB], { color: '#e67e22', weight: 4, dashArray: '8, 6' }).addTo(map);
-                const distancia = haversine(puntoA.lat, puntoA.lng, puntoB.lat, puntoB.lng);
-                const texto = formatearDistancia(distancia);
-                document.getElementById('avisoMedir').textContent = `📏 Distancia: ${texto} (tocá de nuevo para reiniciar)`;
+                const d = haversine(puntoA.lat, puntoA.lng, puntoB.lat, puntoB.lng);
+                document.getElementById('avisoMedir').textContent = `📏 Distancia: ${formatearDistancia(d)}`;
                 const medio = L.latLng((puntoA.lat + puntoB.lat) / 2, (puntoA.lng + puntoB.lng) / 2);
-                L.popup().setLatLng(medio).setContent(`<strong>📏 ${texto}</strong>`).openOn(map);
+                L.popup().setLatLng(medio).setContent(`<strong>📏 ${formatearDistancia(d)}</strong>`).openOn(map);
             } else {
                 resetearMedicion();
-                puntoA = latlng;
-                marcadorA = L.marker(latlng, { icon: iconoPuntoMedida }).addTo(map).bindPopup('Punto A');
+                puntoA = ll;
+                marcadorA = L.marker(ll, { icon: iconoPuntoMedida }).addTo(map).bindPopup('Punto A');
                 document.getElementById('avisoMedir').textContent = '📏 Ahora tocá el segundo punto';
             }
         });
@@ -1075,53 +767,36 @@
         let misLugares = [];
         const capaLugares = L.layerGroup().addTo(map);
         function cargarLugaresGuardados() {
-            try {
-                const guardados = localStorage.getItem(STORAGE_KEY);
-                if (guardados) misLugares = JSON.parse(guardados);
-            } catch (e) { misLugares = []; }
+            try { const g = localStorage.getItem(STORAGE_KEY); if (g) misLugares = JSON.parse(g); } catch (e) { misLugares = []; }
             pintarLugaresEnMapa();
         }
-        function guardarLugaresEnStorage() {
-            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(misLugares)); } catch (e) {}
-        }
-        const iconoMio = L.divIcon({
-            className: 'punto-mio',
-            iconSize: [26, 26], iconAnchor: [13, 26], popupAnchor: [0, -26]
-        });
+        function guardarLugaresEnStorage() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(misLugares)); } catch (e) {} }
+        const iconoMio = L.divIcon({ className: 'punto-mio', iconSize: [26, 26], iconAnchor: [13, 26], popupAnchor: [0, -26] });
         function pintarLugaresEnMapa() {
             capaLugares.clearLayers();
-            misLugares.forEach((lugar) => {
-                capaLugares.addLayer(L.marker([lugar.lat, lugar.lng], { icon: iconoMio })
-                    .bindPopup(`<strong>⭐ ${lugar.nombre}</strong><br><small>${lugar.fecha || ''}</small>`));
-            });
+            misLugares.forEach(l => capaLugares.addLayer(L.marker([l.lat, l.lng], { icon: iconoMio }).bindPopup(`<strong>⭐ ${l.nombre}</strong><br><small>${l.fecha || ''}</small>`)));
         }
         document.getElementById('btnLugares').addEventListener('click', abrirModalLugares);
         function abrirModalLugares() {
             const ul = document.getElementById('listaLugares');
             ul.innerHTML = '';
-            if (misLugares.length === 0) ul.innerHTML = '<li class="vacio">Todavía no guardaste ningún lugar.</li>';
-            else {
-                misLugares.forEach((lugar, idx) => {
-                    const li = document.createElement('li');
-                    const nombre = document.createElement('span');
-                    nombre.className = 'nombre';
-                    nombre.textContent = '⭐ ' + lugar.nombre;
-                    nombre.addEventListener('click', () => { map.setView([lugar.lat, lugar.lng], 17); cerrarModalLugares(); });
-                    const borrar = document.createElement('button');
-                    borrar.className = 'borrar';
-                    borrar.textContent = '🗑️';
-                    borrar.addEventListener('click', (ev) => {
-                        ev.stopPropagation();
-                        if (confirm(`¿Borrar "${lugar.nombre}"?`)) {
-                            misLugares.splice(idx, 1);
-                            guardarLugaresEnStorage();
-                            pintarLugaresEnMapa();
-                            abrirModalLugares();
-                        }
-                    });
-                    li.appendChild(nombre); li.appendChild(borrar); ul.appendChild(li);
+            if (misLugares.length === 0) ul.innerHTML = '<li class="vacio">Todavía no guardaste lugares.</li>';
+            else misLugares.forEach((l, idx) => {
+                const li = document.createElement('li');
+                const n = document.createElement('span');
+                n.className = 'nombre'; n.textContent = '⭐ ' + l.nombre;
+                n.addEventListener('click', () => { map.setView([l.lat, l.lng], 17); cerrarModalLugares(); });
+                const b = document.createElement('button');
+                b.className = 'borrar'; b.textContent = '🗑️';
+                b.addEventListener('click', (ev) => {
+                    ev.stopPropagation();
+                    if (confirm(`¿Borrar "${l.nombre}"?`)) {
+                        misLugares.splice(idx, 1);
+                        guardarLugaresEnStorage(); pintarLugaresEnMapa(); abrirModalLugares();
+                    }
                 });
-            }
+                li.appendChild(n); li.appendChild(b); ul.appendChild(li);
+            });
             document.getElementById('modalLugares').classList.add('activo');
         }
         function cerrarModalLugares() { document.getElementById('modalLugares').classList.remove('activo'); }
@@ -1137,9 +812,7 @@
             if (!nombre) { alert('Poné un nombre'); return; }
             const c = map.getCenter();
             misLugares.push({ nombre, lat: c.lat, lng: c.lng, fecha: new Date().toLocaleDateString('es-AR') });
-            guardarLugaresEnStorage();
-            pintarLugaresEnMapa();
-            cerrarModalLugar();
+            guardarLugaresEnStorage(); pintarLugaresEnMapa(); cerrarModalLugar();
             mostrarNotificacion(`⭐ "${nombre}" guardado`, 'exito');
         }
         map.on('dblclick', (e) => {
@@ -1149,242 +822,326 @@
         });
 
         // ============================================
-        // 🛣️ ROUTING CON RECÁLCULO AUTOMÁTICO
+        // ROUTING
         // ============================================
-        let rutaActual = null;
         let rutaLineas = null;
         let marcadorDestino = null;
         let modoTransporte = 'auto';
         let autoRecalcActivo = true;
         let ultimaPosRecalc = null;
         let recalculoEnProgreso = false;
-        let pasosActuales = [];
         let coordsRuta = [];
-        let distanciaMinRecalc = 30; // metros para recalcular
+        let distanciaMinRecalc = 30;
 
         const iconoDestino = L.divIcon({
             className: '',
             html: '<div style="width:32px;height:32px;background:#e74c3c;border:4px solid white;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 0 12px rgba(231,76,60,1);display:flex;align-items:center;justify-content:center;font-size:16px;"><span style="transform:rotate(45deg);">🏁</span></div>',
             iconSize: [32, 32], iconAnchor: [16, 32]
         });
-
         document.getElementById('btnIr').addEventListener('click', () => {
-            if (!destinoActual) { alert('Primero buscá una calle o dirección'); return; }
+            if (!destinoActual) { alert('Primero buscá una calle'); return; }
             if (!posicionUsuario) { alert('Todavía no se detectó tu ubicación'); return; }
             calcularRuta(posicionUsuario[0], posicionUsuario[1], destinoActual.lat, destinoActual.lng, destinoActual.nombre, false);
         });
-
         function cambiarModo(modo) {
             modoTransporte = modo;
             document.querySelectorAll('.panel-ruta .modo button').forEach(b => b.classList.remove('activo'));
             document.getElementById('modo' + modo.charAt(0).toUpperCase() + modo.slice(1)).classList.add('activo');
-            if (destinoActual && posicionUsuario) {
-                calcularRuta(posicionUsuario[0], posicionUsuario[1], destinoActual.lat, destinoActual.lng, destinoActual.nombre, false);
-            }
+            if (destinoActual && posicionUsuario) calcularRuta(posicionUsuario[0], posicionUsuario[1], destinoActual.lat, destinoActual.lng, destinoActual.nombre, false);
         }
-
         function toggleAutoRecalc() {
             autoRecalcActivo = !autoRecalcActivo;
             const btn = document.getElementById('btnAutoRecalc');
             btn.textContent = autoRecalcActivo ? '📡 Auto: ON' : '📡 Auto: OFF';
             btn.classList.toggle('activo', autoRecalcActivo);
-            mostrarNotificacion(autoRecalcActivo ? '🔄 Recálculo automático ACTIVADO' : '⏸️ Recálculo automático DESACTIVADO', 'info', 2000);
+            mostrarNotificacion(autoRecalcActivo ? '🔄 Recálculo ACTIVADO' : '⏸️ Recálculo DESACTIVADO', 'info', 2000);
         }
-
         function forzarRecalculo() {
             if (!destinoActual || !posicionUsuario) return;
             calcularRuta(posicionUsuario[0], posicionUsuario[1], destinoActual.lat, destinoActual.lng, destinoActual.nombre, true);
         }
-
         function cerrarPanelRuta() {
             document.getElementById('panelRuta').classList.remove('activo');
-            if (rutaLineas) { map.removeLayer(rutaLineas); rutaLineas = null; }
-            if (marcadorDestino) { map.removeLayer(marcadorDestino); marcadorDestino = null; }
-            pasosActuales = [];
-            coordsRuta = [];
-            ultimaPosRecalc = null;
-            // Ocultar velocímetro si estaba
-            document.getElementById('velocimetro').classList.remove('activo');
+            if (rutaLineas) map.removeLayer(rutaLineas);
+            if (marcadorDestino) map.removeLayer(marcadorDestino);
+            rutaLineas = marcadorDestino = null;
+            coordsRuta = []; ultimaPosRecalc = null;
         }
-
-        async function calcularRuta(lat1, lng1, lat2, lng2, nombreDestino, esRecalculo) {
-            if (recalculoEnProgreso && !esRecalculo) return;
+        async function calcularRuta(lat1, lng1, lat2, lng2, nombre, esRecalc) {
+            if (recalculoEnProgreso && !esRecalc) return;
             recalculoEnProgreso = true;
-
-            // Mostrar panel
             document.getElementById('panelRuta').classList.add('activo');
-            document.getElementById('tituloRuta').textContent = `🛣️ Hacia: ${nombreDestino}`;
-            if (!esRecalculo) {
+            document.getElementById('tituloRuta').textContent = `🛣️ Hacia: ${nombre}`;
+            if (!esRecalc) {
                 document.getElementById('statDistancia').textContent = '...';
                 document.getElementById('statTiempo').textContent = '...';
                 document.getElementById('listaPasos').innerHTML = '<li>Cargando ruta...</li>';
             }
+            if (rutaLineas) map.removeLayer(rutaLineas);
+            if (marcadorDestino) map.removeLayer(marcadorDestino);
+            marcadorDestino = L.marker([lat2, lng2], { icon: iconoDestino, zIndexOffset: 3000 }).addTo(map).bindPopup(`<strong>🏁 ${nombre}</strong>`);
 
-            // Limpiar anterior
-            if (rutaLineas) { map.removeLayer(rutaLineas); rutaLineas = null; }
-            if (marcadorDestino) { map.removeLayer(marcadorDestino); marcadorDestino = null; }
-
-            marcadorDestino = L.marker([lat2, lng2], {
-                icon: iconoDestino, zIndexOffset: 3000
-            }).addTo(map).bindPopup(`<strong>🏁 ${nombreDestino}</strong>`);
-
-            const perfilOSRM = modoTransporte === 'auto' ? 'driving'
-                             : modoTransporte === 'pie' ? 'foot' : 'bike';
-
-            const url = `https://router.project-osrm.org/route/v1/${perfilOSRM}/` +
-                        `${lng1},${lat1};${lng2},${lat2}` +
-                        `?overview=full&geometries=geojson&steps=true`;
+            const perfil = modoTransporte === 'auto' ? 'driving' : modoTransporte === 'pie' ? 'foot' : 'bike';
+            const url = `https://router.project-osrm.org/route/v1/${perfil}/${lng1},${lat1};${lng2},${lat2}?overview=full&geometries=geojson&steps=true`;
 
             try {
                 const resp = await fetch(url);
                 if (!resp.ok) throw new Error('HTTP ' + resp.status);
                 const data = await resp.json();
                 if (!data.routes || data.routes.length === 0) throw new Error('Sin ruta');
-
                 const ruta = data.routes[0];
                 coordsRuta = ruta.geometry.coordinates.map(c => [c[1], c[0]]);
-
-                // Dibujar ruta (línea oscura gruesa + línea clara encima)
-                const lineaFondo = L.polyline(coordsRuta, {
-                    color: '#2c3e50', weight: 9, opacity: 0.5,
-                    lineCap: 'round', lineJoin: 'round'
-                });
-                const lineaFrente = L.polyline(coordsRuta, {
-                    color: '#3498db', weight: 5, opacity: 0.95,
-                    lineCap: 'round', lineJoin: 'round'
-                });
-                rutaLineas = L.layerGroup([lineaFondo, lineaFrente]).addTo(map);
-
-                // Guardar coords para el progreso
-                pasosActuales = ruta.legs[0].steps || [];
+                const lf = L.polyline(coordsRuta, { color: '#2c3e50', weight: 9, opacity: 0.5, lineCap: 'round', lineJoin: 'round' });
+                const lr = L.polyline(coordsRuta, { color: '#3498db', weight: 5, opacity: 0.95, lineCap: 'round', lineJoin: 'round' });
+                rutaLineas = L.layerGroup([lf, lr]).addTo(map);
                 ultimaPosRecalc = posicionUsuario ? [...posicionUsuario] : [lat1, lng1];
-
-                // Ajustar vista solo si no es recálculo
-                if (!esRecalculo) {
-                    map.fitBounds(rutaLineas.getBounds(), { padding: [80, 80, 80, 80] });
-                }
-
-                // Stats
+                if (!esRecalc) map.fitBounds(rutaLineas.getBounds(), { padding: [80, 80, 80, 80] });
                 document.getElementById('statDistancia').textContent = formatearDistancia(ruta.distance);
                 document.getElementById('statTiempo').textContent = formatearTiempo(ruta.duration);
-
-                // Pasos
-                renderizarPasos(pasosActuales);
-
-                if (esRecalculo) {
-                    mostrarNotificacion('🔄 Ruta recalculada', 'exito', 2000);
-                }
-
-                // Actualizar progreso inicial
+                renderizarPasos(ruta.legs[0].steps || []);
+                if (esRecalc) mostrarNotificacion('🔄 Ruta recalculada', 'exito', 2000);
                 actualizarProgresoRuta();
-
             } catch (e) {
-                console.warn('⚠️ Falló OSRM:', e.message);
-
-                // Fallback: línea recta
-                rutaLineas = L.polyline([[lat1, lng1], [lat2, lng2]], {
-                    color: '#e67e22', weight: 5, dashArray: '10, 8', opacity: 0.9
-                }).addTo(map);
+                rutaLineas = L.polyline([[lat1, lng1], [lat2, lng2]], { color: '#e67e22', weight: 5, dashArray: '10, 8', opacity: 0.9 }).addTo(map);
                 coordsRuta = [[lat1, lng1], [lat2, lng2]];
-                if (!esRecalculo) map.fitBounds(rutaLineas.getBounds(), { padding: [80, 80, 80, 80] });
-
-                const dist = haversine(lat1, lng1, lat2, lng2);
-                document.getElementById('statDistancia').textContent = formatearDistancia(dist) + ' (recta)';
+                if (!esRecalc) map.fitBounds(rutaLineas.getBounds(), { padding: [80, 80, 80, 80] });
+                const d = haversine(lat1, lng1, lat2, lng2);
+                document.getElementById('statDistancia').textContent = formatearDistancia(d) + ' (recta)';
                 const vel = modoTransporte === 'auto' ? 40 : modoTransporte === 'bici' ? 15 : 5;
-                document.getElementById('statTiempo').textContent = '~' + formatearTiempo((dist / 1000) / vel * 3600);
-                document.getElementById('listaPasos').innerHTML = '<li><span class="icono">📡</span><span>Sin conexión: se muestra línea recta. La ruta por calles necesita internet.</span></li>';
-                if (esRecalculo) mostrarNotificacion('⚠️ Sin conexión, no se pudo recalcular', 'aviso', 3000);
+                document.getElementById('statTiempo').textContent = '~' + formatearTiempo((d / 1000) / vel * 3600);
+                document.getElementById('listaPasos').innerHTML = '<li><span class="icono">📡</span><span>Sin conexión: línea recta. La ruta real necesita internet.</span></li>';
+                if (esRecalc) mostrarNotificacion('⚠️ Sin conexión', 'aviso', 3000);
             }
-
             recalculoEnProgreso = false;
         }
-
         function renderizarPasos(pasos) {
             const ul = document.getElementById('listaPasos');
             ul.innerHTML = '';
-            pasos.forEach((step, idx) => {
+            pasos.forEach((s) => {
                 const li = document.createElement('li');
-                const icono = iconoDeManiobra(step.maneuver);
-                const dist = step.distance < 1000 ? `${Math.round(step.distance)} m` : `${(step.distance / 1000).toFixed(1)} km`;
-                li.dataset.idx = idx;
-                li.innerHTML = `<span class="icono">${icono}</span><span><strong>${step.name || 'Continuar'}</strong><br><small>${dist}</small></span>`;
+                const icono = iconoManiobra(s.maneuver);
+                const d = s.distance < 1000 ? `${Math.round(s.distance)} m` : `${(s.distance / 1000).toFixed(1)} km`;
+                li.innerHTML = `<span class="icono">${icono}</span><span><strong>${s.name || 'Continuar'}</strong><br><small>${d}</small></span>`;
                 ul.appendChild(li);
             });
         }
-
-        function iconoDeManiobra(maneuver) {
-            if (!maneuver) return '➡️';
-            const tipo = maneuver.type || '';
-            const mod = maneuver.modifier || '';
-            if (tipo === 'depart') return '🚩';
-            if (tipo === 'arrive') return '🏁';
-            if (tipo === 'turn') {
+        function iconoManiobra(m) {
+            if (!m) return '➡️';
+            const t = m.type || '', mod = m.modifier || '';
+            if (t === 'depart') return '🚩';
+            if (t === 'arrive') return '🏁';
+            if (t === 'turn') {
                 if (mod.includes('slight left')) return '↖️';
                 if (mod.includes('slight right')) return '↗️';
                 if (mod.includes('left')) return '⬅️';
                 if (mod.includes('right')) return '➡️';
                 return '🔄';
             }
-            if (tipo === 'roundabout' || tipo === 'rotary') return '🔄';
-            if (tipo === 'merge') return '🔀';
-            if (tipo === 'fork') return '🍴';
-            if (tipo === 'continue' || tipo === 'new name') return '⬆️';
+            if (t === 'roundabout' || t === 'rotary') return '🔄';
+            if (t === 'merge') return '🔀';
+            if (t === 'continue' || t === 'new name') return '⬆️';
             return '➡️';
         }
-
-        // --------------------------------------------------
-        // VERIFICAR SI HAY QUE RECALCULAR
-        // --------------------------------------------------
         function verificarRecalculo() {
-            if (!autoRecalcActivo) return;
-            if (!destinoActual || !posicionUsuario) return;
-            if (recalculoEnProgreso) return;
-            if (!ultimaPosRecalc) return;
+            if (!autoRecalcActivo || !destinoActual || !posicionUsuario || recalculoEnProgreso || !ultimaPosRecalc) return;
             if (!document.getElementById('panelRuta').classList.contains('activo')) return;
-
-            const dist = haversine(
-                ultimaPosRecalc[0], ultimaPosRecalc[1],
-                posicionUsuario[0], posicionUsuario[1]
-            );
-
-            if (dist >= distanciaMinRecalc) {
-                console.log(`🔄 Recalculando (movimiento: ${dist.toFixed(0)}m)`);
-                calcularRuta(
-                    posicionUsuario[0], posicionUsuario[1],
-                    destinoActual.lat, destinoActual.lng,
-                    destinoActual.nombre, true
-                );
+            const d = haversine(ultimaPosRecalc[0], ultimaPosRecalc[1], posicionUsuario[0], posicionUsuario[1]);
+            if (d >= distanciaMinRecalc) {
+                calcularRuta(posicionUsuario[0], posicionUsuario[1], destinoActual.lat, destinoActual.lng, destinoActual.nombre, true);
             }
         }
-
-        // --------------------------------------------------
-        // ACTUALIZAR PROGRESO DE RUTA (paso actual resaltado)
-        // --------------------------------------------------
         function actualizarProgresoRuta() {
             if (!posicionUsuario || !coordsRuta || coordsRuta.length < 2) return;
             if (!document.getElementById('panelRuta').classList.contains('activo')) return;
+            const dRestante = haversine(posicionUsuario[0], posicionUsuario[1], destinoActual.lat, destinoActual.lng);
+            if (dRestante > 5) document.getElementById('statDistancia').textContent = formatearDistancia(dRestante) + ' restantes';
+            else { document.getElementById('statDistancia').textContent = '¡Llegaste!'; mostrarNotificacion('🏁 ¡Llegaste!', 'exito', 4000); }
+        }
 
-            // Encontrar el punto más cercano de la ruta a la posición actual
-            let idxMasCercano = 0;
-            let distMin = Infinity;
-            // Muestreo cada 3 puntos para no matar el rendimiento
-            for (let i = 0; i < coordsRuta.length; i += 3) {
-                const d = haversine(posicionUsuario[0], posicionUsuario[1], coordsRuta[i][0], coordsRuta[i][1]);
-                if (d < distMin) { distMin = d; idxMasCercano = i; }
+        // ============================================
+        // 📥 DESCARGA OFFLINE DE TESELAS
+        // ============================================
+        // Bounding box de Salta Capital
+        const BBOX = {
+            sur:   -24.92,
+            norte: -24.65,
+            oeste: -65.52,
+            este:  -65.30
+        };
+        // Niveles de zoom a descargar (13-16 = ~7 MB)
+        // Si querés más detalle: agregá 17 (~25 MB total)
+        const ZOOMS = [13, 14, 15, 16];
+
+        let descargaEnCurso = false;
+
+        function lng2tile(lon, zoom) { return Math.floor((lon + 180) / 360 * Math.pow(2, zoom)); }
+        function lat2tile(lat, zoom) {
+            return Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
+        }
+        function generarListaTeselas() {
+            const teselas = [];
+            for (const zoom of ZOOMS) {
+                const xMin = lng2tile(BBOX.oeste, zoom);
+                const xMax = lng2tile(BBOX.este, zoom);
+                const yMin = lat2tile(BBOX.norte, zoom);
+                const yMax = lat2tile(BBOX.sur, zoom);
+                for (let x = xMin; x <= xMax; x++) {
+                    for (let y = yMin; y <= yMax; y++) {
+                        const sub = ['a', 'b', 'c'][(x + y) % 3];
+                        teselas.push(`https://${sub}.tile.openstreetmap.org/${zoom}/${x}/${y}.png`);
+                    }
+                }
+            }
+            return teselas;
+        }
+
+        document.getElementById('btnOffline').addEventListener('click', abrirModalOffline);
+
+        async function abrirModalOffline() {
+            document.getElementById('modalOffline').classList.add('activo');
+            document.getElementById('barraOffline').style.display = 'none';
+            document.getElementById('btnIniciarOffline').style.display = 'block';
+            document.getElementById('btnIniciarOffline').disabled = false;
+            document.getElementById('btnIniciarOffline').textContent = '📥 Descargar';
+            document.getElementById('infoProgreso').textContent = '';
+
+            const teselas = generarListaTeselas();
+            const total = teselas.length;
+
+            // Contar cuántas ya tenemos
+            let yaDescargadas = 0;
+            if ('caches' in window) {
+                try {
+                    const cache = await caches.open('salta-tiles-v7');
+                    const keys = await cache.keys();
+                    const urlsSet = new Set(keys.map(k => k.url));
+                    yaDescargadas = teselas.filter(u => urlsSet.has(u)).length;
+                } catch (e) {}
             }
 
-            // Calcular distancia al destino
-            const distRestante = haversine(
-                posicionUsuario[0], posicionUsuario[1],
-                destinoActual.lat, destinoActual.lng
-            );
+            const faltantes = total - yaDescargadas;
+            const tamañoMB = Math.round(total * 20 / 1024); // ~20 KB por tesela
 
-            // Actualizar la distancia restante en pantalla
-            if (distRestante > 5) {
-                document.getElementById('statDistancia').textContent = formatearDistancia(distRestante) + ' restantes';
+            document.getElementById('estadoOffline').innerHTML = `
+                <strong>📊 Estado actual:</strong><br>
+                • Teselas totales: <strong>${total}</strong><br>
+                • Ya descargadas: <strong>${yaDescargadas}</strong><br>
+                • Faltan descargar: <strong>${faltantes}</strong><br>
+                • Tamaño total aprox: <strong>~${tamañoMB} MB</strong>
+            `;
+            document.getElementById('textoOffline').textContent =
+                faltantes === 0
+                    ? '✅ El mapa ya está descargado. Podés usarlo sin internet.'
+                    : `Se descargarán las ${faltantes} teselas que faltan. Tiempo estimado: ${Math.ceil(faltantes / 60)} min con Wi-Fi.`;
+
+            if (faltantes === 0) {
+                document.getElementById('btnIniciarOffline').style.display = 'none';
+                document.getElementById('btnBorrarTeselas').style.display = 'block';
             } else {
-                document.getElementById('statDistancia').textContent = '¡Llegaste!';
-                mostrarNotificacion('🏁 ¡Llegaste a destino!', 'exito', 4000);
+                document.getElementById('btnBorrarTeselas').style.display = yaDescargadas > 0 ? 'block' : 'none';
+            }
+        }
+        function cerrarModalOffline() {
+            if (descargaEnCurso) return;
+            document.getElementById('modalOffline').classList.remove('activo');
+        }
+
+        async function iniciarDescargaOffline() {
+            if (descargaEnCurso) return;
+            descargaEnCurso = true;
+
+            const btn = document.getElementById('btnIniciarOffline');
+            const btnBorrar = document.getElementById('btnBorrarTeselas');
+            const barra = document.getElementById('barraOffline');
+            const barraFill = document.getElementById('barraOfflineFill');
+            const info = document.getElementById('infoProgreso');
+            const btnFlotante = document.getElementById('btnOffline');
+
+            btn.disabled = true;
+            btn.textContent = '⏳ Descargando...';
+            btnBorrar.style.display = 'none';
+            barra.style.display = 'block';
+            barraFill.style.width = '0%';
+            btnFlotante.textContent = '⏳';
+
+            const teselas = generarListaTeselas();
+            const total = teselas.length;
+
+            // Ver qué ya está descargado
+            let urlsYaDescargadas = new Set();
+            try {
+                const cache = await caches.open('salta-tiles-v7');
+                const keys = await cache.keys();
+                urlsYaDescargadas = new Set(keys.map(k => k.url));
+            } catch (e) {}
+
+            const pendientes = teselas.filter(u => !urlsYaDescargadas.has(u));
+            const totalPendientes = pendientes.length;
+
+            let descargadas = 0, errores = 0;
+
+            const TANDA = 8;
+            for (let i = 0; i < pendientes.length; i += TANDA) {
+                const tanda = pendientes.slice(i, i + TANDA);
+                const results = await Promise.all(tanda.map(async (url) => {
+                    try {
+                        const resp = await fetch(url, { mode: 'cors' });
+                        if (resp.ok) {
+                            const cache = await caches.open('salta-tiles-v7');
+                            await cache.put(url, resp.clone());
+                            return true;
+                        }
+                    } catch (e) {}
+                    return false;
+                }));
+                results.forEach(r => r ? descargadas++ : errores++);
+                const prog = Math.round(((i + tanda.length) / totalPendientes) * 100);
+                barraFill.style.width = prog + '%';
+                info.textContent = `${i + tanda.length} / ${totalPendientes} teselas (${prog}%)`;
+                // Pausa entre tandas para no saturar OSM
+                await new Promise(r => setTimeout(r, 100));
+            }
+
+            btn.textContent = '✅ Completado';
+            btnFlotante.textContent = '✅';
+            btnFlotante.classList.add('completo');
+            barraFill.style.width = '100%';
+            info.textContent = `✅ ${descargadas} teselas descargadas${errores > 0 ? `, ${errores} errores` : ''}`;
+
+            document.getElementById('estadoOffline').innerHTML = `
+                <strong>✅ Descarga completa</strong><br>
+                Se descargaron <strong>${descargadas}</strong> teselas.
+                ${errores > 0 ? `<br><span style="color:#e67e22;">⚠️ ${errores} fallaron (reintentar más tarde).</span>` : ''}
+                <br><br>
+                <strong>El mapa ya funciona sin internet.</strong>
+                Probá activar modo avión y recargar la app.
+            `;
+            document.getElementById('textoOffline').textContent = '';
+
+            setTimeout(() => {
+                btn.textContent = '📥 Cerrar';
+                btn.disabled = false;
+                btn.onclick = () => {
+                    document.getElementById('modalOffline').classList.remove('activo');
+                    btn.onclick = iniciarDescargaOffline;
+                    descargaEnCurso = false;
+                    abrirModalOffline();
+                };
+            }, 500);
+
+            descargaEnCurso = false;
+        }
+
+        async function borrarTeselas() {
+            if (!confirm('¿Borrar todas las teselas descargadas?\n\nEl mapa dejará de funcionar sin internet hasta que vuelvas a descargarlo.')) return;
+            try {
+                await caches.delete('salta-tiles-v7');
+                mostrarNotificacion('🗑️ Teselas borradas', 'exito', 3000);
+                document.getElementById('btnOffline').textContent = '📥';
+                document.getElementById('btnOffline').classList.remove('completo');
+                cerrarModalOffline();
+            } catch (e) {
+                alert('Error al borrar: ' + e.message);
             }
         }
 
