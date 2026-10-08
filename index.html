@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa Salta Capital</title>
+        <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50">
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
@@ -281,6 +283,17 @@
 
         // Cargar las calles al iniciar
         cargarCalles();
+    </script>
+
+        <!-- Registro del Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then((reg) => console.log('✅ SW registrado:', reg.scope))
+                    .catch((err) => console.error('❌ Error SW:', err));
+            });
+        }
     </script>
 
 </body>
