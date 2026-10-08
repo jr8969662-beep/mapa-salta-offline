@@ -13,11 +13,8 @@
     <style>
         body, html { margin: 0; padding: 0; height: 100%; font-family: Arial, sans-serif; }
         #map { width: 100%; height: 100vh; }
-        .leaflet-tile-pane.mapa-oscuro {
-            filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9);
-        }
+        .leaflet-tile-pane.mapa-oscuro { filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9); }
 
-        /* BUSCADOR */
         .buscador { position: absolute; top: 10px; left: 50px; right: 60px; z-index: 1000; max-width: 400px; }
         .buscador input { width: 100%; padding: 12px 16px; border: none; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); font-size: 16px; outline: none; box-sizing: border-box; }
         .resultados { list-style: none; margin: 4px 0 0 0; padding: 0; background: white; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.3); max-height: 340px; overflow-y: auto; display: none; }
@@ -26,78 +23,40 @@
         .resultados li:last-child { border-bottom: none; }
         .resultados li:hover { background: #f0f8ff; }
         .resultados li.esquina { background: linear-gradient(90deg, #fff9e6 0%, #fff 100%); border-left: 4px solid #f39c12; font-weight: 500; }
-        .resultados li.esquina:hover { background: #fff3cd; }
         .resultados li.direccion { background: linear-gradient(90deg, #e8f8ec 0%, #fff 100%); border-left: 4px solid #27ae60; font-weight: 500; }
-        .resultados li.direccion:hover { background: #d4edda; }
         .resultados li small { color: #888; font-weight: normal; }
 
-        /* PUNTO USUARIO CON FLECHA */
         .punto-usuario { width: 22px; height: 22px; position: relative; }
         .punto-usuario .circulo { width: 100%; height: 100%; background: #0078ff; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(0, 120, 255, 0.8); animation: pulso 2s infinite; box-sizing: border-box; }
         .punto-usuario .flecha { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 14px solid #0078ff; filter: drop-shadow(0 0 3px rgba(0,120,255,0.8)); transform-origin: 50% 25px; }
-        @keyframes pulso {
-            0% { box-shadow: 0 0 10px rgba(0,120,255,0.8); }
-            50% { box-shadow: 0 0 20px rgba(0,120,255,1); }
-            100% { box-shadow: 0 0 10px rgba(0,120,255,0.8); }
-        }
+        @keyframes pulso { 0% { box-shadow: 0 0 10px rgba(0,120,255,0.8); } 50% { box-shadow: 0 0 20px rgba(0,120,255,1); } 100% { box-shadow: 0 0 10px rgba(0,120,255,0.8); } }
 
         .punto-calle { width: 14px; height: 14px; background: #e74c3c; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 8px rgba(231, 76, 60, 0.9); }
         .punto-esquina { width: 22px; height: 22px; background: #f39c12; border: 4px solid white; border-radius: 50%; box-shadow: 0 0 12px rgba(243, 156, 18, 1); animation: pulso-esquina 1.5s infinite; }
-        @keyframes pulso-esquina {
-            0% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 0 rgba(243,156,18,0.7); }
-            70% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 20px rgba(243,156,18,0); }
-            100% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 0 rgba(243,156,18,0); }
-        }
+        @keyframes pulso-esquina { 0% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 0 rgba(243,156,18,0.7); } 70% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 20px rgba(243,156,18,0); } 100% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 0 rgba(243,156,18,0); } }
         .punto-direccion { width: 24px; height: 24px; background: #27ae60; border: 4px solid white; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 0 12px rgba(39, 174, 96, 1); display: flex; align-items: center; justify-content: center; font-size: 12px; }
         .punto-direccion::after { content: '🏠'; transform: rotate(45deg); }
         .punto-mio { width: 26px; height: 26px; background: #9b59b6; border: 4px solid white; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 0 12px rgba(155, 89, 182, 1); display: flex; align-items: center; justify-content: center; font-size: 12px; }
         .punto-mio::after { content: '⭐'; transform: rotate(45deg); }
+
         .marcador-sitio { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: white; border: 2px solid #2c3e50; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 14px; }
         .marcador-sitio > span { transform: rotate(45deg); display: block; }
+        .marcador-sitio.marcador-saeta { background: #e74c3c; border-color: #c0392b; border-width: 3px; font-size: 16px; box-shadow: 0 0 10px rgba(231,76,60,0.6); }
+        .marcador-sitio.marcador-saeta > span { filter: drop-shadow(0 0 2px white); }
+        .marcador-sitio.marcador-semaforo { background: #f1c40f; border-color: #f39c12; font-size: 16px; }
+        .marcador-sitio.marcador-lomada { background: #e67e22; border-color: #d35400; font-size: 16px; }
+        .marcador-sitio.marcador-plaza { background: #27ae60; border-color: #229954; font-size: 16px; }
 
-        /* Marcador especial para paradas SAETA */
-        .marcador-sitio.marcador-saeta {
-            background: #e74c3c;
-            border-color: #c0392b;
-            border-width: 3px;
-            font-size: 16px;
-            box-shadow: 0 0 10px rgba(231,76,60,0.6);
-        }
-        .marcador-sitio.marcador-saeta > span {
-            filter: drop-shadow(0 0 2px white);
-        }
+        .lineas-container { margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; }
+        .lineas-lista { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+        .linea-chip { display: inline-block; background: #e74c3c; color: white; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
 
-        /* CHIPS DE LÍNEAS DE COLECTIVO */
-        .lineas-container {
-            margin-top: 8px;
-            padding-top: 8px;
-            border-top: 1px solid #eee;
-        }
-        .lineas-lista {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 4px;
-            margin-top: 4px;
-        }
-        .linea-chip {
-            display: inline-block;
-            background: #e74c3c;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: bold;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-        }
-        .linea-chip.linea-saeta {
-            background: #27ae60;
-        }
-
-        .panel-filtros { position: absolute; bottom: 20px; right: 20px; z-index: 1000; background: white; border-radius: 12px; padding: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; flex-direction: column; gap: 6px; max-height: 60vh; overflow-y: auto; max-width: 220px; }
+        .panel-filtros { position: absolute; bottom: 20px; right: 20px; z-index: 1000; background: white; border-radius: 12px; padding: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; flex-direction: column; gap: 6px; max-height: 65vh; overflow-y: auto; max-width: 230px; }
         .panel-filtros button { display: flex; align-items: center; justify-content: flex-start; gap: 6px; padding: 8px 12px; border: none; border-radius: 8px; background: #f0f0f0; cursor: pointer; font-size: 12px; color: #2c3e50; transition: background 0.2s; white-space: nowrap; text-align: left; width: 100%; }
         .panel-filtros button:hover { background: #e0e0e0; }
         .panel-filtros button.activo { background: #2c3e50; color: white; }
         .panel-filtros .toggle { background: #3498db; color: white; font-weight: bold; justify-content: center; }
+        .panel-filtros .seccion { font-size: 10px; color: #999; text-transform: uppercase; padding: 6px 8px 2px; margin-top: 4px; border-top: 1px solid #eee; font-weight: bold; }
 
         .botones-flotantes { position: absolute; top: 10px; right: 10px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
         .btn-flotante { width: 44px; height: 44px; border: none; border-radius: 50%; background: white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: transform 0.15s, background 0.2s; }
@@ -197,7 +156,6 @@
         <button class="toggle" id="toggleTodo" onclick="toggleTodo()">👁️ Mostrar todo</button>
     </div>
 
-    <!-- PANEL DE RUTA -->
     <div class="panel-ruta" id="panelRuta">
         <div class="encabezado">
             <h3 id="tituloRuta">🛣️ Ruta</h3>
@@ -219,7 +177,6 @@
         <ul class="pasos" id="listaPasos"></ul>
     </div>
 
-    <!-- MODAL: DESCARGAR OFFLINE -->
     <div class="modal-overlay" id="modalOffline">
         <div class="modal">
             <h3 id="tituloOffline">📥 Mapa offline</h3>
@@ -237,7 +194,6 @@
         </div>
     </div>
 
-    <!-- MODAL: AGREGAR LUGAR -->
     <div class="modal-overlay" id="modalLugar">
         <div class="modal">
             <h3>⭐ Guardar lugar</h3>
@@ -250,7 +206,6 @@
         </div>
     </div>
 
-    <!-- MODAL: MIS LUGARES -->
     <div class="modal-overlay" id="modalLugares">
         <div class="modal">
             <h3>⭐ Mis lugares</h3>
@@ -315,21 +270,13 @@
         // ============================================
         // UBICACIÓN
         // ============================================
-        let posicionUsuario = null;
-        let headingUsuario = null;
-        let posicionAnterior = null;
-        let timestampAnterior = null;
-        let ultimaVelocidad = 0;
-        let marcadorUsuario = null;
-        let primerUbicacion = false;
-        let usarBrujulaDispositivo = false;
-
+        let posicionUsuario = null, headingUsuario = null, posicionAnterior = null, timestampAnterior = null;
+        let ultimaVelocidad = 0, marcadorUsuario = null, primerUbicacion = false, usarBrujulaDispositivo = false;
         const iconoUsuario = L.divIcon({
             className: 'punto-usuario',
             html: '<div class="flecha" id="flechaUsuario" style="transform: translateX(-50%) rotate(0deg); display:none;"></div><div class="circulo"></div>',
             iconSize: [22, 22], iconAnchor: [11, 11]
         });
-
         function actualizarFlecha() {
             const flecha = document.getElementById('flechaUsuario');
             if (!flecha) return;
@@ -337,29 +284,21 @@
             flecha.style.display = headingUsuario != null ? 'block' : 'none';
         }
         function manejarPosicion(pos) {
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
-            const ahora = Date.now();
+            const lat = pos.coords.latitude, lng = pos.coords.longitude, ahora = Date.now();
             if (pos.coords.speed != null && pos.coords.speed >= 0) ultimaVelocidad = pos.coords.speed * 3.6;
             if (posicionAnterior && timestampAnterior) {
                 const dist = haversine(posicionAnterior[0], posicionAnterior[1], lat, lng);
-                if (dist > 3 && !usarBrujulaDispositivo) {
-                    headingUsuario = calcularRumbo(posicionAnterior[0], posicionAnterior[1], lat, lng);
-                }
+                if (dist > 3 && !usarBrujulaDispositivo) headingUsuario = calcularRumbo(posicionAnterior[0], posicionAnterior[1], lat, lng);
             }
-            posicionAnterior = [lat, lng]; timestampAnterior = ahora;
-            posicionUsuario = [lat, lng];
+            posicionAnterior = [lat, lng]; timestampAnterior = ahora; posicionUsuario = [lat, lng];
             if (marcadorUsuario) marcadorUsuario.setLatLng([lat, lng]);
             else marcadorUsuario = L.marker([lat, lng], { icon: iconoUsuario, zIndexOffset: 1000 }).addTo(map);
             actualizarFlecha();
             if (!primerUbicacion) { map.setView([lat, lng], 16); primerUbicacion = true; document.getElementById('aviso').style.display = 'none'; }
-            actualizarVelocimetro();
-            verificarRecalculo();
-            actualizarProgresoRuta();
+            actualizarVelocimetro(); verificarRecalculo(); actualizarProgresoRuta();
         }
         function calcularRumbo(lat1, lng1, lat2, lng2) {
-            const toRad = (d) => d * Math.PI / 180;
-            const toDeg = (r) => r * 180 / Math.PI;
+            const toRad = (d) => d * Math.PI / 180, toDeg = (r) => r * 180 / Math.PI;
             const dLng = toRad(lng2 - lng1);
             const y = Math.sin(dLng) * Math.cos(toRad(lat2));
             const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) - Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLng);
@@ -370,24 +309,18 @@
             document.getElementById('aviso').textContent = 'No se pudo obtener tu ubicación.';
         }
         if ('geolocation' in navigator) {
-            navigator.geolocation.watchPosition(manejarPosicion, errorUbicacion, {
-                enableHighAccuracy: true, timeout: 15000, maximumAge: 2000
-            });
+            navigator.geolocation.watchPosition(manejarPosicion, errorUbicacion, { enableHighAccuracy: true, timeout: 15000, maximumAge: 2000 });
         }
-
-        // Brújula
         function manejarOrientacion(event) {
-            let heading = null;
-            if (event.webkitCompassHeading != null) heading = event.webkitCompassHeading;
-            else if (event.alpha != null) heading = 360 - event.alpha;
-            if (heading != null && !isNaN(heading)) { headingUsuario = heading; usarBrujulaDispositivo = true; actualizarFlecha(); }
+            let h = null;
+            if (event.webkitCompassHeading != null) h = event.webkitCompassHeading;
+            else if (event.alpha != null) h = 360 - event.alpha;
+            if (h != null && !isNaN(h)) { headingUsuario = h; usarBrujulaDispositivo = true; actualizarFlecha(); }
         }
         function activarBrujula() {
             if (typeof DeviceOrientationEvent !== 'undefined') {
                 if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                    DeviceOrientationEvent.requestPermission().then((p) => {
-                        if (p === 'granted') window.addEventListener('deviceorientation', manejarOrientacion, true);
-                    }).catch(() => {});
+                    DeviceOrientationEvent.requestPermission().then((p) => { if (p === 'granted') window.addEventListener('deviceorientation', manejarOrientacion, true); }).catch(() => {});
                 } else {
                     window.addEventListener('deviceorientationabsolute', manejarOrientacion, true);
                     window.addEventListener('deviceorientation', manejarOrientacion, true);
@@ -396,10 +329,8 @@
         }
         document.addEventListener('touchstart', activarBrujula, { once: true });
         document.addEventListener('click', activarBrujula, { once: true });
-
         function actualizarVelocimetro() {
-            const vel = document.getElementById('velocimetro');
-            const num = document.getElementById('velocidadNum');
+            const vel = document.getElementById('velocimetro'), num = document.getElementById('velocidadNum');
             if (ultimaVelocidad > 2) { vel.classList.add('activo'); num.textContent = ultimaVelocidad.toFixed(0); }
             else vel.classList.remove('activo');
         }
@@ -407,13 +338,7 @@
         // ============================================
         // CALLES Y DIRECCIONES
         // ============================================
-        let callesIndex = [];
-        let direccionesIndex = [];
-        let marcadorCalle = null;
-        let trazoCalle = null;
-        let ultimaBusqueda = null;
-        let destinoActual = null;
-
+        let callesIndex = [], direccionesIndex = [], marcadorCalle = null, trazoCalle = null, ultimaBusqueda = null, destinoActual = null;
         async function cargarCalles() {
             try {
                 const resp = await fetch('data/calles.geojson');
@@ -431,10 +356,7 @@
                         const medio = coordenadas[Math.floor(coordenadas.length / 2)];
                         lng = medio[0]; lat = medio[1];
                     } else return;
-                    callesIndex.push({
-                        nombre: normalizar(nombre), nombreOriginal: nombre,
-                        lat, lng, coordenadas: coordenadas.map(c => [c[1], c[0]])
-                    });
+                    callesIndex.push({ nombre: normalizar(nombre), nombreOriginal: nombre, lat, lng, coordenadas: coordenadas.map(c => [c[1], c[0]]) });
                 });
                 const agrupadas = {};
                 callesIndex.forEach(c => {
@@ -443,7 +365,7 @@
                 });
                 callesIndex = Object.values(agrupadas);
                 console.log(`✅ ${callesIndex.length} calles cargadas`);
-            } catch (e) { console.error('Error cargando calles:', e); }
+            } catch (e) { console.error('Error calles:', e); }
         }
         async function cargarDirecciones() {
             try {
@@ -452,8 +374,7 @@
                 const data = await resp.json();
                 data.features.forEach(f => {
                     const props = f.properties;
-                    const calle = props['addr:street'];
-                    const numeroStr = props['addr:housenumber'];
+                    const calle = props['addr:street'], numeroStr = props['addr:housenumber'];
                     if (!calle || !numeroStr) return;
                     const numero = parseInt(numeroStr);
                     if (isNaN(numero)) return;
@@ -464,88 +385,45 @@
                         const medio = coords[Math.floor(coords.length / 2)];
                         lng = medio[0]; lat = medio[1];
                     } else return;
-                    direccionesIndex.push({
-                        calle: normalizar(calle), calleOriginal: calle, numero, lat, lng, exacto,
-                        interpolacion: props['addr:interpolation'] || null
-                    });
+                    direccionesIndex.push({ calle: normalizar(calle), calleOriginal: calle, numero, lat, lng, exacto, interpolacion: props['addr:interpolation'] || null });
                 });
                 console.log(`✅ ${direccionesIndex.length} direcciones cargadas`);
-            } catch (e) { console.error('Error cargando direcciones:', e); }
+            } catch (e) { console.error('Error direcciones:', e); }
         }
-
-        // ============================================
-        // CARGAR RUTAS DE COLECTIVO (líneas SAETA)
-        // ============================================
-        // Mapa de líneas por nodo (id de OSM → líneas)
-        let mapaLineasPorNodo = {};
-        // Array indexable por coordenadas (para cruzar paradas con líneas)
-        let lineasPorCoordenada = [];
-
+        let mapaLineasPorNodo = {}, lineasPorCoordenada = [];
         async function cargarRutasSaeta() {
             try {
                 const resp = await fetch('data/rutas_saeta.json');
-                if (!resp.ok) {
-                    console.warn('⚠️ No se encontró rutas_saeta.json — las líneas no se mostrarán');
-                    return;
-                }
+                if (!resp.ok) return;
                 const data = await resp.json();
-                if (!data.elements) {
-                    console.warn('⚠️ rutas_saeta.json no tiene formato esperado');
-                    return;
-                }
-
-                // 1. Separar relaciones (rutas) de nodos
+                if (!data.elements) return;
                 const relaciones = data.elements.filter(e => e.type === 'relation');
                 const nodos = {};
-                data.elements.filter(e => e.type === 'node').forEach(n => {
-                    nodos[n.id] = n;
-                });
-
-                // 2. Para cada relación, obtener su ref (línea) y sus nodos miembro
+                data.elements.filter(e => e.type === 'node').forEach(n => { nodos[n.id] = n; });
                 let contadorRutas = 0;
                 relaciones.forEach(rel => {
                     const ref = (rel.tags && (rel.tags.ref || rel.tags.name)) || null;
                     if (!ref) return;
                     contadorRutas++;
-
                     (rel.members || []).forEach(m => {
                         if (m.type === 'node') {
                             const nodo = nodos[m.ref];
                             if (!nodo) return;
-                            if (!mapaLineasPorNodo[nodo.id]) {
-                                mapaLineasPorNodo[nodo.id] = { refs: new Set(), lat: nodo.lat, lng: nodo.lon };
-                            }
+                            if (!mapaLineasPorNodo[nodo.id]) mapaLineasPorNodo[nodo.id] = { refs: new Set(), lat: nodo.lat, lng: nodo.lon };
                             mapaLineasPorNodo[nodo.id].refs.add(ref);
                         }
                     });
                 });
-
-                // 3. Pasar a array con lat/lng
-                Object.values(mapaLineasPorNodo).forEach(item => {
-                    lineasPorCoordenada.push({
-                        lat: item.lat,
-                        lng: item.lng,
-                        refs: Array.from(item.refs).sort()
-                    });
-                });
-
-                console.log(`✅ ${contadorRutas} rutas SAETA cargadas, ${lineasPorCoordenada.length} paradas con líneas asociadas`);
-            } catch (e) {
-                console.error('Error cargando rutas SAETA:', e);
-            }
+                Object.values(mapaLineasPorNodo).forEach(item => lineasPorCoordenada.push({ lat: item.lat, lng: item.lng, refs: Array.from(item.refs).sort() }));
+                console.log(`✅ ${contadorRutas} rutas SAETA cargadas`);
+            } catch (e) { console.error('Error rutas SAETA:', e); }
         }
-
-        // Buscar líneas para una parada por cercanía (~50 metros)
         function buscarLineasParaParada(lat, lng) {
             if (lineasPorCoordenada.length === 0) return [];
-            let mejor = null;
-            let mejorDist = Infinity;
+            let mejor = null, mejorDist = Infinity;
             for (const p of lineasPorCoordenada) {
                 const d = haversine(lat, lng, p.lat, p.lng);
-                if (d < mejorDist) {
-                    mejorDist = d;
-                    mejor = p;
-                }
+                if (d < mejorDist) { mejorDist = d; mejor = p; }
             }
             if (mejor && mejorDist < 50) return mejor.refs;
             return [];
@@ -560,8 +438,7 @@
             const n = normalizar(nombre);
             let enc = callesIndex.find(c => c.nombre === n);
             if (enc) return enc;
-            const cand = callesIndex.filter(c => c.nombre.includes(n) || n.includes(c.nombre))
-                .sort((a, b) => Math.abs(a.nombre.length - n.length) - Math.abs(b.nombre.length - n.length));
+            const cand = callesIndex.filter(c => c.nombre.includes(n) || n.includes(c.nombre)).sort((a, b) => Math.abs(a.nombre.length - n.length) - Math.abs(b.nombre.length - n.length));
             return cand[0] || null;
         }
         function buscarDireccion(calle, numero) {
@@ -584,8 +461,7 @@
             return { tipo: 'calle', calle: q };
         }
         function interseccionSegmentos(p1, p2, p3, p4) {
-            const x1 = p1[1], y1 = p1[0], x2 = p2[1], y2 = p2[0];
-            const x3 = p3[1], y3 = p3[0], x4 = p4[1], y4 = p4[0];
+            const x1 = p1[1], y1 = p1[0], x2 = p2[1], y2 = p2[0], x3 = p3[1], y3 = p3[0], x4 = p4[1], y4 = p4[0];
             const denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
             if (Math.abs(denom) < 1e-12) return null;
             const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denom;
@@ -619,7 +495,6 @@
             }
             return res;
         }
-
         function limpiarBusqueda() {
             if (marcadorCalle) { map.removeLayer(marcadorCalle); marcadorCalle = null; }
             if (trazoCalle) { map.removeLayer(trazoCalle); trazoCalle = null; }
@@ -633,8 +508,7 @@
             limpiarBusqueda();
             const lineas = calle.tramos.map(t => L.polyline(t, { color: '#e74c3c', weight: 6, opacity: 0.85, lineCap: 'round', lineJoin: 'round' }));
             trazoCalle = L.layerGroup(lineas).addTo(map);
-            marcadorCalle = L.marker([calle.lat, calle.lng], { icon: L.divIcon({ className: 'punto-calle', iconSize: [14, 14] }) })
-                .addTo(map).bindPopup(`<strong>${calle.nombreOriginal}</strong>`);
+            marcadorCalle = L.marker([calle.lat, calle.lng], { icon: L.divIcon({ className: 'punto-calle', iconSize: [14, 14] }) }).addTo(map).bindPopup(`<strong>${calle.nombreOriginal}</strong>`);
             map.fitBounds(L.featureGroup(lineas).getBounds(), { padding: [50, 50] });
             ultimaBusqueda = { texto: calle.nombreOriginal, lat: calle.lat, lng: calle.lng };
             mostrarBotonIr(calle.lat, calle.lng, calle.nombreOriginal);
@@ -643,11 +517,7 @@
             limpiarBusqueda();
             const lineas = calle.tramos.map(t => L.polyline(t, { color: '#e74c3c', weight: 4, opacity: 0.6, lineCap: 'round', lineJoin: 'round' }));
             trazoCalle = L.layerGroup(lineas).addTo(map);
-            const precision = dir.exacto ? 'exacta' : 'aproximada';
-            marcadorCalle = L.marker([dir.lat, dir.lng], {
-                icon: L.divIcon({ className: 'punto-direccion', iconSize: [24, 24], iconAnchor: [12, 24] }),
-                zIndexOffset: 2000
-            }).addTo(map).bindPopup(`<strong>📍 ${dir.calleOriginal} ${dir.numero}</strong><br><small>Numeración ${precision}</small>`).openPopup();
+            marcadorCalle = L.marker([dir.lat, dir.lng], { icon: L.divIcon({ className: 'punto-direccion', iconSize: [24, 24], iconAnchor: [12, 24] }), zIndexOffset: 2000 }).addTo(map).bindPopup(`<strong>📍 ${dir.calleOriginal} ${dir.numero}</strong><br><small>Numeración ${dir.exacto ? 'exacta' : 'aproximada'}</small>`).openPopup();
             map.setView([dir.lat, dir.lng], 18);
             ultimaBusqueda = { texto: `${dir.calleOriginal} ${dir.numero}`, lat: dir.lat, lng: dir.lng };
             mostrarBotonIr(dir.lat, dir.lng, `${dir.calleOriginal} ${dir.numero}`);
@@ -664,17 +534,11 @@
                 return;
             }
             const unicas = [];
-            for (const i of inters) {
-                if (!unicas.some(u => Math.abs(u[0] - i[0]) < 0.0002 && Math.abs(u[1] - i[1]) < 0.0002)) unicas.push(i);
-            }
-            const marcadores = unicas.map(([la, ln]) => L.marker([la, ln], {
-                icon: L.divIcon({ className: 'punto-esquina', iconSize: [22, 22] }), zIndexOffset: 2000
-            }).bindPopup(`<strong>📍 Esquina</strong><br>${cA.nombreOriginal} y ${cB.nombreOriginal}`));
+            for (const i of inters) if (!unicas.some(u => Math.abs(u[0] - i[0]) < 0.0002 && Math.abs(u[1] - i[1]) < 0.0002)) unicas.push(i);
+            const marcadores = unicas.map(([la, ln]) => L.marker([la, ln], { icon: L.divIcon({ className: 'punto-esquina', iconSize: [22, 22] }), zIndexOffset: 2000 }).bindPopup(`<strong>📍 Esquina</strong><br>${cA.nombreOriginal} y ${cB.nombreOriginal}`));
             marcadorCalle = L.layerGroup(marcadores).addTo(map);
             if (dirCercana) {
-                L.marker([dirCercana.lat, dirCercana.lng], {
-                    icon: L.divIcon({ className: 'punto-direccion', iconSize: [24, 24], iconAnchor: [12, 24] }), zIndexOffset: 2500
-                }).addTo(map).bindPopup(`<strong>🏠 ${dirCercana.calleOriginal} ${dirCercana.numero}</strong>`).openPopup();
+                L.marker([dirCercana.lat, dirCercana.lng], { icon: L.divIcon({ className: 'punto-direccion', iconSize: [24, 24], iconAnchor: [12, 24] }), zIndexOffset: 2500 }).addTo(map).bindPopup(`<strong>🏠 ${dirCercana.calleOriginal} ${dirCercana.numero}</strong>`).openPopup();
             }
             map.setView(unicas[0], 17);
             ultimaBusqueda = { texto: `${cA.nombreOriginal} y ${cB.nombreOriginal}`, lat: unicas[0][0], lng: unicas[0][1] };
@@ -693,8 +557,7 @@
                 li.className = 'esquina';
                 li.innerHTML = `🚦 <strong>Buscar esquina:</strong> ${parsed.calle1} <em>y</em> ${parsed.calle2}${parsed.numero ? ` <small>(altura ${parsed.numero})</small>` : ''}`;
                 li.addEventListener('click', () => {
-                    const cA = buscarCalleExacta(parsed.calle1);
-                    const cB = buscarCalleExacta(parsed.calle2);
+                    const cA = buscarCalleExacta(parsed.calle1), cB = buscarCalleExacta(parsed.calle2);
                     if (!cA) { alert(`No se encontró "${parsed.calle1}"`); return; }
                     if (!cB) { alert(`No se encontró "${parsed.calle2}"`); return; }
                     let dc = null;
@@ -709,9 +572,7 @@
                     const dir = buscarDireccion(parsed.calle, parsed.numero);
                     const li = document.createElement('li');
                     li.className = 'direccion';
-                    li.innerHTML = dir
-                        ? `🏠 <strong>${calle.nombreOriginal} ${parsed.numero}</strong><br><small>Numeración ${dir.exacto ? 'exacta' : 'aprox.'}</small>`
-                        : `🏠 <strong>${calle.nombreOriginal} ${parsed.numero}</strong><br><small>⚠️ Número no encontrado</small>`;
+                    li.innerHTML = dir ? `🏠 <strong>${calle.nombreOriginal} ${parsed.numero}</strong><br><small>Numeración ${dir.exacto ? 'exacta' : 'aprox.'}</small>` : `🏠 <strong>${calle.nombreOriginal} ${parsed.numero}</strong><br><small>⚠️ Número no encontrado</small>`;
                     li.addEventListener('click', () => {
                         if (dir) mostrarDireccion(calle, dir); else mostrarCalle(calle);
                         lista.classList.remove('activo'); lista.innerHTML = ''; input.blur();
@@ -744,34 +605,81 @@
         (async () => {
             await cargarCalles();
             await cargarDirecciones();
-            await cargarRutasSaeta();       // Cargar rutas SAETA
+            await cargarRutasSaeta();
             input.placeholder = '🔎 Calle, esquina o dirección...';
             cargarLugaresGuardados();
         })();
 
         // ============================================
-        // SITIOS (incluye SAETA)
+        // SITIOS Y CATEGORÍAS (con nuevas categorías)
         // ============================================
-        const EMOJIS = { hospital: '🏥', clinic: '🩺', pharmacy: '💊', bank: '🏦', atm: '🏧', restaurant: '🍽️', fast_food: '🍔', bar: '🍺', cafe: '☕', supermarket: '🛒', convenience: '🏪', police: '🚓', fire_station: '🚒', bus_stop: '🚌', parking: '🅿️', fuel: '⛽', school: '🏫', university: '🎓', townhall: '🏛️', hotel: '🏨', hostel: '🛏️' };
-        const NOMBRES = { hospital: 'Hospitales', clinic: 'Clínicas', pharmacy: 'Farmacias', bank: 'Bancos', atm: 'Cajeros', restaurant: 'Restaurantes', fast_food: 'Comida rápida', bar: 'Bares', cafe: 'Cafés', supermarket: 'Supermercados', convenience: 'Almacenes', police: 'Comisarías', fire_station: 'Bomberos', bus_stop: 'Paradas SAETA', parking: 'Estacionamientos', fuel: 'Estaciones de servicio', school: 'Escuelas', university: 'Universidades', townhall: 'Oficinas públicas', hotel: 'Hoteles', hostel: 'Hostales' };
+        const EMOJIS = {
+            // Salud
+            hospital: '🏥', clinic: '🩺', pharmacy: '💊', veterinary: '🐾',
+            // Finanzas
+            bank: '🏦', atm: '🏧',
+            // Comida
+            restaurant: '🍽️', fast_food: '🍔', bar: '🍺', cafe: '☕',
+            // Compras
+            supermarket: '🛒', convenience: '🏪', marketplace: '🏬',
+            // Seguridad
+            police: '🚓', fire_station: '🚒',
+            // Transporte
+            bus_stop: '🚌', parking: '🅿️', fuel: '⛽',
+            // Educación y cultura
+            school: '🏫', university: '🎓', library: '📚', museum: '🏛️', cinema: '🎬', theatre: '🎭',
+            // Gobierno
+            townhall: '🏛️', post_office: '📮',
+            // Alojamiento
+            hotel: '🏨', hostel: '🛏️',
+            // Recreación
+            park: '🌳', playground: '🎠', sports_centre: '🏟️', pitch: '⚽', swimming_pool: '🏊',
+            // Religión
+            place_of_worship: '⛪',
+            // Vialidad
+            traffic_signals: '🚦', traffic_calming: '🛑',
+            // Servicios
+            toilets: '🚻', drinking_water: '💧', recycling: '♻️', viewpoint: '🔭'
+        };
+        const NOMBRES = {
+            hospital: 'Hospitales', clinic: 'Clínicas', pharmacy: 'Farmacias', veterinary: 'Veterinarias',
+            bank: 'Bancos', atm: 'Cajeros',
+            restaurant: 'Restaurantes', fast_food: 'Comida rápida', bar: 'Bares', cafe: 'Cafés',
+            supermarket: 'Supermercados', convenience: 'Almacenes', marketplace: 'Mercados',
+            police: 'Comisarías', fire_station: 'Bomberos',
+            bus_stop: 'Paradas SAETA', parking: 'Estacionamientos', fuel: 'Estaciones de servicio',
+            school: 'Escuelas', university: 'Universidades', library: 'Bibliotecas', museum: 'Museos', cinema: 'Cines', theatre: 'Teatros',
+            townhall: 'Oficinas públicas', post_office: 'Correos',
+            hotel: 'Hoteles', hostel: 'Hostales',
+            park: 'Plazas y parques', playground: 'Juegos infantiles', sports_centre: 'Centros deportivos', pitch: 'Canchas', swimming_pool: 'Piletas',
+            place_of_worship: 'Iglesias',
+            traffic_signals: 'Semáforos', traffic_calming: 'Lomadas',
+            toilets: 'Baños públicos', drinking_water: 'Bebederos', recycling: 'Reciclaje', viewpoint: 'Miradores'
+        };
+
         const capas = {};
         const capasActivas = {};
 
         async function cargarSitios() {
-            const archivos = ['data/hospitales.geojson', 'data/sitios.geojson', 'data/saeta.geojson'];
+            const archivos = [
+                'data/hospitales.geojson',
+                'data/sitios.geojson',
+                'data/saeta.geojson',
+                'data/lugares_extra.geojson'   // ← NUEVO
+            ];
             for (const archivo of archivos) {
                 try {
                     const resp = await fetch(archivo);
-                    if (!resp.ok) {
-                        console.warn(`⚠️ No se encontró ${archivo}`);
-                        continue;
-                    }
+                    if (!resp.ok) { console.warn(`⚠️ No se encontró ${archivo}`); continue; }
                     const data = await resp.json();
-                    let contadorArchivo = 0;
+                    let contador = 0;
                     data.features.forEach(f => {
                         const props = f.properties;
-                        let cat = props.amenity || props.shop || props.tourism || props.highway || props.public_transport;
+                        let cat = props.amenity || props.shop || props.tourism || props.highway || props.public_transport || props.leisure;
+                        // Mapear highway=traffic_signals
                         if (cat === 'platform') cat = 'bus_stop';
+                        if (props.highway === 'traffic_signals') cat = 'traffic_signals';
+                        if (props.traffic_calming) cat = 'traffic_calming';
                         if (!cat) return;
                         let lat, lng;
                         if (f.geometry.type === 'Point') { lng = f.geometry.coordinates[0]; lat = f.geometry.coordinates[1]; }
@@ -780,26 +688,31 @@
                         if (!capas[cat]) { capas[cat] = L.layerGroup(); capasActivas[cat] = false; }
                         const emoji = EMOJIS[cat] || '📍';
                         const esSaeta = cat === 'bus_stop';
+                        const esSemaforo = cat === 'traffic_signals';
+                        const esLomada = cat === 'traffic_calming';
+                        const esPlaza = cat === 'park';
                         const size = esSaeta ? 34 : 28;
+                        let clase = 'marcador-sitio';
+                        if (esSaeta) clase += ' marcador-saeta';
+                        if (esSemaforo) clase += ' marcador-semaforo';
+                        if (esLomada) clase += ' marcador-lomada';
+                        if (esPlaza) clase += ' marcador-plaza';
                         const icono = L.divIcon({
                             className: '',
-                            html: `<div class="marcador-sitio${esSaeta ? ' marcador-saeta' : ''}"><span>${emoji}</span></div>`,
+                            html: `<div class="${clase}"><span>${emoji}</span></div>`,
                             iconSize: [size, size],
                             iconAnchor: [size / 2, size],
                             popupAnchor: [0, -size]
                         });
-                        const nombre = props.name || props.official_name || (esSaeta ? 'Parada SAETA' : 'Sin nombre');
+                        const nombre = props.name || props.official_name || (esSaeta ? 'Parada SAETA' : (esSemaforo ? 'Semáforo' : (esLomada ? 'Lomada' : (esPlaza ? 'Plaza / Parque' : 'Sin nombre'))));
                         const dir = props['addr:street'] ? `${props['addr:street']} ${props['addr:housenumber'] || ''}` : '';
 
-                        // Info adicional para SAETA (con líneas)
                         let infoSaeta = '';
                         if (esSaeta) {
                             const codigo = props.local_ref || props.ref;
                             const operador = props.operator || props.network;
                             if (codigo) infoSaeta += `<br><small>🏷️ Parada: ${codigo}</small>`;
                             if (operador) infoSaeta += `<br><small>🏢 ${operador}</small>`;
-
-                            // Buscar líneas que paran acá (por cercanía)
                             const lineasAqui = buscarLineasParaParada(lat, lng);
                             if (lineasAqui.length > 0) {
                                 const chips = lineasAqui.map(l => `<span class="linea-chip">${l}</span>`).join('');
@@ -811,15 +724,15 @@
 
                         capas[cat].addLayer(L.marker([lat, lng], { icon: icono })
                             .bindPopup(
-                                `<strong>${esSaeta ? '🚌 ' : ''}${nombre}</strong><br>` +
+                                `<strong>${emoji} ${nombre}</strong><br>` +
                                 `<small>${NOMBRES[cat] || cat}</small>` +
                                 infoSaeta +
                                 (dir ? '<br><small>📍 ' + dir + '</small>' : '') +
                                 (props.phone ? '<br><small>📞 ' + props.phone + '</small>' : '')
                             ));
-                        contadorArchivo++;
+                        contador++;
                     });
-                    console.log(`✅ ${archivo}: ${contadorArchivo} elementos`);
+                    console.log(`✅ ${archivo}: ${contador} elementos`);
                 } catch (e) { console.error(`Error cargando ${archivo}:`, e); }
             }
             generarBotonesFiltros();
@@ -827,6 +740,7 @@
         }
         function generarBotonesFiltros() {
             const panel = document.getElementById('panelFiltros');
+            // Ordenar por nombre visible
             Object.keys(capas).sort((a, b) => (NOMBRES[a] || a).localeCompare(NOMBRES[b] || b)).forEach(cat => {
                 const btn = document.createElement('button');
                 btn.id = 'btn-' + cat;
@@ -881,8 +795,7 @@
         const iconoPuntoMedida = L.divIcon({ className: '', html: '<div style="width:14px;height:14px;background:#e67e22;border:3px solid white;border-radius:50%;box-shadow:0 0 8px rgba(230,126,34,1);"></div>', iconSize: [14, 14], iconAnchor: [7, 7] });
         document.getElementById('btnMedir').addEventListener('click', () => {
             modoMedir = !modoMedir;
-            const btn = document.getElementById('btnMedir');
-            const aviso = document.getElementById('avisoMedir');
+            const btn = document.getElementById('btnMedir'), aviso = document.getElementById('avisoMedir');
             if (modoMedir) { btn.classList.add('activo'); aviso.classList.add('activo'); aviso.textContent = '📏 Tocá dos puntos'; map.getContainer().style.cursor = 'crosshair'; resetearMedicion(); }
             else { btn.classList.remove('activo'); aviso.classList.remove('activo'); map.getContainer().style.cursor = ''; resetearMedicion(); }
         });
@@ -979,15 +892,8 @@
         // ============================================
         // ROUTING
         // ============================================
-        let rutaLineas = null;
-        let marcadorDestino = null;
-        let modoTransporte = 'auto';
-        let autoRecalcActivo = true;
-        let ultimaPosRecalc = null;
-        let recalculoEnProgreso = false;
-        let coordsRuta = [];
-        let distanciaMinRecalc = 30;
-
+        let rutaLineas = null, marcadorDestino = null, modoTransporte = 'auto', autoRecalcActivo = true;
+        let ultimaPosRecalc = null, recalculoEnProgreso = false, coordsRuta = [], distanciaMinRecalc = 30;
         const iconoDestino = L.divIcon({
             className: '',
             html: '<div style="width:32px;height:32px;background:#e74c3c;border:4px solid white;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 0 12px rgba(231,76,60,1);display:flex;align-items:center;justify-content:center;font-size:16px;"><span style="transform:rotate(45deg);">🏁</span></div>',
@@ -1019,8 +925,7 @@
             document.getElementById('panelRuta').classList.remove('activo');
             if (rutaLineas) map.removeLayer(rutaLineas);
             if (marcadorDestino) map.removeLayer(marcadorDestino);
-            rutaLineas = marcadorDestino = null;
-            coordsRuta = []; ultimaPosRecalc = null;
+            rutaLineas = marcadorDestino = null; coordsRuta = []; ultimaPosRecalc = null;
         }
         async function calcularRuta(lat1, lng1, lat2, lng2, nombre, esRecalc) {
             if (recalculoEnProgreso && !esRecalc) return;
@@ -1035,10 +940,8 @@
             if (rutaLineas) map.removeLayer(rutaLineas);
             if (marcadorDestino) map.removeLayer(marcadorDestino);
             marcadorDestino = L.marker([lat2, lng2], { icon: iconoDestino, zIndexOffset: 3000 }).addTo(map).bindPopup(`<strong>🏁 ${nombre}</strong>`);
-
             const perfil = modoTransporte === 'auto' ? 'driving' : modoTransporte === 'pie' ? 'foot' : 'bike';
             const url = `https://router.project-osrm.org/route/v1/${perfil}/${lng1},${lat1};${lng2},${lat2}?overview=full&geometries=geojson&steps=true`;
-
             try {
                 const resp = await fetch(url);
                 if (!resp.ok) throw new Error('HTTP ' + resp.status);
@@ -1101,9 +1004,7 @@
             if (!autoRecalcActivo || !destinoActual || !posicionUsuario || recalculoEnProgreso || !ultimaPosRecalc) return;
             if (!document.getElementById('panelRuta').classList.contains('activo')) return;
             const d = haversine(ultimaPosRecalc[0], ultimaPosRecalc[1], posicionUsuario[0], posicionUsuario[1]);
-            if (d >= distanciaMinRecalc) {
-                calcularRuta(posicionUsuario[0], posicionUsuario[1], destinoActual.lat, destinoActual.lng, destinoActual.nombre, true);
-            }
+            if (d >= distanciaMinRecalc) calcularRuta(posicionUsuario[0], posicionUsuario[1], destinoActual.lat, destinoActual.lng, destinoActual.nombre, true);
         }
         function actualizarProgresoRuta() {
             if (!posicionUsuario || !coordsRuta || coordsRuta.length < 2) return;
@@ -1119,30 +1020,21 @@
         const BBOX = { sur: -24.92, norte: -24.65, oeste: -65.52, este: -65.30 };
         const ZOOMS = [13, 14, 15, 16];
         let descargaEnCurso = false;
-
         function lng2tile(lon, zoom) { return Math.floor((lon + 180) / 360 * Math.pow(2, zoom)); }
-        function lat2tile(lat, zoom) {
-            return Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom));
-        }
+        function lat2tile(lat, zoom) { return Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom)); }
         function generarListaTeselas() {
             const teselas = [];
             for (const zoom of ZOOMS) {
-                const xMin = lng2tile(BBOX.oeste, zoom);
-                const xMax = lng2tile(BBOX.este, zoom);
-                const yMin = lat2tile(BBOX.norte, zoom);
-                const yMax = lat2tile(BBOX.sur, zoom);
-                for (let x = xMin; x <= xMax; x++) {
-                    for (let y = yMin; y <= yMax; y++) {
-                        const sub = ['a', 'b', 'c'][(x + y) % 3];
-                        teselas.push(`https://${sub}.tile.openstreetmap.org/${zoom}/${x}/${y}.png`);
-                    }
+                const xMin = lng2tile(BBOX.oeste, zoom), xMax = lng2tile(BBOX.este, zoom);
+                const yMin = lat2tile(BBOX.norte, zoom), yMax = lat2tile(BBOX.sur, zoom);
+                for (let x = xMin; x <= xMax; x++) for (let y = yMin; y <= yMax; y++) {
+                    const sub = ['a', 'b', 'c'][(x + y) % 3];
+                    teselas.push(`https://${sub}.tile.openstreetmap.org/${zoom}/${x}/${y}.png`);
                 }
             }
             return teselas;
         }
-
         document.getElementById('btnOffline').addEventListener('click', abrirModalOffline);
-
         async function abrirModalOffline() {
             document.getElementById('modalOffline').classList.add('activo');
             document.getElementById('barraOffline').style.display = 'none';
@@ -1150,23 +1042,19 @@
             document.getElementById('btnIniciarOffline').disabled = false;
             document.getElementById('btnIniciarOffline').textContent = '📥 Descargar';
             document.getElementById('infoProgreso').textContent = '';
-
             const teselas = generarListaTeselas();
             const total = teselas.length;
-
             let yaDescargadas = 0;
             if ('caches' in window) {
                 try {
-                    const cache = await caches.open('salta-tiles-v8');
+                    const cache = await caches.open('salta-tiles-v10');
                     const keys = await cache.keys();
                     const urlsSet = new Set(keys.map(k => k.url));
                     yaDescargadas = teselas.filter(u => urlsSet.has(u)).length;
                 } catch (e) {}
             }
-
             const faltantes = total - yaDescargadas;
             const tamañoMB = Math.round(total * 20 / 1024);
-
             document.getElementById('estadoOffline').innerHTML = `
                 <strong>📊 Estado actual:</strong><br>
                 • Teselas totales: <strong>${total}</strong><br>
@@ -1174,11 +1062,7 @@
                 • Faltan descargar: <strong>${faltantes}</strong><br>
                 • Tamaño total aprox: <strong>~${tamañoMB} MB</strong>
             `;
-            document.getElementById('textoOffline').textContent =
-                faltantes === 0
-                    ? '✅ El mapa ya está descargado. Podés usarlo sin internet.'
-                    : `Se descargarán las ${faltantes} teselas que faltan. Tiempo estimado: ${Math.ceil(faltantes / 60)} min con Wi-Fi.`;
-
+            document.getElementById('textoOffline').textContent = faltantes === 0 ? '✅ El mapa ya está descargado.' : `Se descargarán las ${faltantes} teselas que faltan.`;
             if (faltantes === 0) {
                 document.getElementById('btnIniciarOffline').style.display = 'none';
                 document.getElementById('btnBorrarTeselas').style.display = 'block';
@@ -1186,55 +1070,29 @@
                 document.getElementById('btnBorrarTeselas').style.display = yaDescargadas > 0 ? 'block' : 'none';
             }
         }
-        function cerrarModalOffline() {
-            if (descargaEnCurso) return;
-            document.getElementById('modalOffline').classList.remove('activo');
-        }
-
+        function cerrarModalOffline() { if (descargaEnCurso) return; document.getElementById('modalOffline').classList.remove('activo'); }
         async function iniciarDescargaOffline() {
             if (descargaEnCurso) return;
             descargaEnCurso = true;
-
-            const btn = document.getElementById('btnIniciarOffline');
-            const btnBorrar = document.getElementById('btnBorrarTeselas');
-            const barra = document.getElementById('barraOffline');
-            const barraFill = document.getElementById('barraOfflineFill');
-            const info = document.getElementById('infoProgreso');
-            const btnFlotante = document.getElementById('btnOffline');
-
-            btn.disabled = true;
-            btn.textContent = '⏳ Descargando...';
-            btnBorrar.style.display = 'none';
-            barra.style.display = 'block';
-            barraFill.style.width = '0%';
+            const btn = document.getElementById('btnIniciarOffline'), btnBorrar = document.getElementById('btnBorrarTeselas');
+            const barra = document.getElementById('barraOffline'), barraFill = document.getElementById('barraOfflineFill');
+            const info = document.getElementById('infoProgreso'), btnFlotante = document.getElementById('btnOffline');
+            btn.disabled = true; btn.textContent = '⏳ Descargando...';
+            btnBorrar.style.display = 'none'; barra.style.display = 'block'; barraFill.style.width = '0%';
             btnFlotante.textContent = '⏳';
-
             const teselas = generarListaTeselas();
-            const total = teselas.length;
-
             let urlsYaDescargadas = new Set();
-            try {
-                const cache = await caches.open('salta-tiles-v8');
-                const keys = await cache.keys();
-                urlsYaDescargadas = new Set(keys.map(k => k.url));
-            } catch (e) {}
-
+            try { const cache = await caches.open('salta-tiles-v10'); const keys = await cache.keys(); urlsYaDescargadas = new Set(keys.map(k => k.url)); } catch (e) {}
             const pendientes = teselas.filter(u => !urlsYaDescargadas.has(u));
             const totalPendientes = pendientes.length;
-
             let descargadas = 0, errores = 0;
-
             const TANDA = 8;
             for (let i = 0; i < pendientes.length; i += TANDA) {
                 const tanda = pendientes.slice(i, i + TANDA);
                 const results = await Promise.all(tanda.map(async (url) => {
                     try {
                         const resp = await fetch(url, { mode: 'cors' });
-                        if (resp.ok) {
-                            const cache = await caches.open('salta-tiles-v8');
-                            await cache.put(url, resp.clone());
-                            return true;
-                        }
+                        if (resp.ok) { const cache = await caches.open('salta-tiles-v10'); await cache.put(url, resp.clone()); return true; }
                     } catch (e) {}
                     return false;
                 }));
@@ -1244,53 +1102,30 @@
                 info.textContent = `${i + tanda.length} / ${totalPendientes} teselas (${prog}%)`;
                 await new Promise(r => setTimeout(r, 100));
             }
-
             btn.textContent = '✅ Completado';
             btnFlotante.textContent = '✅';
             btnFlotante.classList.add('completo');
             barraFill.style.width = '100%';
             info.textContent = `✅ ${descargadas} teselas descargadas${errores > 0 ? `, ${errores} errores` : ''}`;
-
-            document.getElementById('estadoOffline').innerHTML = `
-                <strong>✅ Descarga completa</strong><br>
-                Se descargaron <strong>${descargadas}</strong> teselas.
-                ${errores > 0 ? `<br><span style="color:#e67e22;">⚠️ ${errores} fallaron.</span>` : ''}
-                <br><br>
-                <strong>El mapa ya funciona sin internet.</strong>
-                Probá activar modo avión y recargar la app.
-            `;
+            document.getElementById('estadoOffline').innerHTML = `<strong>✅ Descarga completa</strong><br>Se descargaron <strong>${descargadas}</strong> teselas.`;
             document.getElementById('textoOffline').textContent = '';
-
             setTimeout(() => {
-                btn.textContent = '📥 Cerrar';
-                btn.disabled = false;
-                btn.onclick = () => {
-                    document.getElementById('modalOffline').classList.remove('activo');
-                    btn.onclick = iniciarDescargaOffline;
-                    descargaEnCurso = false;
-                    abrirModalOffline();
-                };
+                btn.textContent = '📥 Cerrar'; btn.disabled = false;
+                btn.onclick = () => { document.getElementById('modalOffline').classList.remove('activo'); btn.onclick = iniciarDescargaOffline; descargaEnCurso = false; abrirModalOffline(); };
             }, 500);
-
             descargaEnCurso = false;
         }
-
         async function borrarTeselas() {
-            if (!confirm('¿Borrar todas las teselas descargadas?\n\nEl mapa dejará de funcionar sin internet hasta que vuelvas a descargarlo.')) return;
+            if (!confirm('¿Borrar todas las teselas descargadas?')) return;
             try {
-                await caches.delete('salta-tiles-v8');
+                await caches.delete('salta-tiles-v10');
                 mostrarNotificacion('🗑️ Teselas borradas', 'exito', 3000);
                 document.getElementById('btnOffline').textContent = '📥';
                 document.getElementById('btnOffline').classList.remove('completo');
                 cerrarModalOffline();
-            } catch (e) {
-                alert('Error al borrar: ' + e.message);
-            }
+            } catch (e) { alert('Error: ' + e.message); }
         }
 
-        // ============================================
-        // SERVICE WORKER
-        // ============================================
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
