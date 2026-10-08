@@ -51,20 +51,47 @@
         .lineas-lista { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
         .linea-chip { display: inline-block; background: #e74c3c; color: white; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
 
-        .panel-filtros { position: absolute; bottom: 20px; right: 20px; z-index: 1000; background: white; border-radius: 12px; padding: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; flex-direction: column; gap: 6px; max-height: 65vh; overflow-y: auto; max-width: 230px; }
-        .panel-filtros button { display: flex; align-items: center; justify-content: flex-start; gap: 6px; padding: 8px 12px; border: none; border-radius: 8px; background: #f0f0f0; cursor: pointer; font-size: 12px; color: #2c3e50; transition: background 0.2s; white-space: nowrap; text-align: left; width: 100%; }
-        .panel-filtros button:hover { background: #e0e0e0; }
-        .panel-filtros button.activo { background: #2c3e50; color: white; }
-        .panel-filtros .toggle { background: #3498db; color: white; font-weight: bold; justify-content: center; }
-        .panel-filtros .seccion { font-size: 10px; color: #999; text-transform: uppercase; padding: 6px 8px 2px; margin-top: 4px; border-top: 1px solid #eee; font-weight: bold; }
-
+        /* BOTONES FLOTANTES */
         .botones-flotantes { position: absolute; top: 10px; right: 10px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
-        .btn-flotante { width: 44px; height: 44px; border: none; border-radius: 50%; background: white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: transform 0.15s, background 0.2s; }
+        .btn-flotante { width: 44px; height: 44px; border: none; border-radius: 50%; background: white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: transform 0.15s, background 0.2s; position: relative; }
         .btn-flotante:hover { transform: scale(1.08); background: #f0f8ff; }
         .btn-flotante.activo { background: #2c3e50; color: white; }
         .btn-flotante.rojo { background: #e74c3c; color: white; }
         .btn-flotante.verde { background: #27ae60; color: white; }
         .btn-flotante.verde.completo { background: #2980b9; }
+        .btn-flotante .badge { position: absolute; top: -4px; right: -4px; background: #e74c3c; color: white; font-size: 10px; font-weight: bold; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+        .btn-flotante .badge.activo { display: flex; }
+
+        /* PANEL DE FILTROS REDISEÑADO */
+        .panel-filtros-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .panel-filtros-overlay.activo { opacity: 1; pointer-events: auto; }
+        .panel-filtros { position: fixed; top: 0; right: 0; width: 400px; max-width: 92vw; height: 100vh; background: white; z-index: 2000; box-shadow: -4px 0 24px rgba(0,0,0,0.2); transform: translateX(100%); transition: transform 0.3s ease-out; display: flex; flex-direction: column; }
+        .panel-filtros.activo { transform: translateX(0); }
+        .pf-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #eee; background: #2c3e50; color: white; flex-shrink: 0; }
+        .pf-header h3 { margin: 0; font-size: 18px; font-weight: 600; }
+        .pf-cerrar { background: rgba(255,255,255,0.15); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+        .pf-cerrar:hover { background: rgba(255,255,255,0.3); }
+        .pf-acciones { display: flex; gap: 8px; padding: 12px 16px; background: #f8f9fa; border-bottom: 1px solid #eee; flex-shrink: 0; }
+        .pf-acciones button { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+        .pf-btn-todo { background: #27ae60; color: white; }
+        .pf-btn-todo:hover { background: #229954; }
+        .pf-btn-nada { background: #e74c3c; color: white; }
+        .pf-btn-nada:hover { background: #c0392b; }
+        .pf-buscar { margin: 12px 16px 8px; padding: 12px 16px; border: 2px solid #ecf0f1; border-radius: 10px; font-size: 14px; outline: none; box-sizing: border-box; transition: border-color 0.2s; font-family: inherit; flex-shrink: 0; }
+        .pf-buscar:focus { border-color: #3498db; }
+        .pf-lista { flex: 1; overflow-y: auto; padding: 4px 16px 24px; -webkit-overflow-scrolling: touch; }
+        .pf-seccion { margin-bottom: 18px; }
+        .pf-seccion-titulo { font-size: 11px; font-weight: bold; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; padding: 8px 4px 6px; margin-bottom: 4px; border-bottom: 2px solid #ecf0f1; }
+        .pf-cat { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 14px; margin-bottom: 6px; border: 2px solid #ecf0f1; border-radius: 10px; background: white; cursor: pointer; font-size: 14px; color: #2c3e50; transition: all 0.15s; text-align: left; font-family: inherit; box-sizing: border-box; }
+        .pf-cat:hover { border-color: #3498db; background: #f0f8ff; }
+        .pf-cat.activo { border-color: #2c3e50; background: #2c3e50; color: white; }
+        .pf-cat .pf-emoji { font-size: 22px; flex-shrink: 0; width: 28px; text-align: center; }
+        .pf-cat .pf-nombre { flex: 1; font-weight: 500; }
+        .pf-cat .pf-contador { font-size: 11px; background: #ecf0f1; color: #7f8c8d; padding: 3px 9px; border-radius: 12px; font-weight: bold; flex-shrink: 0; }
+        .pf-cat.activo .pf-contador { background: rgba(255,255,255,0.25); color: white; }
+        .pf-cat .pf-check { font-size: 16px; opacity: 0; flex-shrink: 0; width: 16px; }
+        .pf-cat.activo .pf-check { opacity: 1; }
+        .pf-vacio { text-align: center; padding: 40px 20px; color: #999; font-size: 14px; }
 
         .aviso-ubicacion { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(0,0,0,0.75); color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; }
         .aviso-medir { position: absolute; top: 70px; left: 50%; transform: translateX(-50%); z-index: 1000; background: #e67e22; color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
@@ -141,6 +168,10 @@
         <button class="btn-flotante" id="btnModoOscuro" title="Modo oscuro">🌙</button>
         <button class="btn-flotante" id="btnMedir" title="Medir distancia">📏</button>
         <button class="btn-flotante" id="btnLugares" title="Mis lugares">⭐</button>
+        <button class="btn-flotante" id="btnFiltros" title="Filtros" style="position: relative;">
+            🎛️
+            <span class="badge" id="badgeFiltros">0</span>
+        </button>
         <button class="btn-flotante verde" id="btnOffline" title="Mapa offline">📥</button>
         <button class="btn-flotante" id="btnCompartir" title="Compartir" style="display:none;">📤</button>
         <button class="btn-flotante rojo" id="btnIr" title="Ir hasta ahí" style="display:none;">🛣️</button>
@@ -152,8 +183,19 @@
     <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
     <div class="notificacion" id="notificacion"></div>
 
+    <!-- OVERLAY + PANEL DE FILTROS NUEVO -->
+    <div class="panel-filtros-overlay" id="panelFiltrosOverlay" onclick="cerrarPanelFiltros()"></div>
     <div class="panel-filtros" id="panelFiltros">
-        <button class="toggle" id="toggleTodo" onclick="toggleTodo()">👁️ Mostrar todo</button>
+        <div class="pf-header">
+            <h3>🎛️ Filtros del mapa</h3>
+            <button class="pf-cerrar" onclick="cerrarPanelFiltros()">✕</button>
+        </div>
+        <div class="pf-acciones">
+            <button class="pf-btn-todo" onclick="mostrarTodos()">✅ Mostrar todos</button>
+            <button class="pf-btn-nada" onclick="ocultarTodos()">❌ Ocultar todos</button>
+        </div>
+        <input type="text" class="pf-buscar" id="pfBuscar" placeholder="🔍 Buscar categoría..." oninput="filtrarCategorias()">
+        <div class="pf-lista" id="pfLista"></div>
     </div>
 
     <div class="panel-ruta" id="panelRuta">
@@ -611,34 +653,21 @@
         })();
 
         // ============================================
-        // SITIOS Y CATEGORÍAS (con nuevas categorías)
+        // SITIOS Y CATEGORÍAS
         // ============================================
         const EMOJIS = {
-            // Salud
             hospital: '🏥', clinic: '🩺', pharmacy: '💊', veterinary: '🐾',
-            // Finanzas
             bank: '🏦', atm: '🏧',
-            // Comida
             restaurant: '🍽️', fast_food: '🍔', bar: '🍺', cafe: '☕',
-            // Compras
             supermarket: '🛒', convenience: '🏪', marketplace: '🏬',
-            // Seguridad
             police: '🚓', fire_station: '🚒',
-            // Transporte
             bus_stop: '🚌', parking: '🅿️', fuel: '⛽',
-            // Educación y cultura
             school: '🏫', university: '🎓', library: '📚', museum: '🏛️', cinema: '🎬', theatre: '🎭',
-            // Gobierno
             townhall: '🏛️', post_office: '📮',
-            // Alojamiento
             hotel: '🏨', hostel: '🛏️',
-            // Recreación
             park: '🌳', playground: '🎠', sports_centre: '🏟️', pitch: '⚽', swimming_pool: '🏊',
-            // Religión
             place_of_worship: '⛪',
-            // Vialidad
             traffic_signals: '🚦', traffic_calming: '🛑',
-            // Servicios
             toilets: '🚻', drinking_water: '💧', recycling: '♻️', viewpoint: '🔭'
         };
         const NOMBRES = {
@@ -657,16 +686,28 @@
             toilets: 'Baños públicos', drinking_water: 'Bebederos', recycling: 'Reciclaje', viewpoint: 'Miradores'
         };
 
+        // GRUPOS DE CATEGORÍAS PARA EL PANEL
+        const GRUPOS = {
+            'Transporte': { emoji: '🚌', categorias: ['bus_stop', 'parking', 'fuel'] },
+            'Salud': { emoji: '🏥', categorias: ['hospital', 'clinic', 'pharmacy', 'veterinary'] },
+            'Comida y bebida': { emoji: '🍽️', categorias: ['restaurant', 'fast_food', 'bar', 'cafe'] },
+            'Compras': { emoji: '🛒', categorias: ['supermarket', 'convenience', 'marketplace'] },
+            'Finanzas': { emoji: '🏦', categorias: ['bank', 'atm'] },
+            'Seguridad': { emoji: '🚓', categorias: ['police', 'fire_station'] },
+            'Educación y cultura': { emoji: '📚', categorias: ['school', 'university', 'library', 'museum', 'cinema', 'theatre'] },
+            'Recreación': { emoji: '🌳', categorias: ['park', 'playground', 'sports_centre', 'pitch', 'swimming_pool'] },
+            'Vialidad': { emoji: '🚦', categorias: ['traffic_signals', 'traffic_calming'] },
+            'Gobierno': { emoji: '🏛️', categorias: ['townhall', 'post_office'] },
+            'Alojamiento': { emoji: '🏨', categorias: ['hotel', 'hostel'] },
+            'Religión': { emoji: '⛪', categorias: ['place_of_worship'] },
+            'Servicios': { emoji: '🚻', categorias: ['toilets', 'drinking_water', 'recycling', 'viewpoint'] }
+        };
+
         const capas = {};
         const capasActivas = {};
 
         async function cargarSitios() {
-            const archivos = [
-                'data/hospitales.geojson',
-                'data/sitios.geojson',
-                'data/saeta.geojson',
-                'data/lugares_extra.geojson'   // ← NUEVO
-            ];
+            const archivos = ['data/hospitales.geojson', 'data/sitios.geojson', 'data/saeta.geojson', 'data/lugares_extra.geojson'];
             for (const archivo of archivos) {
                 try {
                     const resp = await fetch(archivo);
@@ -676,7 +717,6 @@
                     data.features.forEach(f => {
                         const props = f.properties;
                         let cat = props.amenity || props.shop || props.tourism || props.highway || props.public_transport || props.leisure;
-                        // Mapear highway=traffic_signals
                         if (cat === 'platform') cat = 'bus_stop';
                         if (props.highway === 'traffic_signals') cat = 'traffic_signals';
                         if (props.traffic_calming) cat = 'traffic_calming';
@@ -738,35 +778,169 @@
             generarBotonesFiltros();
             console.log('✅ Sitios cargados:', Object.keys(capas).length, 'categorías');
         }
+
+        // ============================================
+        // PANEL DE FILTROS AGRUPADO
+        // ============================================
         function generarBotonesFiltros() {
-            const panel = document.getElementById('panelFiltros');
-            // Ordenar por nombre visible
-            Object.keys(capas).sort((a, b) => (NOMBRES[a] || a).localeCompare(NOMBRES[b] || b)).forEach(cat => {
-                const btn = document.createElement('button');
-                btn.id = 'btn-' + cat;
-                btn.textContent = `${EMOJIS[cat] || '📍'} ${NOMBRES[cat] || cat}`;
-                btn.onclick = () => toggleCapa(cat);
-                panel.appendChild(btn);
+            const lista = document.getElementById('pfLista');
+            lista.innerHTML = '';
+
+            // 1. Categorías disponibles con contador
+            const categoriasDisponibles = {};
+            Object.keys(capas).forEach(cat => {
+                let contador = 0;
+                capas[cat].eachLayer(() => contador++);
+                categoriasDisponibles[cat] = contador;
             });
+
+            const yaMostradas = new Set();
+
+            // 2. Recorrer los grupos
+            Object.keys(GRUPOS).forEach(nombreGrupo => {
+                const grupo = GRUPOS[nombreGrupo];
+                const categoriasDelGrupo = grupo.categorias.filter(cat => categoriasDisponibles[cat]);
+                if (categoriasDelGrupo.length === 0) return;
+
+                const seccion = document.createElement('div');
+                seccion.className = 'pf-seccion';
+                const titulo = document.createElement('div');
+                titulo.className = 'pf-seccion-titulo';
+                titulo.textContent = `${grupo.emoji} ${nombreGrupo}`;
+                seccion.appendChild(titulo);
+
+                categoriasDelGrupo.forEach(cat => {
+                    yaMostradas.add(cat);
+                    seccion.appendChild(crearBotonCategoria(cat, categoriasDisponibles[cat]));
+                });
+
+                lista.appendChild(seccion);
+            });
+
+            // 3. Categorías sin grupo
+            const sinGrupo = Object.keys(categoriasDisponibles).filter(cat => !yaMostradas.has(cat));
+            if (sinGrupo.length > 0) {
+                const seccion = document.createElement('div');
+                seccion.className = 'pf-seccion';
+                const titulo = document.createElement('div');
+                titulo.className = 'pf-seccion-titulo';
+                titulo.textContent = '📦 Otros';
+                seccion.appendChild(titulo);
+                sinGrupo.forEach(cat => seccion.appendChild(crearBotonCategoria(cat, categoriasDisponibles[cat])));
+                lista.appendChild(seccion);
+            }
+
+            actualizarBadgeFiltros();
         }
+
+        function crearBotonCategoria(cat, contador) {
+            const btn = document.createElement('button');
+            btn.className = 'pf-cat';
+            btn.id = 'btn-' + cat;
+            btn.dataset.categoria = cat;
+            btn.dataset.nombre = (NOMBRES[cat] || cat).toLowerCase();
+            btn.innerHTML = `
+                <span class="pf-emoji">${EMOJIS[cat] || '📍'}</span>
+                <span class="pf-nombre">${NOMBRES[cat] || cat}</span>
+                <span class="pf-contador">${contador}</span>
+                <span class="pf-check">✓</span>
+            `;
+            btn.onclick = () => toggleCapa(cat);
+            return btn;
+        }
+
+        function abrirPanelFiltros() {
+            document.getElementById('panelFiltros').classList.add('activo');
+            document.getElementById('panelFiltrosOverlay').classList.add('activo');
+        }
+        function cerrarPanelFiltros() {
+            document.getElementById('panelFiltros').classList.remove('activo');
+            document.getElementById('panelFiltrosOverlay').classList.remove('activo');
+        }
+        document.getElementById('btnFiltros').addEventListener('click', abrirPanelFiltros);
+
         function toggleCapa(cat) {
             if (!capas[cat]) return;
             const btn = document.getElementById('btn-' + cat);
-            if (capasActivas[cat]) { map.removeLayer(capas[cat]); capasActivas[cat] = false; btn?.classList.remove('activo'); }
-            else { map.addLayer(capas[cat]); capasActivas[cat] = true; btn?.classList.add('activo'); }
+            if (capasActivas[cat]) {
+                map.removeLayer(capas[cat]);
+                capasActivas[cat] = false;
+                btn?.classList.remove('activo');
+            } else {
+                map.addLayer(capas[cat]);
+                capasActivas[cat] = true;
+                btn?.classList.add('activo');
+            }
+            actualizarBadgeFiltros();
         }
-        function toggleTodo() {
-            const btn = document.getElementById('toggleTodo');
-            const algoActivo = Object.values(capasActivas).some(v => v);
+
+        function mostrarTodos() {
             Object.keys(capas).forEach(cat => {
-                if (algoActivo) {
-                    if (capasActivas[cat]) { map.removeLayer(capas[cat]); capasActivas[cat] = false; document.getElementById('btn-' + cat)?.classList.remove('activo'); }
-                } else {
-                    if (!capasActivas[cat]) { map.addLayer(capas[cat]); capasActivas[cat] = true; document.getElementById('btn-' + cat)?.classList.add('activo'); }
+                if (!capasActivas[cat]) {
+                    map.addLayer(capas[cat]);
+                    capasActivas[cat] = true;
+                    document.getElementById('btn-' + cat)?.classList.add('activo');
                 }
             });
-            btn.textContent = algoActivo ? '👁️ Mostrar todo' : '🚫 Ocultar todo';
+            actualizarBadgeFiltros();
+            mostrarNotificacion('✅ Todos los filtros activados', 'exito', 2000);
         }
+        function ocultarTodos() {
+            Object.keys(capas).forEach(cat => {
+                if (capasActivas[cat]) {
+                    map.removeLayer(capas[cat]);
+                    capasActivas[cat] = false;
+                    document.getElementById('btn-' + cat)?.classList.remove('activo');
+                }
+            });
+            actualizarBadgeFiltros();
+            mostrarNotificacion('🚫 Todos los filtros desactivados', 'info', 2000);
+        }
+
+        function filtrarCategorias() {
+            const texto = document.getElementById('pfBuscar').value.toLowerCase().trim();
+            const secciones = document.querySelectorAll('.pf-seccion');
+            let visiblesTotal = 0;
+            secciones.forEach(seccion => {
+                let visiblesEnSeccion = 0;
+                const botones = seccion.querySelectorAll('.pf-cat');
+                botones.forEach(btn => {
+                    const nombre = btn.dataset.nombre || '';
+                    if (!texto || nombre.includes(texto)) {
+                        btn.style.display = 'flex';
+                        visiblesEnSeccion++;
+                    } else {
+                        btn.style.display = 'none';
+                    }
+                });
+                seccion.style.display = visiblesEnSeccion > 0 ? 'block' : 'none';
+                visiblesTotal += visiblesEnSeccion;
+            });
+            let vacio = document.querySelector('.pf-vacio');
+            if (visiblesTotal === 0) {
+                if (!vacio) {
+                    vacio = document.createElement('div');
+                    vacio.className = 'pf-vacio';
+                    vacio.textContent = '😕 No se encontraron categorías';
+                    document.getElementById('pfLista').appendChild(vacio);
+                }
+            } else if (vacio) {
+                vacio.remove();
+            }
+        }
+
+        function actualizarBadgeFiltros() {
+            const activos = Object.values(capasActivas).filter(v => v).length;
+            const badge = document.getElementById('badgeFiltros');
+            if (!badge) return;
+            if (activos > 0) {
+                badge.textContent = activos;
+                badge.classList.add('activo');
+            } else {
+                badge.classList.remove('activo');
+            }
+        }
+
         cargarSitios();
 
         // ============================================
