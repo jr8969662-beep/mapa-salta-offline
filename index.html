@@ -67,6 +67,32 @@
             filter: drop-shadow(0 0 2px white);
         }
 
+        /* CHIPS DE LÍNEAS DE COLECTIVO */
+        .lineas-container {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #eee;
+        }
+        .lineas-lista {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 4px;
+        }
+        .linea-chip {
+            display: inline-block;
+            background: #e74c3c;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .linea-chip.linea-saeta {
+            background: #27ae60;
+        }
+
         .panel-filtros { position: absolute; bottom: 20px; right: 20px; z-index: 1000; background: white; border-radius: 12px; padding: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); display: flex; flex-direction: column; gap: 6px; max-height: 60vh; overflow-y: auto; max-width: 220px; }
         .panel-filtros button { display: flex; align-items: center; justify-content: flex-start; gap: 6px; padding: 8px 12px; border: none; border-radius: 8px; background: #f0f0f0; cursor: pointer; font-size: 12px; color: #2c3e50; transition: background 0.2s; white-space: nowrap; text-align: left; width: 100%; }
         .panel-filtros button:hover { background: #e0e0e0; }
@@ -446,6 +472,85 @@
                 console.log(`✅ ${direccionesIndex.length} direcciones cargadas`);
             } catch (e) { console.error('Error cargando direcciones:', e); }
         }
+
+        // ============================================
+        // CARGAR RUTAS DE COLECTIVO (líneas SAETA)
+        // ============================================
+        // Mapa de líneas por nodo (id de OSM → líneas)
+        let mapaLineasPorNodo = {};
+        // Array indexable por coordenadas (para cruzar paradas con líneas)
+        let lineasPorCoordenada = [];
+
+        async function cargarRutasSaeta() {
+            try {
+                const resp = await fetch('data/rutas_saeta.json');
+                if (!resp.ok) {
+                    console.warn('⚠️ No se encontró rutas_saeta.json — las líneas no se mostrarán');
+                    return;
+                }
+                const data = await resp.json();
+                if (!data.elements) {
+                    console.warn('⚠️ rutas_saeta.json no tiene formato esperado');
+                    return;
+                }
+
+                // 1. Separar relaciones (rutas) de nodos
+                const relaciones = data.elements.filter(e => e.type === 'relation');
+                const nodos = {};
+                data.elements.filter(e => e.type === 'node').forEach(n => {
+                    nodos[n.id] = n;
+                });
+
+                // 2. Para cada relación, obtener su ref (línea) y sus nodos miembro
+                let contadorRutas = 0;
+                relaciones.forEach(rel => {
+                    const ref = (rel.tags && (rel.tags.ref || rel.tags.name)) || null;
+                    if (!ref) return;
+                    contadorRutas++;
+
+                    (rel.members || []).forEach(m => {
+                        if (m.type === 'node') {
+                            const nodo = nodos[m.ref];
+                            if (!nodo) return;
+                            if (!mapaLineasPorNodo[nodo.id]) {
+                                mapaLineasPorNodo[nodo.id] = { refs: new Set(), lat: nodo.lat, lng: nodo.lon };
+                            }
+                            mapaLineasPorNodo[nodo.id].refs.add(ref);
+                        }
+                    });
+                });
+
+                // 3. Pasar a array con lat/lng
+                Object.values(mapaLineasPorNodo).forEach(item => {
+                    lineasPorCoordenada.push({
+                        lat: item.lat,
+                        lng: item.lng,
+                        refs: Array.from(item.refs).sort()
+                    });
+                });
+
+                console.log(`✅ ${contadorRutas} rutas SAETA cargadas, ${lineasPorCoordenada.length} paradas con líneas asociadas`);
+            } catch (e) {
+                console.error('Error cargando rutas SAETA:', e);
+            }
+        }
+
+        // Buscar líneas para una parada por cercanía (~50 metros)
+        function buscarLineasParaParada(lat, lng) {
+            if (lineasPorCoordenada.length === 0) return [];
+            let mejor = null;
+            let mejorDist = Infinity;
+            for (const p of lineasPorCoordenada) {
+                const d = haversine(lat, lng, p.lat, p.lng);
+                if (d < mejorDist) {
+                    mejorDist = d;
+                    mejor = p;
+                }
+            }
+            if (mejor && mejorDist < 50) return mejor.refs;
+            return [];
+        }
+
         function buscarCalle(termino) {
             const t = normalizar(termino);
             if (t.length < 2) return [];
@@ -639,6 +744,7 @@
         (async () => {
             await cargarCalles();
             await cargarDirecciones();
+            await cargarRutasSaeta();       // Cargar rutas SAETA
             input.placeholder = '🔎 Calle, esquina o dirección...';
             cargarLugaresGuardados();
         })();
@@ -652,7 +758,6 @@
         const capasActivas = {};
 
         async function cargarSitios() {
-            // Ahora incluimos saeta.geojson
             const archivos = ['data/hospitales.geojson', 'data/sitios.geojson', 'data/saeta.geojson'];
             for (const archivo of archivos) {
                 try {
@@ -666,7 +771,6 @@
                     data.features.forEach(f => {
                         const props = f.properties;
                         let cat = props.amenity || props.shop || props.tourism || props.highway || props.public_transport;
-                        // Normalizar: public_transport=platform lo tratamos como bus_stop
                         if (cat === 'platform') cat = 'bus_stop';
                         if (!cat) return;
                         let lat, lng;
@@ -687,17 +791,22 @@
                         const nombre = props.name || props.official_name || (esSaeta ? 'Parada SAETA' : 'Sin nombre');
                         const dir = props['addr:street'] ? `${props['addr:street']} ${props['addr:housenumber'] || ''}` : '';
 
-                        // Info adicional para SAETA
+                        // Info adicional para SAETA (con líneas)
                         let infoSaeta = '';
                         if (esSaeta) {
-                            const lineas = props.route_ref || props.ref || props['route_ref'];
-                            const codigo = props.local_ref;
+                            const codigo = props.local_ref || props.ref;
                             const operador = props.operator || props.network;
-                            const ref = props.ref;
-                            if (codigo) infoSaeta += `<br><small>🏷️ Código: ${codigo}</small>`;
-                            else if (ref) infoSaeta += `<br><small>🏷️ Ref: ${ref}</small>`;
-                            if (lineas) infoSaeta += `<br><small>🚌 Líneas: ${lineas}</small>`;
+                            if (codigo) infoSaeta += `<br><small>🏷️ Parada: ${codigo}</small>`;
                             if (operador) infoSaeta += `<br><small>🏢 ${operador}</small>`;
+
+                            // Buscar líneas que paran acá (por cercanía)
+                            const lineasAqui = buscarLineasParaParada(lat, lng);
+                            if (lineasAqui.length > 0) {
+                                const chips = lineasAqui.map(l => `<span class="linea-chip">${l}</span>`).join('');
+                                infoSaeta += `<div class="lineas-container"><small style="color:#555;font-weight:bold;">🚌 Líneas que paran acá:</small><div class="lineas-lista">${chips}</div></div>`;
+                            } else {
+                                infoSaeta += `<br><small style="color:#999;">🚌 Sin info de líneas</small>`;
+                            }
                         }
 
                         capas[cat].addLayer(L.marker([lat, lng], { icon: icono })
@@ -1048,7 +1157,7 @@
             let yaDescargadas = 0;
             if ('caches' in window) {
                 try {
-                    const cache = await caches.open('salta-tiles-v7');
+                    const cache = await caches.open('salta-tiles-v8');
                     const keys = await cache.keys();
                     const urlsSet = new Set(keys.map(k => k.url));
                     yaDescargadas = teselas.filter(u => urlsSet.has(u)).length;
@@ -1105,7 +1214,7 @@
 
             let urlsYaDescargadas = new Set();
             try {
-                const cache = await caches.open('salta-tiles-v7');
+                const cache = await caches.open('salta-tiles-v8');
                 const keys = await cache.keys();
                 urlsYaDescargadas = new Set(keys.map(k => k.url));
             } catch (e) {}
@@ -1122,7 +1231,7 @@
                     try {
                         const resp = await fetch(url, { mode: 'cors' });
                         if (resp.ok) {
-                            const cache = await caches.open('salta-tiles-v7');
+                            const cache = await caches.open('salta-tiles-v8');
                             await cache.put(url, resp.clone());
                             return true;
                         }
@@ -1169,7 +1278,7 @@
         async function borrarTeselas() {
             if (!confirm('¿Borrar todas las teselas descargadas?\n\nEl mapa dejará de funcionar sin internet hasta que vuelvas a descargarlo.')) return;
             try {
-                await caches.delete('salta-tiles-v7');
+                await caches.delete('salta-tiles-v8');
                 mostrarNotificacion('🗑️ Teselas borradas', 'exito', 3000);
                 document.getElementById('btnOffline').textContent = '📥';
                 document.getElementById('btnOffline').classList.remove('completo');
