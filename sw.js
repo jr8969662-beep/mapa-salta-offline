@@ -1,9 +1,11 @@
 // ============================================
 // SERVICE WORKER - Mapa Salta Offline
-// Versión: v8 (con paradas SAETA)
+// Versión: v9 (con rutas SAETA)
 // ============================================
 
-const VERSION = 'v9';   // antes v8
+const VERSION = 'v9';
+const CACHE_APP = 'salta-app-' + VERSION;
+const CACHE_TILES = 'salta-tiles-' + VERSION;
 
 const APP_URLS = [
     './',
@@ -14,16 +16,17 @@ const APP_URLS = [
     './data/sitios.geojson',
     './data/direcciones.geojson',
     './data/saeta.geojson',
-    './data/rutas_saeta.json',              // ← NUEVO
+    './data/rutas_saeta.json',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
 ];
+
 function esTesela(url) {
     return url.hostname.endsWith('tile.openstreetmap.org');
 }
 
 self.addEventListener('install', (event) => {
-    console.log('🔧 Instalando Service Worker v8...');
+    console.log('🔧 Instalando Service Worker v9...');
     event.waitUntil(
         caches.open(CACHE_APP)
             .then((cache) => cache.addAll(APP_URLS))
@@ -32,7 +35,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-    console.log('✅ Service Worker v8 activado');
+    console.log('✅ Service Worker v9 activado');
     event.waitUntil(
         caches.keys().then((nombres) => {
             return Promise.all(
@@ -52,13 +55,6 @@ self.addEventListener('message', (event) => {
         caches.delete(CACHE_TILES).then(() => {
             console.log('🗑️ Caché de teselas borrada');
             event.source.postMessage({ tipo: 'TESELAS_BORRADAS' });
-        });
-    }
-    if (event.data && event.data.tipo === 'CONTAR_TESELAS') {
-        caches.open(CACHE_TILES).then((cache) => {
-            cache.keys().then((keys) => {
-                event.source.postMessage({ tipo: 'CONTEO_TESELAS', cantidad: keys.length });
-            });
         });
     }
 });
