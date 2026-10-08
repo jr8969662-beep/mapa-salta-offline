@@ -1,9 +1,9 @@
 // ============================================
 // SERVICE WORKER - Mapa Salta Offline
-// Versión: v6 (solo OSM, modo oscuro via CSS)
+// Versión: v7 (soporte descarga masiva)
 // ============================================
 
-const VERSION = 'v6';
+const VERSION = 'v7';
 const CACHE_APP = 'salta-app-' + VERSION;
 const CACHE_TILES = 'salta-tiles-' + VERSION;
 
@@ -24,7 +24,7 @@ function esTesela(url) {
 }
 
 self.addEventListener('install', (event) => {
-    console.log('🔧 Instalando Service Worker v6...');
+    console.log('🔧 Instalando Service Worker v7...');
     event.waitUntil(
         caches.open(CACHE_APP)
             .then((cache) => cache.addAll(APP_URLS))
@@ -33,7 +33,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-    console.log('✅ Service Worker v6 activado');
+    console.log('✅ Service Worker v7 activado');
     event.waitUntil(
         caches.keys().then((nombres) => {
             return Promise.all(
@@ -46,6 +46,23 @@ self.addEventListener('activate', (event) => {
             );
         }).then(() => self.clients.claim())
     );
+});
+
+// Mensajes desde la página principal
+self.addEventListener('message', (event) => {
+    if (event.data && event.data.tipo === 'BORRAR_TESELAS') {
+        caches.delete(CACHE_TILES).then(() => {
+            console.log('🗑️ Caché de teselas borrada');
+            event.source.postMessage({ tipo: 'TESELAS_BORRADAS' });
+        });
+    }
+    if (event.data && event.data.tipo === 'CONTAR_TESELAS') {
+        caches.open(CACHE_TILES).then((cache) => {
+            cache.keys().then((keys) => {
+                event.source.postMessage({ tipo: 'CONTEO_TESELAS', cantidad: keys.length });
+            });
+        });
+    }
 });
 
 self.addEventListener('fetch', (event) => {
