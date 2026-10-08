@@ -12,6 +12,8 @@ const APP_URLS = [
     './index.html',
     './manifest.json',
     './data/calles.geojson',
+    './data/hospitales.geojson',
+    './data/sitios.geojson',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
 ];
