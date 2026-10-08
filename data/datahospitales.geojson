@@ -1,0 +1,1054 @@
+{
+  "type": "FeatureCollection",
+  "generator": "overpass-turbo",
+  "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+  "timestamp": "2026-10-08T18:48:48Z",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/246745091",
+        "addr:city": "Salta",
+        "addr:full": "Calle S/N, Barrio Solidaridad",
+        "addr:place": "Capital",
+        "addr:postcode": "4400",
+        "amenity": "hospital",
+        "description": "Bajo riesgo con internación simple",
+        "healthcare": "hospital",
+        "name": "Hospital Papa Francisco",
+        "operator:type": "public",
+        "ref:sisa_codigo": "10660282173678",
+        "ref:sisa_tipologia": "ESCIETE",
+        "source": "sedronar.gov.ar | Public Domain (PD)",
+        "wikidata": "Q95447575",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3914399,
+          -24.8403437
+        ]
+      },
+      "id": "way/246745091"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/306418999",
+        "addr:city": "Salta",
+        "addr:postcode": "4400",
+        "alt_name": "Salita de Asuncion",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 28 Villa Asunción",
+        "official_name": "Centro de Salud Nº 28 - Villa Asunción",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4464355,
+          -24.7962476
+        ]
+      },
+      "id": "way/306418999"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/626017915",
+        "addr:city": "Salta",
+        "addr:full": "Avenida Domingo Faustino Sarmiento 555",
+        "addr:housenumber": "577",
+        "addr:postcode": "4400",
+        "addr:street": "Avenida Domingo Faustino Sarmiento",
+        "amenity": "hospital",
+        "description": "Mediano riesgo con internación con cuidados especiales",
+        "healthcare": "hospital",
+        "name": "Hospital Señor del Milagro",
+        "operator:type": "public",
+        "ref:sisa_codigo": "10660282173072",
+        "ref:sisa_tipologia": "ESCIE",
+        "source": "sedronar.gov.ar | Public Domain (PD)",
+        "wikidata": "Q95447835",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4165503,
+          -24.7820652
+        ]
+      },
+      "id": "way/626017915"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/627037555",
+        "addr:city": "Salta",
+        "addr:full": "Jose Tobias N°69",
+        "addr:place": "Capital",
+        "addr:postcode": "4400",
+        "amenity": "hospital",
+        "description": "Alto riesgo con terapia intensiva",
+        "healthcare": "hospital",
+        "name": "Hospital San Bernardo",
+        "operator:type": "public",
+        "ref:sisa_codigo": "10660282173065",
+        "ref:sisa_tipologia": "ESCIEP",
+        "source": "sedronar.gov.ar | Public Domain (PD)",
+        "wikidata": "Q95447646",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3991591,
+          -24.7920926
+        ]
+      },
+      "id": "way/627037555"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/627043820",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4162592,
+          -24.7719927
+        ]
+      },
+      "id": "way/627043820"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/630388123",
+        "addr:city": "Salta",
+        "addr:full": "Gral. Richieri S/N°",
+        "addr:place": "Capital",
+        "addr:postcode": "4400",
+        "amenity": "hospital",
+        "description": "Alto riesgo con terapia intensiva",
+        "healthcare": "hospital",
+        "name": "Hospital de Salud Mental Miguel Ragone",
+        "operator:type": "public",
+        "ref:sisa_codigo": "13660282173084",
+        "ref:sisa_tipologia": "ESCIG",
+        "source": "sedronar.gov.ar | Public Domain (PD)",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3961812,
+          -24.8007319
+        ]
+      },
+      "id": "way/630388123"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/630406501",
+        "addr:city": "Salta",
+        "addr:street": "Jaime Durán",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de salud 55 barrio 17 de Octubre",
+        "official_name": "Centro de salud Nº 55 barrio 17 de Octubre",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3974571,
+          -24.7187926
+        ]
+      },
+      "id": "way/630406501"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/809584943",
+        "addr:city": "Salta",
+        "addr:postcode": "4400",
+        "addr:street": "Jaime Durán",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 49 Barrio General Belgrano",
+        "official_name": "Centro de Salud N° 49 Barrio General Belgrano",
+        "phone": "+54 387 4250300",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4041517,
+          -24.7374588
+        ]
+      },
+      "id": "way/809584943"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1046064809",
+        "addr:city": "Salta",
+        "addr:housenumber": "1051",
+        "addr:postcode": "4400",
+        "addr:street": "Ituzaingó",
+        "alt_name": "Centro de Salud Dr. Gabriel Puló",
+        "amenity": "hospital",
+        "healthcare": "centre",
+        "name": "Centro de Salud 4",
+        "official_name": "Centro de Salud N°4",
+        "phone": "+54 3874375063",
+        "wikidata": "Q95446883",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4150291,
+          -24.8034568
+        ]
+      },
+      "id": "way/1046064809"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1047102870",
+        "addr:city": "Salta",
+        "addr:full": "Río Caraparí 2200 esq. Río Lorohuasi",
+        "addr:housenumber": "2200",
+        "addr:postcode": "4400",
+        "addr:street": "Río Caraparí",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 9 Villa Lavalle",
+        "phone": "+54 387 4350191",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4064376,
+          -24.8194636
+        ]
+      },
+      "id": "way/1047102870"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "way/1527626180",
+        "addr:city": "Salta",
+        "addr:housenumber": "891",
+        "addr:street": "Avenida Manuel Belgrano",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Sanatorio El carmen",
+        "@geometry": "center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4147319,
+          -24.7871233
+        ]
+      },
+      "id": "way/1527626180"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/2083515187",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Clínica Santa Clara de Asís"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4159506,
+          -24.7918506
+        ]
+      },
+      "id": "node/2083515187"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/3657251545",
+        "addr:city": "salta capital",
+        "addr:housenumber": "158",
+        "addr:postcode": "4400",
+        "addr:street": "Doctor José Evaristo Uriburu",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de salud Villa Soledad",
+        "operator": "Victoria Bravo"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4015744,
+          -24.8011054
+        ]
+      },
+      "id": "node/3657251545"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4374766237",
+        "addr:city": "Salta",
+        "addr:housenumber": "484",
+        "addr:postcode": "4400",
+        "addr:street": "Felipe Varela",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 52 Santa Cecilia",
+        "official_name": "Centro de Salud N° 52 Santa Cecilia"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3982095,
+          -24.8291933
+        ]
+      },
+      "id": "node/4374766237"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/4378353661",
+        "addr:city": "Salta",
+        "addr:housenumber": "1033",
+        "addr:postcode": "4400",
+        "addr:street": "General Juan Antonio Álvarez de Arenales",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Emergencia Pediatrica"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4155869,
+          -24.7714012
+        ]
+      },
+      "id": "node/4378353661"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5025878525",
+        "addr:housenumber": "93",
+        "addr:postcode": "4400",
+        "addr:street": "Avenida Juan B. Justo",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "internet_access": "wlan",
+        "name": "Hospital Privado Tres Cerrito",
+        "opening_hours": "24/7",
+        "phone": "+54 387 439 8880",
+        "website": "https://hp3c.com.ar/",
+        "wikidata": "Q95447608"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4029334,
+          -24.7657953
+        ]
+      },
+      "id": "node/5025878525"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/5225289201",
+        "addr:city": "Salta",
+        "addr:housenumber": "1800",
+        "addr:postcode": "4400",
+        "addr:street": "España",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "healthcare:speciality": "general",
+        "name": "Salita - Centro de Salud Campo Caseros",
+        "official_name": "Centro de Salud Nº 02 - Campo Caseros",
+        "opening_hours": "Mo-Fr 07:00-20:00",
+        "phone": "+54 3874311245"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4286727,
+          -24.7876598
+        ]
+      },
+      "id": "node/5225289201"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/7404158660",
+        "addr:city": "Salta",
+        "addr:full": "Dr. Eduardo Paz Chain N°30 - Salta Capital",
+        "addr:place": "Capital",
+        "addr:postcode": "4400",
+        "amenity": "hospital",
+        "description": "Bajo riesgo con internación simple",
+        "healthcare": "hospital",
+        "name": "Hospital De Endocrinologia Y Metabolismo Dr Arturo Oñativia",
+        "operator:type": "public",
+        "ref:sisa_codigo": "10660282173037",
+        "ref:sisa_tipologia": "ESCIG",
+        "source": "sedronar.gov.ar | Public Domain (PD)",
+        "wikidata": "Q95447301"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3983337,
+          -24.7894083
+        ]
+      },
+      "id": "node/7404158660"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/8238445561",
+        "addr:city": "Salta",
+        "addr:postcode": "4400",
+        "addr:street": "Ezequiel Martínez Estrada",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "centro de salud 18 Portezuelo",
+        "phone": "+54 387 4282532"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3752736,
+          -24.7991291
+        ]
+      },
+      "id": "node/8238445561"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/10749384231",
+        "addr:city": "Salta",
+        "addr:housenumber": "557",
+        "addr:postcode": "4400",
+        "addr:street": "Avenida Domingo Faustino Sarmiento",
+        "amenity": "hospital",
+        "emergency": "yes",
+        "healthcare": "hospital",
+        "name": "Hospital Señor del Milagro"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4161065,
+          -24.7826812
+        ]
+      },
+      "id": "node/10749384231"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11796268162",
+        "addr:city": "Salta",
+        "addr:full": "Radio Splendid Y Radio Romero",
+        "addr:postcode": "4400",
+        "addr:street": "Radio Splendid",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro De Salud 27 Barrio Intersindical",
+        "phone": "+54 387 4240899",
+        "ref:sisa_codigo": "50660282173153",
+        "ref:sisa_tipologia": "ESSIDT"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4491803,
+          -24.8454214
+        ]
+      },
+      "id": "node/11796268162"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11808105620",
+        "addr:city": "Salta",
+        "addr:postcode": "4400",
+        "addr:street": "Bruno Mauricio de Zabala",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 03 Barrio Hernando de Lerma",
+        "official_name": "Centro de Salud Nº 03 Barrio Hernando de Lerma",
+        "phone": "+54 387 4375060"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4066755,
+          -24.8030932
+        ]
+      },
+      "id": "node/11808105620"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11808143175",
+        "addr:city": "Salta",
+        "addr:housenumber": "1899",
+        "addr:postcode": "4400",
+        "addr:street": "Antonio Balcarce",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 05 Barrio Castañares Viejo",
+        "official_name": "Centro de Salud Nº 05 -  Bº Castañares Viejo",
+        "phone": "+54 387 4394115"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4101643,
+          -24.7661372
+        ]
+      },
+      "id": "node/11808143175"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11808143208",
+        "addr:city": "Salta",
+        "addr:full": "Av. Artigas 900 esq. Italia",
+        "addr:postcode": "4400",
+        "addr:street": "Avenida José Gervasio Artigas",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud Nº 6 Barrio El Manjón",
+        "official_name": "Centro de Salud Nº 06 - Barrio El Manjón",
+        "phone": "+54 387 4281393"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3820068,
+          -24.8096457
+        ]
+      },
+      "id": "node/11808143208"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11808143258",
+        "addr:city": "Salta",
+        "addr:full": "Diario La Razón y Diario Los Andes",
+        "addr:postcode": "4400",
+        "addr:street": "Diario La Razón",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro De Salud 08 Barrio El Tribuno",
+        "official_name": "Centro De Salud Nº 08 Barrio El Tribuno",
+        "operator:type": "public",
+        "phone": "+54 387 4241412"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4425647,
+          -24.8447877
+        ]
+      },
+      "id": "node/11808143258"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11808143267",
+        "addr:city": "Salta",
+        "addr:housenumber": "1505",
+        "addr:postcode": "4400",
+        "addr:street": "Bernardo O'Higgins",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 10 Barrio 20 de Febrero",
+        "official_name": "Centro de Salud Nº 10 - Barrio 20 de Febrero",
+        "phone": "+54 387 4210189"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4222591,
+          -24.7751457
+        ]
+      },
+      "id": "node/11808143267"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11808143279",
+        "addr:city": "Salta",
+        "addr:postcode": "4400",
+        "addr:street": "General de División Juan Carlos Sánchez",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro De Salud 11 Barrio Ciudad Del Milagro",
+        "official_name": "Centro De Salud Nº 11 Barrio Ciudad Del Milagro",
+        "phone": "+54 387 4254370"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4084648,
+          -24.7236381
+        ]
+      },
+      "id": "node/11808143279"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11808143325",
+        "addr:city": "Salta",
+        "addr:full": "Cnel. Vidt 910 y Ayacucho",
+        "addr:postcode": "4400",
+        "addr:street": "Manuel Alberti",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro De Salud 13 Villa Chartas",
+        "official_name": "Centro De Salud Nº 13 -  Vº Chartas"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4283289,
+          -24.802795
+        ]
+      },
+      "id": "node/11808143325"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11808143332",
+        "addr:city": "Salta",
+        "addr:housenumber": "2800",
+        "addr:postcode": "4400",
+        "addr:street": "Juramento",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 14 Miguel Ortiz",
+        "official_name": "Centro de Salud Nº 14 Miguel Ortiz"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.404659,
+          -24.7549045
+        ]
+      },
+      "id": "node/11808143332"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11808335506",
+        "addr:city": "Atocha",
+        "addr:postcode": "4400",
+        "addr:street": "Estanislao Del Campo",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 26 Atocha",
+        "official_name": "Centro de Salud Nº 26 - Atocha",
+        "phone": "+54 387 6 059 779"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4791533,
+          -24.8173034
+        ]
+      },
+      "id": "node/11808335506"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11819709775",
+        "addr:city": "Salta",
+        "addr:full": "Manzana 38",
+        "addr:street": "Mario Ibáñez",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 54 Barrio San Ignacio",
+        "official_name": "Centro de Salud Nº 54 Barrio San Ignacio",
+        "phone": "+54 387 435 3500"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3869388,
+          -24.8350466
+        ]
+      },
+      "id": "node/11819709775"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11819769592",
+        "addr:city": "Salta",
+        "addr:full": "Pje. Chicoana 1053",
+        "addr:housenumber": "1053",
+        "addr:postcode": "4400",
+        "addr:street": "Chicoana",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "isced:level": "0;1",
+        "name": "Centro de Salud 53 Villa Cristina",
+        "official_name": "Centro de Salud Nº 53 - Vº Cristina",
+        "phone": "+54 387 4230139",
+        "ref:cue": "660095800"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4180311,
+          -24.7988602
+        ]
+      },
+      "id": "node/11819769592"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11823030480",
+        "addr:city": "Salta",
+        "addr:full": "Av. Felipe Varela y César Perdiguero",
+        "addr:postcode": "4400",
+        "alt_name": "Centro de Salud 45 San Francisco Solano",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 45 Barrio Provipo",
+        "official_name": "Centro de Salud Nº 45 Barrio Provipo"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3897739,
+          -24.8284914
+        ]
+      },
+      "id": "node/11823030480"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11831367280",
+        "addr:city": "Salta",
+        "addr:full": "Cabo Primero Jorge Cisterna y Abraham Rallé",
+        "addr:postcode": "4400",
+        "addr:street": "Cabo Primero Jorge Cisterna",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centor de Salud 51 Barrio Limache",
+        "official_name": "Centor de Salud Nº 51 Barrio Limache",
+        "phone": "+54 387 4242749"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4312457,
+          -24.8526364
+        ]
+      },
+      "id": "node/11831367280"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11831367281",
+        "addr:city": "Salta",
+        "addr:postcode": "4400",
+        "addr:street": "Avenida Paraguay",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 50 CoFrutHoS",
+        "official_name": "Centro de Salud Nº 50 - CoFrutHoS"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4268161,
+          -24.8241072
+        ]
+      },
+      "id": "node/11831367281"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11831606778",
+        "addr:city": "Salta",
+        "addr:full": "Padre Agustin de Castañarez y Florida",
+        "addr:postcode": "4400",
+        "addr:street": "Padre Agustin de Castañarez",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 48 Barrio Ceferino",
+        "official_name": "Centro de Salud Nº 48 - Barrio Ceferino"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4126815,
+          -24.8111062
+        ]
+      },
+      "id": "node/11831606778"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11831606813",
+        "addr:city": "Salta",
+        "addr:full": "Av. El Líbano y Suiza",
+        "addr:postcode": "4400",
+        "addr:street": "Avenida República del Líbano",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 46 Barrio Morosini",
+        "official_name": "Centro de Salud Nº 46 - Barrio Morosini"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4121235,
+          -24.8182805
+        ]
+      },
+      "id": "node/11831606813"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11832960471",
+        "addr:city": "Salta",
+        "addr:postcode": "4400",
+        "addr:street": "Mariano Saravia",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 44 Barrio Floresta",
+        "official_name": "Centro de Salud Nº 44 Vº Floresta",
+        "phone": "+54 387 4281927"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3734391,
+          -24.8145284
+        ]
+      },
+      "id": "node/11832960471"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11832960477",
+        "addr:city": "Salta",
+        "addr:full": "Av. Ciudad de Asunción s/n, Ruta 9",
+        "addr:postcode": "4400",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 42 Barrio Autódromo"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3702841,
+          -24.796332
+        ]
+      },
+      "id": "node/11832960477"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11832960502",
+        "addr:city": "Salta",
+        "addr:postcode": "4400",
+        "addr:street": "Reconquista",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 40 Barrio 9 de Julio",
+        "official_name": "Centro de Salud Nº 40 - Barrio 9 de Julio"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3940801,
+          -24.8130539
+        ]
+      },
+      "id": "node/11832960502"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11832960512",
+        "addr:city": "Salta",
+        "addr:full": "12 de Octubre 2100 esq. Diego Diez Gómez",
+        "addr:postcode": "4400",
+        "addr:street": "Diego Gómez",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 39 Villa Luján",
+        "official_name": "Centro de Salud Nº 39  Vº Luján"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4319861,
+          -24.7739297
+        ]
+      },
+      "id": "node/11832960512"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11833863418",
+        "addr:city": "Salta",
+        "addr:housenumber": "750",
+        "addr:postcode": "4400",
+        "addr:street": "Justo José de Urquiza",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 36 Mercado Municipal",
+        "official_name": "Centro de Salud Nº 36 Mercado Municipal"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.413553,
+          -24.7923155
+        ]
+      },
+      "id": "node/11833863418"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11833863445",
+        "addr:city": "Salta",
+        "addr:postcode": "4400",
+        "addr:street": "Padre Alberto Villarreal",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 35 Barrio El Progreso",
+        "official_name": "Centro de Salud Nº 35 Barrio El Progreso"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4482708,
+          -24.8051385
+        ]
+      },
+      "id": "node/11833863445"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11833863463",
+        "addr:city": "Salta",
+        "addr:housenumber": "358",
+        "addr:postcode": "4400",
+        "addr:street": "Los Gladiolos",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 33 Villa Las Rosas",
+        "official_name": "Centro de Salud Nº 33 - Villa Las Rosas"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.3928107,
+          -24.8045451
+        ]
+      },
+      "id": "node/11833863463"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11833930278",
+        "addr:city": "Salta",
+        "addr:full": "Calle D y Calle B",
+        "addr:postcode": "4400",
+        "addr:street": "Coronel José de Moldes",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 31 Villa Costanera",
+        "official_name": "Centro de Salud Nº 31 -  Villa Costanera"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4280353,
+          -24.806423
+        ]
+      },
+      "id": "node/11833930278"
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "@id": "node/11834916091",
+        "addr:city": "Salta",
+        "addr:postcode": "4400",
+        "addr:street": "Felipe Varela",
+        "amenity": "hospital",
+        "healthcare": "hospital",
+        "name": "Centro de Salud 29 Barrio Finca Independencia",
+        "official_name": "Centro de Salud Nº 29 Barrio Finca Independencia"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -65.4007076,
+          -24.8293046
+        ]
+      },
+      "id": "node/11834916091"
+    }
+  ]
+}
