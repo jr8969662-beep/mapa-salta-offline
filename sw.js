@@ -3,9 +3,7 @@
 // Versión: v8 (con paradas SAETA)
 // ============================================
 
-const VERSION = 'v8';
-const CACHE_APP = 'salta-app-' + VERSION;
-const CACHE_TILES = 'salta-tiles-' + VERSION;
+const VERSION = 'v9';   // antes v8
 
 const APP_URLS = [
     './',
@@ -16,10 +14,10 @@ const APP_URLS = [
     './data/sitios.geojson',
     './data/direcciones.geojson',
     './data/saeta.geojson',
+    './data/rutas_saeta.json',              // ← NUEVO
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
 ];
-
 function esTesela(url) {
     return url.hostname.endsWith('tile.openstreetmap.org');
 }
