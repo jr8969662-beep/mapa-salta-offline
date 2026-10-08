@@ -1,9 +1,9 @@
 // ============================================
 // SERVICE WORKER - Mapa Salta Offline
-// Versión: v7 (soporte descarga masiva)
+// Versión: v8 (con paradas SAETA)
 // ============================================
 
-const VERSION = 'v7';
+const VERSION = 'v8';
 const CACHE_APP = 'salta-app-' + VERSION;
 const CACHE_TILES = 'salta-tiles-' + VERSION;
 
@@ -15,6 +15,7 @@ const APP_URLS = [
     './data/hospitales.geojson',
     './data/sitios.geojson',
     './data/direcciones.geojson',
+    './data/saeta.geojson',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
 ];
@@ -24,7 +25,7 @@ function esTesela(url) {
 }
 
 self.addEventListener('install', (event) => {
-    console.log('🔧 Instalando Service Worker v7...');
+    console.log('🔧 Instalando Service Worker v8...');
     event.waitUntil(
         caches.open(CACHE_APP)
             .then((cache) => cache.addAll(APP_URLS))
@@ -33,7 +34,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-    console.log('✅ Service Worker v7 activado');
+    console.log('✅ Service Worker v8 activado');
     event.waitUntil(
         caches.keys().then((nombres) => {
             return Promise.all(
@@ -48,7 +49,6 @@ self.addEventListener('activate', (event) => {
     );
 });
 
-// Mensajes desde la página principal
 self.addEventListener('message', (event) => {
     if (event.data && event.data.tipo === 'BORRAR_TESELAS') {
         caches.delete(CACHE_TILES).then(() => {
