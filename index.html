@@ -14,7 +14,7 @@
         body, html { margin: 0; padding: 0; height: 100%; font-family: Arial, sans-serif; }
         #map { width: 100%; height: 100vh; }
 
-        /* MODO OSCURO (aplica filtro CSS a las teselas) */
+        /* MODO OSCURO */
         .leaflet-tile-pane.mapa-oscuro {
             filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9);
         }
@@ -87,7 +87,7 @@
             100% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 0 rgba(243,156,18,0); }
         }
 
-        /* PUNTO VERDE DIRECCIÓN */
+        /* PUNTO VERDE */
         .punto-direccion {
             width: 24px; height: 24px; background: #27ae60;
             border: 4px solid white; border-radius: 50% 50% 50% 0;
@@ -98,7 +98,7 @@
         }
         .punto-direccion::after { content: '🏠'; transform: rotate(45deg); }
 
-        /* PUNTO MORADO MIS LUGARES */
+        /* PUNTO MORADO */
         .punto-mio {
             width: 26px; height: 26px; background: #9b59b6;
             border: 4px solid white; border-radius: 50% 50% 50% 0;
@@ -160,6 +160,8 @@
         }
         .btn-flotante:hover { transform: scale(1.08); background: #f0f8ff; }
         .btn-flotante.activo { background: #2c3e50; color: white; }
+        .btn-flotante.rojo { background: #e74c3c; color: white; }
+        .btn-flotante.rojo:hover { background: #c0392b; }
 
         /* AVISO UBICACIÓN */
         .aviso-ubicacion {
@@ -178,6 +180,76 @@
             display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         }
         .aviso-medir.activo { display: block; }
+
+        /* PANEL DE RUTA */
+        .panel-ruta {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            z-index: 2000;
+            background: white;
+            border-radius: 16px 16px 0 0;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+            padding: 16px;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+            max-height: 55vh;
+            overflow-y: auto;
+        }
+        .panel-ruta.activo { transform: translateY(0); }
+        .panel-ruta .encabezado {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 12px;
+        }
+        .panel-ruta .encabezado h3 {
+            margin: 0; color: #2c3e50; font-size: 16px;
+        }
+        .panel-ruta .cerrar {
+            background: #ecf0f1; border: none;
+            width: 32px; height: 32px; border-radius: 50%;
+            cursor: pointer; font-size: 16px; color: #2c3e50;
+        }
+        .panel-ruta .cerrar:hover { background: #d5dbdb; }
+        .panel-ruta .stats {
+            display: flex; gap: 12px; margin-bottom: 12px;
+        }
+        .panel-ruta .stat {
+            flex: 1; background: #f8f9fa; border-radius: 10px;
+            padding: 12px; text-align: center;
+        }
+        .panel-ruta .stat .valor {
+            font-size: 20px; font-weight: bold; color: #2c3e50;
+        }
+        .panel-ruta .stat .etiqueta {
+            font-size: 11px; color: #7f8c8d; margin-top: 4px;
+        }
+        .panel-ruta .modo {
+            display: flex; gap: 8px; margin-bottom: 12px;
+        }
+        .panel-ruta .modo button {
+            flex: 1; padding: 8px; border: 2px solid #ecf0f1;
+            border-radius: 8px; background: white; cursor: pointer;
+            font-size: 14px; transition: all 0.2s;
+        }
+        .panel-ruta .modo button.activo {
+            border-color: #3498db; background: #e8f4fd; color: #2980b9;
+            font-weight: bold;
+        }
+        .panel-ruta .pasos {
+            list-style: none; padding: 0; margin: 0;
+        }
+        .panel-ruta .pasos li {
+            display: flex; gap: 10px; padding: 10px 0;
+            border-bottom: 1px solid #eee; font-size: 13px;
+            color: #555;
+        }
+        .panel-ruta .pasos li:last-child { border-bottom: none; }
+        .panel-ruta .pasos .icono {
+            font-size: 20px; flex-shrink: 0;
+        }
+        .panel-ruta .info-adicional {
+            margin-top: 12px; padding: 10px;
+            background: #fff9e6; border-left: 4px solid #f39c12;
+            border-radius: 6px; font-size: 12px; color: #555;
+        }
 
         /* MODALES */
         .modal-overlay {
@@ -214,7 +286,6 @@
         .modal .btn-ok { background: #27ae60; color: white; }
         .modal .btn-ok:hover { background: #229954; }
 
-        /* LISTA DE MIS LUGARES */
         .lista-lugares {
             list-style: none; padding: 0; margin: 12px 0 0 0;
             max-height: 300px; overflow-y: auto;
@@ -253,6 +324,7 @@
         <button class="btn-flotante" id="btnMedir" title="Medir distancia">📏</button>
         <button class="btn-flotante" id="btnLugares" title="Mis lugares">⭐</button>
         <button class="btn-flotante" id="btnCompartir" title="Compartir búsqueda" style="display:none;">📤</button>
+        <button class="btn-flotante rojo" id="btnIr" title="Ir hasta ahí" style="display:none;">🛣️</button>
     </div>
 
     <div id="map"></div>
@@ -261,6 +333,31 @@
 
     <div class="panel-filtros" id="panelFiltros">
         <button class="toggle" id="toggleTodo" onclick="toggleTodo()">👁️ Mostrar todo</button>
+    </div>
+
+    <!-- PANEL DE RUTA -->
+    <div class="panel-ruta" id="panelRuta">
+        <div class="encabezado">
+            <h3 id="tituloRuta">🛣️ Ruta</h3>
+            <button class="cerrar" onclick="cerrarPanelRuta()">✕</button>
+        </div>
+        <div class="modo">
+            <button id="modoAuto" class="activo" onclick="cambiarModo('auto')">🚗 Auto</button>
+            <button id="modoPie" onclick="cambiarModo('pie')">🚶 A pie</button>
+            <button id="modoBici" onclick="cambiarModo('bici')">🚲 Bici</button>
+        </div>
+        <div class="stats">
+            <div class="stat">
+                <div class="valor" id="statDistancia">--</div>
+                <div class="etiqueta">Distancia</div>
+            </div>
+            <div class="stat">
+                <div class="valor" id="statTiempo">--</div>
+                <div class="etiqueta">Tiempo est.</div>
+            </div>
+        </div>
+        <ul class="pasos" id="listaPasos"></ul>
+        <div class="info-adicional" id="infoAdicional" style="display:none;"></div>
     </div>
 
     <!-- MODAL: AGREGAR LUGAR -->
@@ -292,7 +389,7 @@
 
     <script>
         // ============================================
-        // MAPA BASE (solo OSM)
+        // MAPA BASE
         // ============================================
         const CENTRO_SALTA = [-24.789, -65.411];
         const map = L.map('map').setView(CENTRO_SALTA, 14);
@@ -358,6 +455,7 @@
         let marcadorCalle = null;
         let trazoCalle = null;
         let ultimaBusqueda = null;
+        let destinoActual = null; // { lat, lng, nombre } para el routing
 
         async function cargarCalles() {
             try {
@@ -547,13 +645,25 @@
             if (metros < 1000) return `${Math.round(metros)} m`;
             return `${(metros / 1000).toFixed(2)} km`;
         }
+        function formatearTiempo(segundos) {
+            const min = Math.round(segundos / 60);
+            if (min < 60) return `${min} min`;
+            const h = Math.floor(min / 60);
+            const m = min % 60;
+            return `${h}h ${m}m`;
+        }
 
         // ============================================
-        // MOSTRAR CALLES / DIRECCIONES / ESQUINAS
+        // MOSTRAR EN MAPA
         // ============================================
         function limpiarBusqueda() {
             if (marcadorCalle) { map.removeLayer(marcadorCalle); marcadorCalle = null; }
             if (trazoCalle) { map.removeLayer(trazoCalle); trazoCalle = null; }
+        }
+        function mostrarBotonIr(lat, lng, nombre) {
+            destinoActual = { lat, lng, nombre };
+            document.getElementById('btnIr').style.display = 'flex';
+            document.getElementById('btnCompartir').style.display = 'flex';
         }
         function mostrarCalle(calle) {
             limpiarBusqueda();
@@ -567,7 +677,7 @@
             map.fitBounds(L.featureGroup(lineas).getBounds(), { padding: [50, 50] });
 
             ultimaBusqueda = { texto: calle.nombreOriginal, lat: calle.lat, lng: calle.lng };
-            document.getElementById('btnCompartir').style.display = 'flex';
+            mostrarBotonIr(calle.lat, calle.lng, calle.nombreOriginal);
         }
         function mostrarDireccion(calle, direccion) {
             limpiarBusqueda();
@@ -586,7 +696,7 @@
             map.setView([direccion.lat, direccion.lng], 18);
 
             ultimaBusqueda = { texto: `${direccion.calleOriginal} ${direccion.numero}`, lat: direccion.lat, lng: direccion.lng };
-            document.getElementById('btnCompartir').style.display = 'flex';
+            mostrarBotonIr(direccion.lat, direccion.lng, `${direccion.calleOriginal} ${direccion.numero}`);
         }
         function mostrarInterseccion(calleA, calleB, numero, direccionCercana) {
             limpiarBusqueda();
@@ -628,7 +738,7 @@
             map.setView(unicas[0], 17);
 
             ultimaBusqueda = { texto: `${calleA.nombreOriginal} y ${calleB.nombreOriginal}`, lat: unicas[0][0], lng: unicas[0][1] };
-            document.getElementById('btnCompartir').style.display = 'flex';
+            mostrarBotonIr(unicas[0][0], unicas[0][1], `${calleA.nombreOriginal} y ${calleB.nombreOriginal}`);
         }
 
         // ============================================
@@ -834,19 +944,13 @@
         cargarSitios();
 
         // ============================================
-        // BOTÓN: CENTRAR EN MÍ
+        // BOTONES FLOTANTES
         // ============================================
         document.getElementById('btnCentrar').addEventListener('click', () => {
-            if (ultimaPos) {
-                map.setView(ultimaPos, 17);
-            } else {
-                alert('Todavía no se detectó tu ubicación. Activá el GPS.');
-            }
+            if (ultimaPos) map.setView(ultimaPos, 17);
+            else alert('Todavía no se detectó tu ubicación. Activá el GPS.');
         });
 
-        // ============================================
-        // BOTÓN: MODO OSCURO (via CSS filter)
-        // ============================================
         document.getElementById('btnModoOscuro').addEventListener('click', (e) => {
             modoOscuro = !modoOscuro;
             const tiles = document.querySelector('.leaflet-tile-pane');
@@ -861,16 +965,20 @@
             }
         });
 
-        // ============================================
-        // BOTÓN: MEDIR DISTANCIA
-        // ============================================
-        let modoMedir = false;
-        let puntoA = null;
-        let puntoB = null;
-        let lineaMedir = null;
-        let marcadorA = null;
-        let marcadorB = null;
+        document.getElementById('btnCompartir').addEventListener('click', () => {
+            if (!ultimaBusqueda) return;
+            const { texto, lat, lng } = ultimaBusqueda;
+            const url = `https://www.google.com/maps?q=${lat},${lng}`;
+            const mensaje = `📍 ${texto}\nVer en el mapa: ${url}`;
+            const whatsapp = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
+            window.open(whatsapp, '_blank');
+        });
 
+        // ============================================
+        // MEDIR DISTANCIA
+        // ============================================
+        let modoMedir = false, puntoA = null, puntoB = null;
+        let lineaMedir = null, marcadorA = null, marcadorB = null;
         const iconoPuntoMedida = L.divIcon({
             className: '',
             html: '<div style="width:14px;height:14px;background:#e67e22;border:3px solid white;border-radius:50%;box-shadow:0 0 8px rgba(230,126,34,1);"></div>',
@@ -881,7 +989,6 @@
             modoMedir = !modoMedir;
             const btn = document.getElementById('btnMedir');
             const aviso = document.getElementById('avisoMedir');
-
             if (modoMedir) {
                 btn.classList.add('activo');
                 aviso.classList.add('activo');
@@ -907,7 +1014,6 @@
         map.on('click', (e) => {
             if (!modoMedir) return;
             const latlng = e.latlng;
-
             if (!puntoA) {
                 puntoA = latlng;
                 marcadorA = L.marker(latlng, { icon: iconoPuntoMedida }).addTo(map).bindPopup('Punto A');
@@ -915,14 +1021,10 @@
             } else if (!puntoB) {
                 puntoB = latlng;
                 marcadorB = L.marker(latlng, { icon: iconoPuntoMedida }).addTo(map).bindPopup('Punto B');
-                lineaMedir = L.polyline([puntoA, puntoB], {
-                    color: '#e67e22', weight: 4, dashArray: '8, 6'
-                }).addTo(map);
-
+                lineaMedir = L.polyline([puntoA, puntoB], { color: '#e67e22', weight: 4, dashArray: '8, 6' }).addTo(map);
                 const distancia = haversine(puntoA.lat, puntoA.lng, puntoB.lat, puntoB.lng);
                 const texto = formatearDistancia(distancia);
                 document.getElementById('avisoMedir').textContent = `📏 Distancia: ${texto} (tocá de nuevo para reiniciar)`;
-
                 const medio = L.latLng((puntoA.lat + puntoB.lat) / 2, (puntoA.lng + puntoB.lng) / 2);
                 L.popup().setLatLng(medio).setContent(`<strong>📏 ${texto}</strong>`).openOn(map);
             } else {
@@ -931,18 +1033,6 @@
                 marcadorA = L.marker(latlng, { icon: iconoPuntoMedida }).addTo(map).bindPopup('Punto A');
                 document.getElementById('avisoMedir').textContent = '📏 Ahora tocá el segundo punto';
             }
-        });
-
-        // ============================================
-        // BOTÓN: COMPARTIR
-        // ============================================
-        document.getElementById('btnCompartir').addEventListener('click', () => {
-            if (!ultimaBusqueda) return;
-            const { texto, lat, lng } = ultimaBusqueda;
-            const url = `https://www.google.com/maps?q=${lat},${lng}`;
-            const mensaje = `📍 ${texto}\nVer en el mapa: ${url}`;
-            const whatsapp = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
-            window.open(whatsapp, '_blank');
         });
 
         // ============================================
@@ -956,25 +1046,17 @@
             try {
                 const guardados = localStorage.getItem(STORAGE_KEY);
                 if (guardados) misLugares = JSON.parse(guardados);
-            } catch (e) {
-                console.warn('Error al cargar lugares:', e);
-                misLugares = [];
-            }
+            } catch (e) { misLugares = []; }
             pintarLugaresEnMapa();
         }
         function guardarLugaresEnStorage() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(misLugares));
-            } catch (e) {
-                console.warn('Error al guardar lugares:', e);
-            }
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(misLugares)); }
+            catch (e) { console.warn('Error al guardar lugares:', e); }
         }
-
         const iconoMio = L.divIcon({
             className: 'punto-mio',
             iconSize: [26, 26], iconAnchor: [13, 26], popupAnchor: [0, -26]
         });
-
         function pintarLugaresEnMapa() {
             capaLugares.clearLayers();
             misLugares.forEach((lugar) => {
@@ -983,13 +1065,10 @@
                 capaLugares.addLayer(m);
             });
         }
-
         document.getElementById('btnLugares').addEventListener('click', abrirModalLugares);
-
         function abrirModalLugares() {
             const ul = document.getElementById('listaLugares');
             ul.innerHTML = '';
-
             if (misLugares.length === 0) {
                 ul.innerHTML = '<li class="vacio">Todavía no guardaste ningún lugar.</li>';
             } else {
@@ -1002,11 +1081,9 @@
                         map.setView([lugar.lat, lugar.lng], 17);
                         cerrarModalLugares();
                     });
-
                     const borrar = document.createElement('button');
                     borrar.className = 'borrar';
                     borrar.textContent = '🗑️';
-                    borrar.title = 'Borrar';
                     borrar.addEventListener('click', (ev) => {
                         ev.stopPropagation();
                         if (confirm(`¿Borrar "${lugar.nombre}"?`)) {
@@ -1016,7 +1093,6 @@
                             abrirModalLugares();
                         }
                     });
-
                     li.appendChild(nombre);
                     li.appendChild(borrar);
                     ul.appendChild(li);
@@ -1024,54 +1100,220 @@
             }
             document.getElementById('modalLugares').classList.add('activo');
         }
-        function cerrarModalLugares() {
-            document.getElementById('modalLugares').classList.remove('activo');
-        }
-
+        function cerrarModalLugares() { document.getElementById('modalLugares').classList.remove('activo'); }
         document.getElementById('btnAgregarDesdeLista').addEventListener('click', () => {
-            cerrarModalLugares();
-            abrirModalLugar();
+            cerrarModalLugares(); abrirModalLugar();
         });
-
         function abrirModalLugar() {
             document.getElementById('inputNombreLugar').value = '';
             document.getElementById('modalLugar').classList.add('activo');
             setTimeout(() => document.getElementById('inputNombreLugar').focus(), 100);
         }
-        function cerrarModalLugar() {
-            document.getElementById('modalLugar').classList.remove('activo');
-        }
+        function cerrarModalLugar() { document.getElementById('modalLugar').classList.remove('activo'); }
         function confirmarGuardarLugar() {
             const nombre = document.getElementById('inputNombreLugar').value.trim();
             if (!nombre) { alert('Poné un nombre para el lugar'); return; }
-
             const centro = map.getCenter();
             misLugares.push({
-                nombre: nombre,
-                lat: centro.lat,
-                lng: centro.lng,
+                nombre: nombre, lat: centro.lat, lng: centro.lng,
                 fecha: new Date().toLocaleDateString('es-AR')
             });
             guardarLugaresEnStorage();
             pintarLugaresEnMapa();
             cerrarModalLugar();
-
             const aviso = document.getElementById('aviso');
             aviso.textContent = `⭐ "${nombre}" guardado`;
             aviso.style.display = 'block';
             setTimeout(() => { aviso.style.display = 'none'; }, 2500);
         }
-
-        // Doble clic en el mapa = agregar lugar
         map.on('dblclick', (e) => {
             if (modoMedir) return;
-            const latlng = e.latlng;
-            map.setView(latlng, map.getZoom());
+            map.setView(e.latlng, map.getZoom());
             setTimeout(() => abrirModalLugar(), 100);
         });
-    </script>
 
-    <script>
+        // ============================================
+        // 🛣️ ROUTING - RUTA HASTA EL DESTINO
+        // ============================================
+        let rutaActual = null;
+        let marcadorDestino = null;
+        let modoTransporte = 'auto'; // auto | pie | bici
+
+        const iconoDestino = L.divIcon({
+            className: '',
+            html: '<div style="width:32px;height:32px;background:#e74c3c;border:4px solid white;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 0 12px rgba(231,76,60,1);display:flex;align-items:center;justify-content:center;font-size:16px;"><span style="transform:rotate(45deg);">🏁</span></div>',
+            iconSize: [32, 32], iconAnchor: [16, 32]
+        });
+
+        document.getElementById('btnIr').addEventListener('click', () => {
+            if (!destinoActual) { alert('Primero buscá una calle o dirección'); return; }
+            if (!ultimaPos) { alert('Todavía no se detectó tu ubicación. Activá el GPS.'); return; }
+            calcularRuta(ultimaPos[0], ultimaPos[1], destinoActual.lat, destinoActual.lng, destinoActual.nombre);
+        });
+
+        // Cambiar modo de transporte
+        function cambiarModo(modo) {
+            modoTransporte = modo;
+            document.querySelectorAll('.panel-ruta .modo button').forEach(b => b.classList.remove('activo'));
+            document.getElementById('modo' + modo.charAt(0).toUpperCase() + modo.slice(1)).classList.add('activo');
+            if (destinoActual && ultimaPos) {
+                calcularRuta(ultimaPos[0], ultimaPos[1], destinoActual.lat, destinoActual.lng, destinoActual.nombre);
+            }
+        }
+
+        function cerrarPanelRuta() {
+            document.getElementById('panelRuta').classList.remove('activo');
+            if (rutaActual) { map.removeLayer(rutaActual); rutaActual = null; }
+            if (marcadorDestino) { map.removeLayer(marcadorDestino); marcadorDestino = null; }
+        }
+
+        async function calcularRuta(lat1, lng1, lat2, lng2, nombreDestino) {
+            // Mostrar panel
+            document.getElementById('panelRuta').classList.add('activo');
+            document.getElementById('tituloRuta').textContent = `🛣️ Hacia: ${nombreDestino}`;
+            document.getElementById('statDistancia').textContent = '...';
+            document.getElementById('statTiempo').textContent = '...';
+            document.getElementById('listaPasos').innerHTML = '<li>Cargando ruta...</li>';
+            document.getElementById('infoAdicional').style.display = 'none';
+
+            // Limpiar ruta anterior
+            if (rutaActual) { map.removeLayer(rutaActual); rutaActual = null; }
+            if (marcadorDestino) { map.removeLayer(marcadorDestino); marcadorDestino = null; }
+
+            // Marcador de destino
+            marcadorDestino = L.marker([lat2, lng2], {
+                icon: iconoDestino, zIndexOffset: 3000
+            }).addTo(map).bindPopup(`<strong>🏁 ${nombreDestino}</strong>`);
+
+            // Modo OSRM: driving | foot | bike
+            const perfilOSRM = modoTransporte === 'auto' ? 'driving'
+                             : modoTransporte === 'pie' ? 'foot'
+                             : 'bike';
+
+            const url = `https://router.project-osrm.org/route/v1/${perfilOSRM}/` +
+                        `${lng1},${lat1};${lng2},${lat2}` +
+                        `?overview=full&geometries=geojson&steps=true`;
+
+            try {
+                const resp = await fetch(url);
+                if (!resp.ok) throw new Error('Error HTTP ' + resp.status);
+                const data = await resp.json();
+
+                if (!data.routes || data.routes.length === 0) {
+                    throw new Error('Sin ruta');
+                }
+
+                const ruta = data.routes[0];
+                const coords = ruta.geometry.coordinates.map(c => [c[1], c[0]]);
+
+                // Dibujar línea de ruta
+                rutaActual = L.polyline(coords, {
+                    color: '#2c3e50',
+                    weight: 8,
+                    opacity: 0.5,
+                    lineCap: 'round',
+                    lineJoin: 'round'
+                }).addTo(map);
+                // Segunda línea más brillante encima
+                L.polyline(coords, {
+                    color: '#3498db',
+                    weight: 5,
+                    opacity: 0.95,
+                    lineCap: 'round',
+                    lineJoin: 'round'
+                }).addTo(rutaActual);
+
+                // Ajustar vista
+                map.fitBounds(rutaActual.getBounds(), { padding: [80, 80, 80, 80] });
+
+                // Stats
+                const distancia = ruta.distance;
+                const tiempo = ruta.duration;
+
+                document.getElementById('statDistancia').textContent = formatearDistancia(distancia);
+                document.getElementById('statTiempo').textContent = formatearTiempo(tiempo);
+
+                // Mostrar pasos
+                const listaPasos = document.getElementById('listaPasos');
+                listaPasos.innerHTML = '';
+
+                if (ruta.legs && ruta.legs[0] && ruta.legs[0].steps) {
+                    ruta.legs[0].steps.forEach(step => {
+                        const li = document.createElement('li');
+                        const icono = iconoDeManiobra(step.maneuver);
+                        const distanciaStep = step.distance < 1000
+                            ? `${Math.round(step.distance)} m`
+                            : `${(step.distance / 1000).toFixed(1)} km`;
+                        const nombreCalle = step.name || 'Continuar';
+
+                        li.innerHTML = `
+                            <span class="icono">${icono}</span>
+                            <span>
+                                <strong>${nombreCalle}</strong><br>
+                                <small>${distanciaStep}</small>
+                            </span>
+                        `;
+                        listaPasos.appendChild(li);
+                    });
+                } else {
+                    listaPasos.innerHTML = '<li>No hay instrucciones paso a paso disponibles.</li>';
+                }
+
+            } catch (e) {
+                console.warn('⚠️ Falló OSRM, usando línea recta:', e.message);
+
+                // Fallback: línea recta
+                rutaActual = L.polyline([[lat1, lng1], [lat2, lng2]], {
+                    color: '#e67e22',
+                    weight: 5,
+                    dashArray: '10, 8',
+                    opacity: 0.9
+                }).addTo(map);
+
+                map.fitBounds(rutaActual.getBounds(), { padding: [80, 80, 80, 80] });
+
+                const dist = haversine(lat1, lng1, lat2, lng2);
+                document.getElementById('statDistancia').textContent = formatearDistancia(dist) + ' (línea recta)';
+                const vel = modoTransporte === 'auto' ? 40 : modoTransporte === 'bici' ? 15 : 5;
+                const tiempoSeg = (dist / 1000) / vel * 3600;
+                document.getElementById('statTiempo').textContent = '~' + formatearTiempo(tiempoSeg);
+                document.getElementById('listaPasos').innerHTML =
+                    '<li><span class="icono">📡</span><span>Sin conexión a internet: se muestra línea recta. La ruta real por calles necesita internet.</span></li>';
+
+                const info = document.getElementById('infoAdicional');
+                info.style.display = 'block';
+                info.innerHTML = '⚠️ <strong>Sin conexión:</strong> no se pudo calcular la ruta por calles. Se muestra una estimación en línea recta.';
+            }
+        }
+
+        function iconoDeManiobra(maneuver) {
+            if (!maneuver) return '➡️';
+            const tipo = maneuver.type || '';
+            const mod = maneuver.modifier || '';
+
+            if (tipo === 'depart') return '🚩';
+            if (tipo === 'arrive') return '🏁';
+
+            if (tipo === 'turn') {
+                if (mod.includes('left')) return '⬅️';
+                if (mod.includes('right')) return '➡️';
+                if (mod.includes('slight left')) return '↖️';
+                if (mod.includes('slight right')) return '↗️';
+                if (mod.includes('sharp left')) return '↰';
+                if (mod.includes('sharp right')) return '↱';
+                return '🔄';
+            }
+            if (tipo === 'roundabout' || tipo === 'rotary') return '🔄';
+            if (tipo === 'merge') return '🔀';
+            if (tipo === 'fork') return '🍴';
+            if (tipo === 'continue' || tipo === 'new name') return '⬆️';
+            if (tipo === 'end of road') return '⏹️';
+            return '➡️';
+        }
+
+        // ============================================
+        // SERVICE WORKER
+        // ============================================
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
