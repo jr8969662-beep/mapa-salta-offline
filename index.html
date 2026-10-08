@@ -848,20 +848,19 @@ let modoOscuro = false;
         // ============================================
         // BOTÓN: MODO OSCURO
         // ============================================
-        document.getElementById('btnModoOscuro').addEventListener('click', (e) => {
-            modoOscuro = !modoOscuro;
-            if (modoOscuro) {
-                map.removeLayer(capaClara);
-                capaOscura.addTo(map);
-                e.target.classList.add('activo');
-                e.target.textContent = '☀️';
-            } else {
-                map.removeLayer(capaOscura);
-                capaClara.addTo(map);
-                e.target.classList.remove('activo');
-                e.target.textContent = '🌙';
-            }
-        });
+       document.getElementById('btnModoOscuro').addEventListener('click', (e) => {
+    modoOscuro = !modoOscuro;
+    const tiles = document.querySelector('.leaflet-tile-pane');
+    if (modoOscuro) {
+        tiles.classList.add('mapa-oscuro');
+        e.target.classList.add('activo');
+        e.target.textContent = '☀️';
+    } else {
+        tiles.classList.remove('mapa-oscuro');
+        e.target.classList.remove('activo');
+        e.target.textContent = '🌙';
+    }
+});
 
         // ============================================
         // BOTÓN: MEDIR DISTANCIA
