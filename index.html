@@ -297,16 +297,13 @@
         const CENTRO_SALTA = [-24.789, -65.411];
         const map = L.map('map').setView(CENTRO_SALTA, 14);
 
-        // Capas de mapa (claro y oscuro)
-        const capaClara = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19, attribution: '© OpenStreetMap'
-        });
-        const capaOscura = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            maxZoom: 19, attribution: '© OpenStreetMap © CARTO'
-        });
-        capaClara.addTo(map);
+        // Capa única (siempre OSM)
+const capaBase = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, attribution: '© OpenStreetMap'
+});
+capaBase.addTo(map);
 
-        let modoOscuro = false;
+let modoOscuro = false;
 
         // ============================================
         // UBICACIÓN
