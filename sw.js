@@ -1,9 +1,9 @@
 // ============================================
 // SERVICE WORKER - Mapa Salta Offline
-// Versión: v10
+// Versión: v11 (con leaflet-rotate)
 // ============================================
 
-const VERSION = 'v10';
+const VERSION = 'v11';
 const CACHE_APP = 'salta-app-' + VERSION;
 const CACHE_TILES = 'salta-tiles-' + VERSION;
 
@@ -19,7 +19,8 @@ const APP_URLS = [
     './data/rutas_saeta.json',
     './data/lugares_extra.geojson',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
+    'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+    'https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js'
 ];
 
 function esTesela(url) {
@@ -27,7 +28,7 @@ function esTesela(url) {
 }
 
 self.addEventListener('install', (event) => {
-    console.log('🔧 Instalando Service Worker v10...');
+    console.log('🔧 Instalando Service Worker v11...');
     event.waitUntil(
         caches.open(CACHE_APP)
             .then((cache) => cache.addAll(APP_URLS))
@@ -36,7 +37,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-    console.log('✅ Service Worker v10 activado');
+    console.log('✅ Service Worker v11 activado');
     event.waitUntil(
         caches.keys().then((nombres) => {
             return Promise.all(
@@ -53,7 +54,6 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
-
     if (esTesela(url)) {
         event.respondWith(
             caches.open(CACHE_TILES).then((cache) => {
@@ -68,7 +68,6 @@ self.addEventListener('fetch', (event) => {
         );
         return;
     }
-
     event.respondWith(
         caches.match(event.request).then((respuestaCache) => {
             return respuestaCache || fetch(event.request).then((respuestaRed) => {
