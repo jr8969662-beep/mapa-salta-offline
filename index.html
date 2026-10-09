@@ -1,1692 +1,863 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa Salta Capital</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Mapa Salta</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📍</text></svg>">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1e40af">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+:root{
+--primary:#1e40af;--primary-light:#3b82f6;--primary-dark:#1e3a8a;
+--accent:#f59e0b;--success:#10b981;--danger:#ef4444;--warning:#f59e0b;
+--g-50:#f9fafb;--g-100:#f3f4f6;--g-200:#e5e7eb;--g-300:#d1d5db;--g-400:#9ca3af;--g-500:#6b7280;--g-600:#4b5563;--g-700:#374151;--g-800:#1f2937;--g-900:#111827;
+--bg:#fff;--bg-soft:var(--g-50);--text:var(--g-800);--text-muted:var(--g-500);--border:var(--g-200);
+--sh-sm:0 1px 2px rgba(0,0,0,.05);--sh-md:0 4px 6px -1px rgba(0,0,0,.1);--sh-lg:0 10px 15px -3px rgba(0,0,0,.1);--sh-xl:0 20px 25px -5px rgba(0,0,0,.15);
+--r:14px;--r-sm:10px;--r-lg:20px;--t:.2s cubic-bezier(.4,0,.2,1)}
+[data-theme=dark]{
+--bg:#111827;--bg-soft:#1f2937;--text:#f9fafb;--text-muted:#9ca3af;--border:#374151;
+--g-50:#1f2937;--g-100:#374151;--g-200:#4b5563;--g-300:#6b7280;--g-400:#9ca3af;--g-500:#d1d5db;--g-600:#e5e7eb;--g-700:#f3f4f6;--g-800:#f9fafb;--g-900:#fff;
+--primary:#3b82f6;--primary-dark:#1e40af}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;-webkit-tap-highlight-color:transparent}
+body,html{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
+#map{width:100%;height:100vh;background:var(--g-100)}
+.leaflet-tile-pane.mapa-oscuro{filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.9)}
 
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📍</text></svg>">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2c3e50">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+/* BUSCADOR */
+.buscador{position:absolute;top:12px;left:12px;right:64px;z-index:1000;max-width:520px}
+.buscador-contenedor{display:flex;align-items:center;background:var(--bg);border-radius:var(--r);box-shadow:var(--sh-lg);padding:6px 10px;gap:6px;transition:all var(--t);border:1px solid var(--border)}
+.buscador-contenedor:focus-within{box-shadow:0 0 0 3px rgba(59,130,246,.2),var(--sh-lg);border-color:var(--primary-light)}
+.buscador-icono{font-size:18px;flex-shrink:0;opacity:.7}
+.buscador input{flex:1;border:none;outline:none;padding:12px 4px;font-size:16px;background:transparent;color:var(--text);font-weight:500;min-width:0;font-family:inherit}
+.buscador input::placeholder{color:var(--text-muted)}
+.buscador-btn{background:transparent;border:none;cursor:pointer;font-size:18px;padding:9px;border-radius:50%;color:var(--text-muted);transition:all var(--t);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.buscador-btn:hover{background:var(--g-100);color:var(--text);transform:scale(1.1)}
+.buscador-btn.grabando{color:var(--danger);background:rgba(239,68,68,.1);animation:pulso-mic 1s infinite}
+@keyframes pulso-mic{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
 
-    <style>
-        body, html { margin: 0; padding: 0; height: 100%; font-family: Arial, sans-serif; }
-        #map { width: 100%; height: 100vh; }
-        .leaflet-tile-pane.mapa-oscuro { filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9); }
+.sugerencias{margin-top:8px;background:var(--bg);border-radius:var(--r);box-shadow:var(--sh-xl);max-height:65vh;overflow-y:auto;display:none;border:1px solid var(--border)}
+.sugerencias.activo{display:block;animation:slideDown .25s cubic-bezier(.4,0,.2,1)}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.sug-chips{display:flex;flex-wrap:wrap;gap:8px;padding:14px 14px 10px}
+.sug-chip{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;background:var(--bg-soft);color:var(--text);border:1px solid var(--border);border-radius:24px;cursor:pointer;font-size:13px;font-weight:600;transition:all var(--t);font-family:inherit}
+.sug-chip:hover,.sug-chip:active{background:var(--primary);color:#fff;border-color:var(--primary);transform:translateY(-1px);box-shadow:var(--sh-md)}
+.sug-titulo{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.2px;padding:14px 18px 6px;font-weight:700}
+.sug-item{display:flex;align-items:center;gap:14px;padding:14px 18px;cursor:pointer;border-bottom:1px solid var(--border);transition:background var(--t)}
+.sug-item:hover,.sug-item:active{background:var(--bg-soft)}
+.sug-item:last-child{border-bottom:none}
+.sug-item .sug-emoji{font-size:22px;flex-shrink:0;width:30px;text-align:center}
+.sug-item .sug-texto{flex:1;color:var(--text);font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.sug-item .sug-texto small{display:block;color:var(--text-muted);font-size:12px;margin-top:3px;font-weight:400}
+.sug-item .sug-texto strong{font-weight:600}
+.sug-item.esquina{border-left:4px solid var(--accent)}
+.sug-item.direccion{border-left:4px solid var(--success)}
+.sug-item.historial{border-left:4px solid var(--g-400)}
 
-        /* BUSCADOR DIDÁCTICO */
-        .buscador { position: absolute; top: 10px; left: 50px; right: 60px; z-index: 1000; max-width: 480px; }
-        .buscador-contenedor { display: flex; align-items: center; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 4px 8px; gap: 4px; transition: box-shadow 0.2s; }
-        .buscador-contenedor:focus-within { box-shadow: 0 6px 20px rgba(52,152,219,0.4); }
-        .buscador-icono { font-size: 18px; flex-shrink: 0; padding-left: 6px; }
-        .buscador input { flex: 1; border: none; outline: none; padding: 12px 4px; font-size: 16px; background: transparent; font-family: inherit; min-width: 0; }
-        .buscador-btn { background: transparent; border: none; cursor: pointer; font-size: 18px; padding: 8px; border-radius: 50%; color: #7f8c8d; transition: background 0.2s, color 0.2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .buscador-btn:hover { background: #f0f8ff; color: #2c3e50; }
-        .buscador-btn.grabando { color: #e74c3c; background: #fdecea; animation: pulso-mic 1s infinite; }
-        @keyframes pulso-mic { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+/* BOTONES FLOTANTES */
+.botones-flotantes{position:absolute;top:12px;right:12px;z-index:1000;display:flex;flex-direction:column;gap:10px}
+.btn-flotante{width:46px;height:46px;border:none;border-radius:50%;background:var(--bg);box-shadow:var(--sh-md);cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;transition:all var(--t);position:relative;border:1px solid var(--border)}
+.btn-flotante:hover{transform:scale(1.1);box-shadow:var(--sh-lg);background:var(--primary);color:#fff}
+.btn-flotante:active{transform:scale(.95)}
+.btn-flotante.activo{background:var(--primary);color:#fff}
+.btn-flotante.rojo{background:var(--danger);color:#fff;border-color:var(--danger)}
+.btn-flotante.rojo:hover{background:#dc2626}
+.btn-flotante.verde{background:var(--success);color:#fff;border-color:var(--success)}
+.btn-flotante.verde:hover{background:#059669}
+.btn-flotante.verde.completo{background:var(--primary)}
+.btn-flotante.azul{background:var(--primary-light);color:#fff;border-color:var(--primary-light)}
+.btn-flotante.azul:hover{background:var(--primary)}
+.btn-flotante .badge{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;font-size:10px;font-weight:700;min-width:20px;height:20px;border-radius:10px;display:none;align-items:center;justify-content:center;padding:0 6px;box-shadow:var(--sh-md);border:2px solid var(--bg)}
+.btn-flotante .badge.activo{display:flex}
 
-        .sugerencias { margin-top: 8px; background: white; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); max-height: 60vh; overflow-y: auto; display: none; }
-        .sugerencias.activo { display: block; }
-        .sug-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 12px 8px; }
-        .sug-chip { display: inline-flex; align-items: center; gap: 5px; padding: 8px 12px; background: #f0f8ff; color: #2c3e50; border: 1px solid #d4e8f5; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.15s; font-family: inherit; }
-        .sug-chip:hover, .sug-chip:active { background: #3498db; color: white; border-color: #3498db; }
-        .sug-titulo { font-size: 11px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; padding: 12px 16px 4px; font-weight: bold; }
-        .sug-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #f5f5f5; transition: background 0.15s; }
-        .sug-item:hover, .sug-item:active { background: #f0f8ff; }
-        .sug-item:last-child { border-bottom: none; }
-        .sug-item .sug-emoji { font-size: 20px; flex-shrink: 0; width: 28px; text-align: center; }
-        .sug-item .sug-texto { flex: 1; color: #2c3e50; font-size: 14px; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-        .sug-item .sug-texto small { display: block; color: #999; font-size: 11px; margin-top: 2px; font-weight: normal; }
-        .sug-item .sug-texto strong { font-weight: 600; }
-        .sug-item.esquina { border-left: 4px solid #f39c12; }
-        .sug-item.direccion { border-left: 4px solid #27ae60; }
-        .sug-item.historial { border-left: 4px solid #95a5a6; }
+/* PUNTO USUARIO */
+.punto-usuario{width:22px;height:22px;position:relative}
+.punto-usuario .circulo{width:100%;height:100%;background:var(--primary-light);border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 2px rgba(59,130,246,.3),0 4px 12px rgba(0,0,0,.3);animation:pulso 2s infinite}
+.punto-usuario .flecha{position:absolute;top:-14px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:14px solid var(--primary-light);filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));transform-origin:50% 25px}
+@keyframes pulso{0%{box-shadow:0 0 0 2px rgba(59,130,246,.4),0 4px 12px rgba(0,0,0,.3)}50%{box-shadow:0 0 0 12px rgba(59,130,246,0),0 4px 12px rgba(0,0,0,.3)}100%{box-shadow:0 0 0 2px rgba(59,130,246,.4),0 4px 12px rgba(0,0,0,.3)}}
+.circulo-precision{background:rgba(59,130,246,.12);border:2px solid rgba(59,130,246,.3);border-radius:50%;pointer-events:none}
 
-        /* BOTONES FLOTANTES */
-        .botones-flotantes { position: absolute; top: 10px; right: 10px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
-        .btn-flotante { width: 44px; height: 44px; border: none; border-radius: 50%; background: white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: transform 0.15s, background 0.2s; position: relative; }
-        .btn-flotante:hover { transform: scale(1.08); background: #f0f8ff; }
-        .btn-flotante.activo { background: #2c3e50; color: white; }
-        .btn-flotante.rojo { background: #e74c3c; color: white; }
-        .btn-flotante.verde { background: #27ae60; color: white; }
-        .btn-flotante.verde.completo { background: #2980b9; }
-        .btn-flotante.azul { background: #3498db; color: white; }
-        .btn-flotante.azul:hover { background: #2980b9; }
-        .btn-flotante .badge { position: absolute; top: -4px; right: -4px; background: #e74c3c; color: white; font-size: 10px; font-weight: bold; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-        .btn-flotante .badge.activo { display: flex; }
+/* OTROS PUNTOS */
+.punto-calle{width:14px;height:14px;background:var(--danger);border:3px solid #fff;border-radius:50%;box-shadow:var(--sh-md)}
+.punto-esquina{width:22px;height:22px;background:var(--accent);border:4px solid #fff;border-radius:50%;box-shadow:0 0 12px rgba(245,158,11,.9);animation:pulso-esquina 1.5s infinite}
+@keyframes pulso-esquina{0%{box-shadow:0 0 12px rgba(245,158,11,1),0 0 0 0 rgba(245,158,11,.7)}70%{box-shadow:0 0 12px rgba(245,158,11,1),0 0 0 20px rgba(245,158,11,0)}100%{box-shadow:0 0 12px rgba(245,158,11,1),0 0 0 0 rgba(245,158,11,0)}}
+.punto-direccion{width:26px;height:26px;background:var(--success);border:4px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 4px 12px rgba(16,185,129,.6);display:flex;align-items:center;justify-content:center;font-size:12px}
+.punto-direccion::after{content:'🏠';transform:rotate(45deg)}
+.punto-mio{width:28px;height:28px;background:#8b5cf6;border:4px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 4px 12px rgba(139,92,246,.6);display:flex;align-items:center;justify-content:center;font-size:13px}
+.punto-mio::after{content:'⭐';transform:rotate(45deg)}
 
-        /* PANEL DE FILTROS */
-        .panel-filtros-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
-        .panel-filtros-overlay.activo { opacity: 1; pointer-events: auto; }
-        .panel-filtros { position: fixed; top: 0; right: 0; width: 400px; max-width: 92vw; height: 100vh; background: white; z-index: 2000; box-shadow: -4px 0 24px rgba(0,0,0,0.2); transform: translateX(100%); transition: transform 0.3s ease-out; display: flex; flex-direction: column; }
-        .panel-filtros.activo { transform: translateX(0); }
-        .pf-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #eee; background: #2c3e50; color: white; flex-shrink: 0; }
-        .pf-header h3 { margin: 0; font-size: 18px; font-weight: 600; }
-        .pf-cerrar { background: rgba(255,255,255,0.15); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
-        .pf-cerrar:hover { background: rgba(255,255,255,0.3); }
-        .pf-acciones { display: flex; gap: 8px; padding: 12px 16px; background: #f8f9fa; border-bottom: 1px solid #eee; flex-shrink: 0; }
-        .pf-acciones button { flex: 1; padding: 12px; border: none; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; }
-        .pf-btn-todo { background: #27ae60; color: white; }
-        .pf-btn-todo:hover { background: #229954; }
-        .pf-btn-nada { background: #e74c3c; color: white; }
-        .pf-btn-nada:hover { background: #c0392b; }
-        .pf-buscar { margin: 12px 16px 8px; padding: 12px 16px; border: 2px solid #ecf0f1; border-radius: 10px; font-size: 14px; outline: none; box-sizing: border-box; transition: border-color 0.2s; font-family: inherit; flex-shrink: 0; }
-        .pf-buscar:focus { border-color: #3498db; }
-        .pf-lista { flex: 1; overflow-y: auto; padding: 4px 16px 24px; -webkit-overflow-scrolling: touch; }
-        .pf-seccion { margin-bottom: 18px; }
-        .pf-seccion-titulo { font-size: 11px; font-weight: bold; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; padding: 8px 4px 6px; margin-bottom: 4px; border-bottom: 2px solid #ecf0f1; }
-        .pf-cat { display: flex; align-items: center; gap: 10px; width: 100%; padding: 12px 14px; margin-bottom: 6px; border: 2px solid #ecf0f1; border-radius: 10px; background: white; cursor: pointer; font-size: 14px; color: #2c3e50; transition: all 0.15s; text-align: left; font-family: inherit; box-sizing: border-box; }
-        .pf-cat:hover { border-color: #3498db; background: #f0f8ff; }
-        .pf-cat.activo { border-color: #2c3e50; background: #2c3e50; color: white; }
-        .pf-cat .pf-emoji { font-size: 22px; flex-shrink: 0; width: 28px; text-align: center; }
-        .pf-cat .pf-nombre { flex: 1; font-weight: 500; }
-        .pf-cat .pf-contador { font-size: 11px; background: #ecf0f1; color: #7f8c8d; padding: 3px 9px; border-radius: 12px; font-weight: bold; flex-shrink: 0; }
-        .pf-cat.activo .pf-contador { background: rgba(255,255,255,0.25); color: white; }
-        .pf-cat .pf-check { font-size: 16px; opacity: 0; flex-shrink: 0; width: 16px; }
-        .pf-cat.activo .pf-check { opacity: 1; }
-        .pf-vacio { text-align: center; padding: 40px 20px; color: #999; font-size: 14px; }
+.marcador-sitio{display:flex;align-items:center;justify-content:center;width:30px;height:30px;background:#fff;border:2px solid var(--g-800);border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:var(--sh-md);font-size:15px;transition:transform var(--t)}
+.marcador-sitio:hover{transform:rotate(-45deg) scale(1.15)}
+.marcador-sitio>span{transform:rotate(45deg);display:block}
+.marcador-sitio.marcador-saeta{background:var(--danger);border-color:#b91c1c;border-width:3px;font-size:17px;box-shadow:0 0 12px rgba(239,68,68,.5)}
+.marcador-sitio.marcador-saeta>span{filter:drop-shadow(0 0 2px #fff)}
+.marcador-sitio.marcador-semaforo{background:#fbbf24;border-color:#d97706;font-size:17px}
+.marcador-sitio.marcador-lomada{background:#f97316;border-color:#c2410c;font-size:17px}
+.marcador-sitio.marcador-plaza{background:var(--success);border-color:#047857;font-size:17px}
 
-        /* PUNTO USUARIO */
-        .punto-usuario { width: 22px; height: 22px; position: relative; }
-        .punto-usuario .circulo { width: 100%; height: 100%; background: #0078ff; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(0, 120, 255, 0.8); animation: pulso 2s infinite; box-sizing: border-box; }
-        .punto-usuario .flecha { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 14px solid #0078ff; filter: drop-shadow(0 0 3px rgba(0,120,255,0.8)); transform-origin: 50% 25px; }
-        @keyframes pulso { 0% { box-shadow: 0 0 10px rgba(0,120,255,0.8); } 50% { box-shadow: 0 0 20px rgba(0,120,255,1); } 100% { box-shadow: 0 0 10px rgba(0,120,255,0.8); } }
+.lineas-container{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.lineas-lista{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.linea-chip{display:inline-block;background:var(--danger);color:#fff;padding:4px 10px;border-radius:14px;font-size:11px;font-weight:700;box-shadow:var(--sh-sm)}
 
-        .punto-calle { width: 14px; height: 14px; background: #e74c3c; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 8px rgba(231, 76, 60, 0.9); }
-        .punto-esquina { width: 22px; height: 22px; background: #f39c12; border: 4px solid white; border-radius: 50%; box-shadow: 0 0 12px rgba(243, 156, 18, 1); animation: pulso-esquina 1.5s infinite; }
-        @keyframes pulso-esquina { 0% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 0 rgba(243,156,18,0.7); } 70% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 20px rgba(243,156,18,0); } 100% { box-shadow: 0 0 12px rgba(243,156,18,1), 0 0 0 0 rgba(243,156,18,0); } }
-        .punto-direccion { width: 24px; height: 24px; background: #27ae60; border: 4px solid white; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 0 12px rgba(39, 174, 96, 1); display: flex; align-items: center; justify-content: center; font-size: 12px; }
-        .punto-direccion::after { content: '🏠'; transform: rotate(45deg); }
-        .punto-mio { width: 26px; height: 26px; background: #9b59b6; border: 4px solid white; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 0 12px rgba(155, 89, 182, 1); display: flex; align-items: center; justify-content: center; font-size: 12px; }
-        .punto-mio::after { content: '⭐'; transform: rotate(45deg); }
+/* AVISOS */
+.aviso-ubicacion{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:1000;background:rgba(17,24,39,.92);color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;font-weight:500;backdrop-filter:blur(10px);box-shadow:var(--sh-lg)}
+.aviso-medir{position:absolute;top:100px;left:50%;transform:translateX(-50%);z-index:1000;background:var(--warning);color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;font-weight:600;display:none;box-shadow:var(--sh-lg)}
+.aviso-medir.activo{display:block;animation:slideDown .3s}
+.velocimetro{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);z-index:1000;background:rgba(17,24,39,.92);color:#fff;padding:10px 20px;border-radius:30px;font-size:14px;display:none;box-shadow:var(--sh-lg);font-weight:700;backdrop-filter:blur(10px)}
+.velocimetro.activo{display:block}
+.velocimetro .num{font-size:22px}
+.notificacion{position:absolute;top:100px;left:50%;transform:translateX(-50%);z-index:3000;background:var(--primary);color:#fff;padding:14px 26px;border-radius:28px;font-size:14px;font-weight:600;display:none;box-shadow:var(--sh-xl)}
+.notificacion.activo{display:block;animation:slideDown .3s}
+.notificacion.aviso{background:var(--warning)}
+.notificacion.exito{background:var(--success)}
 
-        .marcador-sitio { display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: white; border: 2px solid #2c3e50; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 2px 4px rgba(0,0,0,0.3); font-size: 14px; }
-        .marcador-sitio > span { transform: rotate(45deg); display: block; }
-        .marcador-sitio.marcador-saeta { background: #e74c3c; border-color: #c0392b; border-width: 3px; font-size: 16px; box-shadow: 0 0 10px rgba(231,76,60,0.6); }
-        .marcador-sitio.marcador-saeta > span { filter: drop-shadow(0 0 2px white); }
-        .marcador-sitio.marcador-semaforo { background: #f1c40f; border-color: #f39c12; font-size: 16px; }
-        .marcador-sitio.marcador-lomada { background: #e67e22; border-color: #d35400; font-size: 16px; }
-        .marcador-sitio.marcador-plaza { background: #27ae60; border-color: #229954; font-size: 16px; }
+/* CALIDAD GPS */
+.calidad-gps{position:absolute;bottom:24px;left:24px;z-index:1000;background:var(--bg);border:1px solid var(--border);padding:8px 14px;border-radius:24px;font-size:12px;font-weight:600;display:none;align-items:center;gap:6px;box-shadow:var(--sh-md);color:var(--text)}
+.calidad-gps.activo{display:flex}
+.calidad-gps .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.calidad-gps.excelente .dot{background:var(--success);box-shadow:0 0 8px var(--success)}
+.calidad-gps.buena .dot{background:#84cc16}
+.calidad-gps.regular .dot{background:var(--warning)}
+.calidad-gps.mala .dot{background:var(--danger)}
 
-        .lineas-container { margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; }
-        .lineas-lista { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
-        .linea-chip { display: inline-block; background: #e74c3c; color: white; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+/* PANEL FILTROS */
+.panel-filtros-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1999;opacity:0;pointer-events:none;transition:opacity var(--t);backdrop-filter:blur(2px)}
+.panel-filtros-overlay.activo{opacity:1;pointer-events:auto}
+.panel-filtros{position:fixed;top:0;right:0;width:420px;max-width:94vw;height:100vh;background:var(--bg);z-index:2000;box-shadow:-8px 0 32px rgba(0,0,0,.25);transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column}
+.panel-filtros.activo{transform:translateX(0)}
+.pf-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;background:var(--primary);color:#fff;flex-shrink:0}
+.pf-header h3{margin:0;font-size:18px;font-weight:700}
+.pf-cerrar{background:rgba(255,255,255,.15);border:none;color:#fff;width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:background var(--t)}
+.pf-cerrar:hover{background:rgba(255,255,255,.3)}
+.pf-acciones{display:flex;gap:10px;padding:14px 20px;background:var(--bg-soft);border-bottom:1px solid var(--border);flex-shrink:0}
+.pf-acciones button{flex:1;padding:12px;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;transition:all var(--t);font-family:inherit}
+.pf-btn-todo{background:var(--success);color:#fff}
+.pf-btn-todo:hover{background:#059669}
+.pf-btn-nada{background:var(--danger);color:#fff}
+.pf-btn-nada:hover{background:#dc2626}
+.pf-buscar{margin:14px 20px 10px;padding:14px 18px;border:2px solid var(--border);border-radius:var(--r-sm);font-size:14px;outline:none;background:var(--bg);color:var(--text);transition:border-color var(--t);font-family:inherit;flex-shrink:0}
+.pf-buscar:focus{border-color:var(--primary-light);box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+.pf-lista{flex:1;overflow-y:auto;padding:6px 20px 30px;-webkit-overflow-scrolling:touch}
+.pf-seccion{margin-bottom:22px}
+.pf-seccion-titulo{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:1.2px;padding:10px 4px 8px;margin-bottom:6px;border-bottom:2px solid var(--border)}
+.pf-cat{display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;margin-bottom:8px;border:2px solid var(--border);border-radius:var(--r-sm);background:var(--bg);cursor:pointer;font-size:14px;color:var(--text);transition:all var(--t);text-align:left;font-family:inherit}
+.pf-cat:hover{border-color:var(--primary-light);background:var(--bg-soft);transform:translateX(3px)}
+.pf-cat.activo{border-color:var(--primary);background:var(--primary);color:#fff}
+.pf-cat .pf-emoji{font-size:24px;flex-shrink:0;width:30px;text-align:center}
+.pf-cat .pf-nombre{flex:1;font-weight:600}
+.pf-cat .pf-contador{font-size:11px;background:var(--bg-soft);color:var(--text-muted);padding:3px 10px;border-radius:12px;font-weight:700;flex-shrink:0}
+.pf-cat.activo .pf-contador{background:rgba(255,255,255,.25);color:#fff}
+.pf-cat .pf-check{font-size:16px;opacity:0;flex-shrink:0;width:16px;font-weight:700}
+.pf-cat.activo .pf-check{opacity:1}
+.pf-vacio{text-align:center;padding:50px 20px;color:var(--text-muted);font-size:14px;font-weight:500}
 
-        .aviso-ubicacion { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(0,0,0,0.75); color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; }
-        .aviso-medir { position: absolute; top: 90px; left: 50%; transform: translateX(-50%); z-index: 1000; background: #e67e22; color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px; display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
-        .aviso-medir.activo { display: block; }
-        .velocimetro { position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%); z-index: 1000; background: rgba(44, 62, 80, 0.9); color: white; padding: 8px 18px; border-radius: 30px; font-size: 15px; display: none; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-weight: bold; }
-        .velocimetro.activo { display: block; }
-        .velocimetro .num { font-size: 20px; }
-        .notificacion { position: absolute; top: 90px; left: 50%; transform: translateX(-50%); z-index: 3000; background: #3498db; color: white; padding: 12px 24px; border-radius: 25px; font-size: 14px; font-weight: bold; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4); }
-        .notificacion.activo { display: block; }
-        .notificacion.aviso { background: #f39c12; }
-        .notificacion.exito { background: #27ae60; }
+/* PANEL RUTA */
+.panel-ruta{position:absolute;bottom:0;left:0;right:0;z-index:2000;background:var(--bg);border-radius:var(--r-lg) var(--r-lg) 0 0;box-shadow:0 -8px 32px rgba(0,0,0,.15);padding:20px;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:60vh;overflow-y:auto}
+.panel-ruta.activo{transform:translateY(0)}
+.panel-ruta .encabezado{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.panel-ruta .encabezado h3{margin:0;color:var(--text);font-size:17px;flex:1;font-weight:700}
+.panel-ruta .cerrar{background:var(--bg-soft);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px;color:var(--text);transition:all var(--t)}
+.panel-ruta .cerrar:hover{background:var(--g-200);transform:scale(1.1)}
+.panel-ruta .stats{display:flex;gap:12px;margin-bottom:16px}
+.panel-ruta .stat{flex:1;background:var(--bg-soft);border-radius:var(--r-sm);padding:14px;text-align:center}
+.panel-ruta .stat .valor{font-size:22px;font-weight:700;color:var(--text)}
+.panel-ruta .stat .etiqueta{font-size:11px;color:var(--text-muted);margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.panel-ruta .modo{display:flex;gap:10px;margin-bottom:14px}
+.panel-ruta .modo button{flex:1;padding:11px;border:2px solid var(--border);border-radius:var(--r-sm);background:var(--bg);color:var(--text);cursor:pointer;font-size:14px;transition:all var(--t);font-weight:600;font-family:inherit}
+.panel-ruta .modo button.activo{border-color:var(--primary-light);background:rgba(59,130,246,.1);color:var(--primary);font-weight:700}
+.panel-ruta .barra-acciones{display:flex;gap:10px;margin-bottom:16px}
+.panel-ruta .barra-acciones button{flex:1;padding:11px;border:none;border-radius:var(--r-sm);cursor:pointer;font-size:13px;font-weight:700;font-family:inherit;transition:all var(--t)}
+.panel-ruta .btn-recalcular{background:var(--primary-light);color:#fff}
+.panel-ruta .btn-recalcular:hover{background:var(--primary)}
+.panel-ruta .btn-auto{background:var(--bg-soft);color:var(--text)}
+.panel-ruta .btn-auto.activo{background:var(--success);color:#fff}
+.panel-ruta .pasos{list-style:none;padding:0;margin:0}
+.panel-ruta .pasos li{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--text)}
+.panel-ruta .pasos li:last-child{border-bottom:none}
+.panel-ruta .pasos .icono{font-size:22px;flex-shrink:0}
 
-        .panel-ruta { position: absolute; bottom: 0; left: 0; right: 0; z-index: 2000; background: white; border-radius: 16px 16px 0 0; box-shadow: 0 -4px 20px rgba(0,0,0,0.3); padding: 16px; transform: translateY(100%); transition: transform 0.3s; max-height: 55vh; overflow-y: auto; }
-        .panel-ruta.activo { transform: translateY(0); }
-        .panel-ruta .encabezado { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .panel-ruta .encabezado h3 { margin: 0; color: #2c3e50; font-size: 16px; flex: 1; }
-        .panel-ruta .cerrar { background: #ecf0f1; border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 16px; color: #2c3e50; }
-        .panel-ruta .stats { display: flex; gap: 12px; margin-bottom: 12px; }
-        .panel-ruta .stat { flex: 1; background: #f8f9fa; border-radius: 10px; padding: 12px; text-align: center; }
-        .panel-ruta .stat .valor { font-size: 20px; font-weight: bold; color: #2c3e50; }
-        .panel-ruta .stat .etiqueta { font-size: 11px; color: #7f8c8d; margin-top: 4px; }
-        .panel-ruta .modo { display: flex; gap: 8px; margin-bottom: 12px; }
-        .panel-ruta .modo button { flex: 1; padding: 8px; border: 2px solid #ecf0f1; border-radius: 8px; background: white; cursor: pointer; font-size: 14px; transition: all 0.2s; }
-        .panel-ruta .modo button.activo { border-color: #3498db; background: #e8f4fd; color: #2980b9; font-weight: bold; }
-        .panel-ruta .barra-acciones { display: flex; gap: 8px; margin-bottom: 12px; }
-        .panel-ruta .barra-acciones button { flex: 1; padding: 8px; border: none; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; }
-        .panel-ruta .btn-recalcular { background: #3498db; color: white; }
-        .panel-ruta .btn-auto { background: #ecf0f1; color: #2c3e50; }
-        .panel-ruta .btn-auto.activo { background: #27ae60; color: white; }
-        .panel-ruta .pasos { list-style: none; padding: 0; margin: 0; }
-        .panel-ruta .pasos li { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #eee; font-size: 13px; color: #555; }
-        .panel-ruta .pasos li:last-child { border-bottom: none; }
-        .panel-ruta .pasos .icono { font-size: 20px; flex-shrink: 0; }
+/* MODALES */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;justify-content:center;align-items:center;backdrop-filter:blur(3px)}
+.modal-overlay.activo{display:flex;animation:fadeIn .2s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:var(--bg);border-radius:var(--r-lg);padding:28px;max-width:460px;width:92%;box-shadow:0 24px 48px rgba(0,0,0,.4);max-height:88vh;overflow-y:auto;color:var(--text);animation:modalIn .3s cubic-bezier(.4,0,.2,1)}
+@keyframes modalIn{from{opacity:0;transform:scale(.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal h3{margin:0 0 16px 0;color:var(--text);font-size:20px;font-weight:700}
+.modal p{color:var(--text-muted);font-size:14px;line-height:1.6;margin:10px 0}
+.modal input[type=text]{width:100%;padding:14px 16px;border:2px solid var(--border);border-radius:var(--r-sm);font-size:15px;outline:none;background:var(--bg);color:var(--text);margin-top:10px;transition:all var(--t);font-family:inherit}
+.modal input[type=text]:focus{border-color:var(--primary-light);box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+.modal .botones{display:flex;gap:10px;margin-top:20px}
+.modal .botones button{flex:1;padding:13px;border:none;border-radius:var(--r-sm);font-size:14px;cursor:pointer;font-weight:700;font-family:inherit;transition:all var(--t)}
+.modal .btn-cancelar{background:var(--bg-soft);color:var(--text)}
+.modal .btn-cancelar:hover{background:var(--g-200)}
+.modal .btn-ok{background:var(--success);color:#fff}
+.modal .btn-ok:hover{background:#059669;transform:translateY(-1px);box-shadow:var(--sh-md)}
+.modal .btn-ok:disabled{background:var(--g-400);cursor:not-allowed}
+.modal .btn-peligro{background:var(--danger);color:#fff}
+.modal .btn-peligro:hover{background:#dc2626}
 
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; justify-content: center; align-items: center; }
-        .modal-overlay.activo { display: flex; }
-        .modal { background: white; border-radius: 12px; padding: 24px; max-width: 420px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.3); max-height: 85vh; overflow-y: auto; }
-        .modal h3 { margin: 0 0 12px 0; color: #2c3e50; font-size: 18px; }
-        .modal p { color: #555; font-size: 14px; line-height: 1.5; margin: 8px 0; }
-        .modal input[type="text"] { width: 100%; padding: 10px 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; box-sizing: border-box; outline: none; margin-top: 8px; }
-        .modal input[type="text"]:focus { border-color: #3498db; }
-        .modal .botones { display: flex; gap: 8px; margin-top: 16px; }
-        .modal .botones button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: bold; }
-        .modal .btn-cancelar { background: #ecf0f1; color: #2c3e50; }
-        .modal .btn-ok { background: #27ae60; color: white; }
-        .modal .btn-ok:hover { background: #229954; }
-        .modal .btn-ok:disabled { background: #95a5a6; cursor: not-allowed; }
-        .modal .btn-peligro { background: #e74c3c; color: white; }
-        .modal .btn-peligro:hover { background: #c0392b; }
+.barra{width:100%;height:22px;background:var(--bg-soft);border-radius:11px;overflow:hidden;margin:18px 0 10px;border:1px solid var(--border)}
+.barra-fill{height:100%;background:linear-gradient(90deg,var(--success),#34d399);width:0%;transition:width .3s;border-radius:11px}
+.info-progreso{font-size:13px;color:var(--text-muted);text-align:center;font-weight:500}
+.estado-offline{background:var(--bg-soft);border-radius:var(--r-sm);padding:14px;margin:14px 0;font-size:13px;color:var(--text);line-height:1.7;border:1px solid var(--border)}
 
-        .barra { width: 100%; height: 20px; background: #ecf0f1; border-radius: 10px; overflow: hidden; margin: 16px 0 8px 0; }
-        .barra-fill { height: 100%; background: linear-gradient(90deg, #27ae60, #2ecc71); width: 0%; transition: width 0.3s; }
-        .info-progreso { font-size: 13px; color: #7f8c8d; text-align: center; }
-        .estado-offline { background: #f8f9fa; border-radius: 8px; padding: 12px; margin: 12px 0; font-size: 13px; color: #2c3e50; line-height: 1.6; }
+.lista-lugares{list-style:none;padding:0;margin:14px 0 0 0;max-height:340px;overflow-y:auto}
+.lista-lugares li{display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid var(--border);font-size:14px;transition:background var(--t);border-radius:var(--r-sm)}
+.lista-lugares li:hover{background:var(--bg-soft)}
+.lista-lugares li .nombre{flex:1;cursor:pointer;color:var(--text);font-weight:600}
+.lista-lugares li .borrar{background:none;border:none;cursor:pointer;font-size:16px;color:var(--danger);padding:6px 10px;border-radius:8px;transition:background var(--t)}
+.lista-lugares li .borrar:hover{background:rgba(239,68,68,.1)}
+.lista-lugares .vacio{text-align:center;color:var(--text-muted);padding:30px;font-size:14px;font-weight:500}
 
-        .lista-lugares { list-style: none; padding: 0; margin: 12px 0 0 0; max-height: 300px; overflow-y: auto; }
-        .lista-lugares li { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid #eee; font-size: 14px; }
-        .lista-lugares li:last-child { border-bottom: none; }
-        .lista-lugares li .nombre { flex: 1; cursor: pointer; color: #2c3e50; }
-        .lista-lugares li .nombre:hover { color: #3498db; }
-        .lista-lugares li .borrar { background: none; border: none; cursor: pointer; font-size: 16px; color: #e74c3c; padding: 4px 8px; }
-        .lista-lugares .vacio { text-align: center; color: #999; padding: 20px; font-size: 14px; }
+/* CERCA DE MÍ */
+.modal-cerca{max-width:520px;width:94%}
+.modal-cerca .cerca-lista{display:flex;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto;margin:14px 0;padding:4px}
+.modal-cerca .cerca-cat{display:flex;align-items:center;gap:12px;padding:14px 16px;border:2px solid var(--border);border-radius:var(--r-sm);background:var(--bg);cursor:pointer;font-size:14px;text-align:left;color:var(--text);font-family:inherit;transition:all var(--t);width:100%}
+.modal-cerca .cerca-cat:hover{border-color:var(--primary-light);background:var(--bg-soft);transform:translateX(3px)}
+.modal-cerca .cerca-cat .cerca-emoji{font-size:24px;width:30px;text-align:center;flex-shrink:0}
+.modal-cerca .cerca-cat .cerca-nombre{flex:1;font-weight:600}
+.modal-cerca .cerca-cat .cerca-count{font-size:11px;background:var(--bg-soft);color:var(--text-muted);padding:3px 10px;border-radius:12px;font-weight:700}
+.cerca-header{display:flex;justify-content:space-between;align-items:center;padding:10px 0;margin-bottom:10px;border-bottom:2px solid var(--border);gap:10px}
+.cerca-volver{background:var(--bg-soft);border:none;padding:8px 14px;border-radius:var(--r-sm);cursor:pointer;font-size:12px;color:var(--text);font-weight:700;font-family:inherit;transition:all var(--t)}
+.cerca-volver:hover{background:var(--g-200)}
+#cercaCategoriaActual{font-weight:700;color:var(--text);font-size:14px}
+.cerca-items{list-style:none;padding:0;margin:0;max-height:400px;overflow-y:auto}
+.cerca-items li{display:flex;align-items:center;gap:14px;padding:14px 10px;border-bottom:1px solid var(--border);cursor:pointer;transition:background var(--t);border-radius:var(--r-sm)}
+.cerca-items li:hover{background:var(--bg-soft)}
+.cerca-items li:last-child{border-bottom:none}
+.cerca-item-emoji{font-size:22px;width:30px;text-align:center;flex-shrink:0}
+.cerca-item-info{flex:1;min-width:0}
+.cerca-item-nombre{color:var(--text);font-size:14px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cerca-item-dir{color:var(--text-muted);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:3px}
+.cerca-item-dist{font-size:13px;font-weight:700;color:var(--success);flex-shrink:0}
+.cerca-vacio-msg{text-align:center;padding:30px 20px;color:var(--text-muted);font-size:13px;font-weight:500}
 
-        /* CERCA DE MÍ */
-        .modal-cerca { max-width: 500px; width: 92%; }
-        .modal-cerca .cerca-lista { display: flex; flex-direction: column; gap: 6px; max-height: 340px; overflow-y: auto; margin: 12px 0; padding: 4px; }
-        .modal-cerca .cerca-cat { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 2px solid #ecf0f1; border-radius: 10px; background: white; cursor: pointer; font-size: 14px; text-align: left; color: #2c3e50; font-family: inherit; transition: all 0.15s; width: 100%; box-sizing: border-box; }
-        .modal-cerca .cerca-cat:hover { border-color: #3498db; background: #f0f8ff; }
-        .modal-cerca .cerca-cat .cerca-emoji { font-size: 22px; width: 28px; text-align: center; flex-shrink: 0; }
-        .modal-cerca .cerca-cat .cerca-nombre { flex: 1; font-weight: 500; }
-        .modal-cerca .cerca-cat .cerca-count { font-size: 11px; background: #ecf0f1; color: #7f8c8d; padding: 3px 9px; border-radius: 12px; font-weight: bold; }
-        .cerca-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; margin-bottom: 8px; border-bottom: 2px solid #ecf0f1; gap: 8px; }
-        .cerca-volver { background: #ecf0f1; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; color: #2c3e50; font-weight: bold; font-family: inherit; }
-        .cerca-volver:hover { background: #d5dbdb; }
-        #cercaCategoriaActual { font-weight: bold; color: #2c3e50; font-size: 14px; }
-        .cerca-items { list-style: none; padding: 0; margin: 0; max-height: 380px; overflow-y: auto; }
-        .cerca-items li { display: flex; align-items: center; gap: 12px; padding: 12px 8px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.15s; border-radius: 8px; }
-        .cerca-items li:hover { background: #f0f8ff; }
-        .cerca-items li:last-child { border-bottom: none; }
-        .cerca-item-emoji { font-size: 20px; width: 28px; text-align: center; flex-shrink: 0; }
-        .cerca-item-info { flex: 1; min-width: 0; }
-        .cerca-item-nombre { color: #2c3e50; font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .cerca-item-dir { color: #999; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
-        .cerca-item-dist { font-size: 13px; font-weight: bold; color: #27ae60; flex-shrink: 0; }
-        .cerca-vacio-msg { text-align: center; padding: 30px 20px; color: #999; font-size: 13px; }
-    </style>
+/* POPUP LEAFLET */
+.leaflet-popup-content-wrapper{border-radius:var(--r);box-shadow:var(--sh-xl);background:var(--bg);color:var(--text)}
+.leaflet-popup-content{margin:14px 18px;font-family:'Inter',sans-serif;font-size:14px}
+.leaflet-popup-tip{background:var(--bg)}
+.leaflet-popup-close-button{color:var(--text-muted)!important}
+.leaflet-control-attribution{background:rgba(255,255,255,.8)!important;font-size:10px!important}
+[data-theme=dark] .leaflet-control-attribution{background:rgba(17,24,39,.8)!important;color:#9ca3af!important}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--g-300);border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:var(--g-400)}
+[data-theme=dark] ::-webkit-scrollbar-thumb{background:var(--g-600)}
+</style>
 </head>
 <body>
 
-    <!-- BUSCADOR DIDÁCTICO -->
-    <div class="buscador" id="buscador">
-        <div class="buscador-contenedor">
-            <span class="buscador-icono">🔍</span>
-            <input type="text" id="inputBusqueda" placeholder="Calle, esquina o dirección..." autocomplete="off">
-            <button class="buscador-btn" id="btnLimpiar" title="Limpiar" style="display:none;">✕</button>
-            <button class="buscador-btn" id="btnVoz" title="Buscar por voz">🎤</button>
-        </div>
-        <div class="sugerencias" id="sugerencias"></div>
-    </div>
+<div class="buscador" id="buscador">
+<div class="buscador-contenedor">
+<span class="buscador-icono">🔍</span>
+<input type="text" id="inputBusqueda" placeholder="Buscá una calle, esquina o dirección..." autocomplete="off">
+<button class="buscador-btn" id="btnLimpiar" title="Limpiar" style="display:none;">✕</button>
+<button class="buscador-btn" id="btnVoz" title="Buscar por voz">🎤</button>
+</div>
+<div class="sugerencias" id="sugerencias"></div>
+</div>
 
-    <div class="botones-flotantes">
-        <button class="btn-flotante" id="btnCentrar" title="Centrar en mi ubicación">🎯</button>
-        <button class="btn-flotante azul" id="btnCerca" title="Cerca de mí">📡</button>
-        <button class="btn-flotante" id="btnRotarMapa" title="Rotar mapa con el celular">🧭</button>
-        <button class="btn-flotante" id="btnModoOscuro" title="Modo oscuro">🌙</button>
-        <button class="btn-flotante" id="btnMedir" title="Medir distancia">📏</button>
-        <button class="btn-flotante" id="btnLugares" title="Mis lugares">⭐</button>
-        <button class="btn-flotante" id="btnFiltros" title="Filtros" style="position: relative;">
-            🎛️
-            <span class="badge" id="badgeFiltros">0</span>
-        </button>
-        <button class="btn-flotante verde" id="btnOffline" title="Mapa offline">📥</button>
-        <button class="btn-flotante" id="btnCompartir" title="Compartir" style="display:none;">📤</button>
-        <button class="btn-flotante rojo" id="btnIr" title="Ir hasta ahí" style="display:none;">🛣️</button>
-    </div>
+<div class="botones-flotantes">
+<button class="btn-flotante" id="btnTema" title="Cambiar tema">🌙</button>
+<button class="btn-flotante" id="btnCentrar" title="Centrar en mi ubicación">🎯</button>
+<button class="btn-flotante azul" id="btnCerca" title="Cerca de mí">📡</button>
+<button class="btn-flotante" id="btnRotarMapa" title="Rotar mapa">🧭</button>
+<button class="btn-flotante" id="btnMedir" title="Medir distancia">📏</button>
+<button class="btn-flotante" id="btnLugares" title="Mis lugares">⭐</button>
+<button class="btn-flotante" id="btnFiltros" title="Filtros" style="position:relative;">🎛️<span class="badge" id="badgeFiltros">0</span></button>
+<button class="btn-flotante verde" id="btnOffline" title="Mapa offline">📥</button>
+<button class="btn-flotante" id="btnCompartir" title="Compartir" style="display:none;">📤</button>
+<button class="btn-flotante rojo" id="btnIr" title="Ir hasta ahí" style="display:none;">🛣️</button>
+</div>
 
-    <div id="map"></div>
-    <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
-    <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa para medir</div>
-    <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
-    <div class="notificacion" id="notificacion"></div>
+<div id="map"></div>
+<div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
+<div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
+<div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
+<div class="calidad-gps" id="calidadGps"><span class="dot"></span><span id="calidadTexto">Buscando señal...</span></div>
+<div class="notificacion" id="notificacion"></div>
 
-    <div class="panel-filtros-overlay" id="panelFiltrosOverlay" onclick="cerrarPanelFiltros()"></div>
-    <div class="panel-filtros" id="panelFiltros">
-        <div class="pf-header">
-            <h3>🎛️ Filtros del mapa</h3>
-            <button class="pf-cerrar" onclick="cerrarPanelFiltros()">✕</button>
-        </div>
-        <div class="pf-acciones">
-            <button class="pf-btn-todo" onclick="mostrarTodos()">✅ Mostrar todos</button>
-            <button class="pf-btn-nada" onclick="ocultarTodos()">❌ Ocultar todos</button>
-        </div>
-        <input type="text" class="pf-buscar" id="pfBuscar" placeholder="🔍 Buscar categoría..." oninput="filtrarCategorias()">
-        <div class="pf-lista" id="pfLista"></div>
-    </div>
+<div class="panel-filtros-overlay" id="panelFiltrosOverlay" onclick="cerrarPanelFiltros()"></div>
+<div class="panel-filtros" id="panelFiltros">
+<div class="pf-header">
+<h3>🎛️ Filtros del mapa</h3>
+<button class="pf-cerrar" onclick="cerrarPanelFiltros()">✕</button>
+</div>
+<div class="pf-acciones">
+<button class="pf-btn-todo" onclick="mostrarTodos()">✅ Mostrar todos</button>
+<button class="pf-btn-nada" onclick="ocultarTodos()">❌ Ocultar todos</button>
+</div>
+<input type="text" class="pf-buscar" id="pfBuscar" placeholder="🔍 Buscar categoría..." oninput="filtrarCategorias()">
+<div class="pf-lista" id="pfLista"></div>
+</div>
 
-    <div class="panel-ruta" id="panelRuta">
-        <div class="encabezado">
-            <h3 id="tituloRuta">🛣️ Ruta</h3>
-            <button class="cerrar" onclick="cerrarPanelRuta()">✕</button>
-        </div>
-        <div class="modo">
-            <button id="modoAuto" class="activo" onclick="cambiarModo('auto')">🚗 Auto</button>
-            <button id="modoPie" onclick="cambiarModo('pie')">🚶 A pie</button>
-            <button id="modoBici" onclick="cambiarModo('bici')">🚲 Bici</button>
-        </div>
-        <div class="stats">
-            <div class="stat"><div class="valor" id="statDistancia">--</div><div class="etiqueta">Distancia</div></div>
-            <div class="stat"><div class="valor" id="statTiempo">--</div><div class="etiqueta">Tiempo est.</div></div>
-        </div>
-        <div class="barra-acciones">
-            <button class="btn-recalcular" id="btnRecalcular" onclick="forzarRecalculo()">🔄 Recalcular</button>
-            <button class="btn-auto activo" id="btnAutoRecalc" onclick="toggleAutoRecalc()">📡 Auto: ON</button>
-        </div>
-        <ul class="pasos" id="listaPasos"></ul>
-    </div>
+<div class="panel-ruta" id="panelRuta">
+<div class="encabezado">
+<h3 id="tituloRuta">🛣️ Ruta</h3>
+<button class="cerrar" onclick="cerrarPanelRuta()">✕</button>
+</div>
+<div class="modo">
+<button id="modoAuto" class="activo" onclick="cambiarModo('auto')">🚗 Auto</button>
+<button id="modoPie" onclick="cambiarModo('pie')">🚶 A pie</button>
+<button id="modoBici" onclick="cambiarModo('bici')">🚲 Bici</button>
+</div>
+<div class="stats">
+<div class="stat"><div class="valor" id="statDistancia">--</div><div class="etiqueta">Distancia</div></div>
+<div class="stat"><div class="valor" id="statTiempo">--</div><div class="etiqueta">Tiempo</div></div>
+</div>
+<div class="barra-acciones">
+<button class="btn-recalcular" id="btnRecalcular" onclick="forzarRecalculo()">🔄 Recalcular</button>
+<button class="btn-auto activo" id="btnAutoRecalc" onclick="toggleAutoRecalc()">📡 Auto: ON</button>
+</div>
+<ul class="pasos" id="listaPasos"></ul>
+</div>
 
-    <div class="modal-overlay" id="modalOffline">
-        <div class="modal">
-            <h3 id="tituloOffline">📥 Mapa offline</h3>
-            <div id="contenidoOffline">
-                <div class="estado-offline" id="estadoOffline">Calculando estado...</div>
-                <p id="textoOffline" style="font-size:13px;color:#666;"></p>
-                <div class="barra" id="barraOffline" style="display:none;"><div class="barra-fill" id="barraOfflineFill"></div></div>
-                <div class="info-progreso" id="infoProgreso"></div>
-            </div>
-            <div class="botones" id="botonesOffline">
-                <button class="btn-cancelar" onclick="cerrarModalOffline()">Cerrar</button>
-                <button class="btn-peligro" id="btnBorrarTeselas" onclick="borrarTeselas()" style="display:none;">🗑️ Borrar</button>
-                <button class="btn-ok" id="btnIniciarOffline" onclick="iniciarDescargaOffline()">📥 Descargar</button>
-            </div>
-        </div>
-    </div>
+<div class="modal-overlay" id="modalOffline">
+<div class="modal">
+<h3 id="tituloOffline">📥 Mapa offline</h3>
+<div id="contenidoOffline">
+<div class="estado-offline" id="estadoOffline">Calculando estado...</div>
+<p id="textoOffline" style="font-size:13px;"></p>
+<div class="barra" id="barraOffline" style="display:none;"><div class="barra-fill" id="barraOfflineFill"></div></div>
+<div class="info-progreso" id="infoProgreso"></div>
+</div>
+<div class="botones" id="botonesOffline">
+<button class="btn-cancelar" onclick="cerrarModalOffline()">Cerrar</button>
+<button class="btn-peligro" id="btnBorrarTeselas" onclick="borrarTeselas()" style="display:none;">🗑️ Borrar</button>
+<button class="btn-ok" id="btnIniciarOffline" onclick="iniciarDescargaOffline()">📥 Descargar</button>
+</div>
+</div>
+</div>
 
-    <!-- MODAL: CERCA DE MÍ -->
-    <div class="modal-overlay" id="modalCerca">
-        <div class="modal modal-cerca">
-            <h3>📡 ¿Qué buscás cerca?</h3>
-            <p style="font-size:13px;color:#666;margin-bottom:8px;">Te muestro los 5 lugares más cercanos a tu ubicación actual.</p>
-            <input type="text" id="cercaBuscar" placeholder="🔍 Filtrar categoría..." oninput="filtrarCategoriasCerca()">
-            <div class="cerca-lista" id="cercaLista"></div>
-            <div class="cerca-resultados" id="cercaResultados" style="display:none;">
-                <div class="cerca-header">
-                    <button class="cerca-volver" onclick="volverCategoriasCerca()">← Volver</button>
-                    <span id="cercaCategoriaActual"></span>
-                </div>
-                <ul class="cerca-items" id="cercaItems"></ul>
-            </div>
-            <div class="botones">
-                <button class="btn-cancelar" onclick="cerrarModalCerca()">Cerrar</button>
-            </div>
-        </div>
-    </div>
+<div class="modal-overlay" id="modalCerca">
+<div class="modal modal-cerca">
+<h3>📡 ¿Qué buscás cerca?</h3>
+<p style="font-size:13px;margin-bottom:10px;">Los 5 lugares más cercanos a tu ubicación actual.</p>
+<input type="text" id="cercaBuscar" placeholder="🔍 Filtrar categoría..." oninput="filtrarCategoriasCerca()">
+<div class="cerca-lista" id="cercaLista"></div>
+<div class="cerca-resultados" id="cercaResultados" style="display:none;">
+<div class="cerca-header">
+<button class="cerca-volver" onclick="volverCategoriasCerca()">← Volver</button>
+<span id="cercaCategoriaActual"></span>
+</div>
+<ul class="cerca-items" id="cercaItems"></ul>
+</div>
+<div class="botones">
+<button class="btn-cancelar" onclick="cerrarModalCerca()">Cerrar</button>
+</div>
+</div>
+</div>
 
-    <div class="modal-overlay" id="modalLugar">
-        <div class="modal">
-            <h3>⭐ Guardar lugar</h3>
-            <p>Se guardará el centro actual del mapa como un lugar favorito.</p>
-            <input type="text" id="inputNombreLugar" placeholder="Nombre (ej: Casa, Trabajo...)" maxlength="40">
-            <div class="botones">
-                <button class="btn-cancelar" onclick="cerrarModalLugar()">Cancelar</button>
-                <button class="btn-ok" onclick="confirmarGuardarLugar()">Guardar</button>
-            </div>
-        </div>
-    </div>
+<div class="modal-overlay" id="modalLugar">
+<div class="modal">
+<h3>⭐ Guardar lugar</h3>
+<p>Se guardará el centro actual del mapa como un lugar favorito.</p>
+<input type="text" id="inputNombreLugar" placeholder="Nombre (ej: Casa, Trabajo...)" maxlength="40">
+<div class="botones">
+<button class="btn-cancelar" onclick="cerrarModalLugar()">Cancelar</button>
+<button class="btn-ok" onclick="confirmarGuardarLugar()">Guardar</button>
+</div>
+</div>
+</div>
 
-    <div class="modal-overlay" id="modalLugares">
-        <div class="modal">
-            <h3>⭐ Mis lugares</h3>
-            <ul class="lista-lugares" id="listaLugares"></ul>
-            <div class="botones">
-                <button class="btn-cancelar" onclick="cerrarModalLugares()">Cerrar</button>
-                <button class="btn-ok" id="btnAgregarDesdeLista">➕ Agregar</button>
-            </div>
-        </div>
-    </div>
+<div class="modal-overlay" id="modalLugares">
+<div class="modal">
+<h3>⭐ Mis lugares</h3>
+<ul class="lista-lugares" id="listaLugares"></ul>
+<div class="botones">
+<button class="btn-cancelar" onclick="cerrarModalLugares()">Cerrar</button>
+<button class="btn-ok" id="btnAgregarDesdeLista">➕ Agregar</button>
+</div>
+</div>
+</div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js"></script>
+<script>
+// TEMA
+const TEMA_KEY='salta_tema';
+function aplicarTema(t){document.documentElement.setAttribute('data-theme',t);document.getElementById('btnTema').textContent=t==='dark'?'☀️':'🌙';try{localStorage.setItem(TEMA_KEY,t)}catch(e){}}
+(function initTema(){let t=null;try{t=localStorage.getItem(TEMA_KEY)}catch(e){}
+if(!t){const h=new Date().getHours();t=(h>=20||h<7)?'dark':'light'}
+aplicarTema(t)})();
+document.getElementById('btnTema').addEventListener('click',()=>{
+const actual=document.documentElement.getAttribute('data-theme');
+aplicarTema(actual==='dark'?'light':'dark')});
 
-    <script>
-        // ============================================
-        // MAPA CON ROTACIÓN
-        // ============================================
-        const CENTRO_SALTA = [-24.789, -65.411];
-        const map = L.map('map', {
-            rotate: true, rotateControl: false, bearing: 0,
-            touchRotate: false, shiftKeyRotate: false, compassBearing: false
-        }).setView(CENTRO_SALTA, 14);
-        const capaBase = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19, attribution: '© OpenStreetMap'
-        });
-        capaBase.addTo(map);
-        let modoOscuro = false;
+// MAPA
+const CENTRO_SALTA=[-24.789,-65.411];
+const map=L.map('map',{rotate:true,rotateControl:false,bearing:0,touchRotate:false,shiftKeyRotate:false,compassBearing:false}).setView(CENTRO_SALTA,14);
+const capaBase=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'});
+capaBase.addTo(map);
 
-        // ============================================
-        // UTILIDADES
-        // ============================================
-        function normalizar(texto) {
-            if (!texto) return '';
-            return texto.toLowerCase().normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
-                .replace(/\b(avenida|av\.?|calle|pasaje|pje\.?|ruta|rn|rp)\b/g, '')
-                .replace(/[.,]/g, '').replace(/\s+/g, ' ').trim();
-        }
-        function haversine(lat1, lng1, lat2, lng2) {
-            const R = 6371000;
-            const toRad = (deg) => deg * Math.PI / 180;
-            const dLat = toRad(lat2 - lat1);
-            const dLng = toRad(lng2 - lng1);
-            const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        }
-        function formatearDistancia(m) {
-            if (m < 1000) return `${Math.round(m)} m`;
-            return `${(m / 1000).toFixed(2)} km`;
-        }
-        function formatearTiempo(s) {
-            const min = Math.round(s / 60);
-            if (min < 60) return `${min} min`;
-            const h = Math.floor(min / 60);
-            return `${h}h ${min % 60}m`;
-        }
-        function mostrarNotificacion(texto, tipo = 'info', duracion = 3000) {
-            const notif = document.getElementById('notificacion');
-            notif.textContent = texto;
-            notif.className = 'notificacion activo ' + (tipo === 'aviso' ? 'aviso' : tipo === 'exito' ? 'exito' : '');
-            clearTimeout(notif._timeout);
-            notif._timeout = setTimeout(() => { notif.classList.remove('activo'); }, duracion);
-        }
+// UTIL
+function normalizar(t){if(!t)return'';return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\b(avenida|av\.?|calle|pasaje|pje\.?|ruta|rn|rp)\b/g,'').replace(/[.,]/g,'').replace(/\s+/g,' ').trim()}
+function haversine(lat1,lng1,lat2,lng2){const R=6371000,toRad=d=>d*Math.PI/180,dLat=toRad(lat2-lat1),dLng=toRad(lng2-lng1),a=Math.sin(dLat/2)**2+Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
+function formatearDistancia(m){if(m<1000)return`${Math.round(m)} m`;return`${(m/1000).toFixed(2)} km`}
+function formatearTiempo(s){const min=Math.round(s/60);if(min<60)return`${min} min`;const h=Math.floor(min/60);return`${h}h ${min%60}m`}
+function mostrarNotificacion(t,tipo='info',dur=3000){const n=document.getElementById('notificacion');n.textContent=t;n.className='notificacion activo '+(tipo==='aviso'?'aviso':tipo==='exito'?'exito':'');clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove('activo'),dur)}
 
-        // ============================================
-        // UBICACIÓN + BRÚJULA
-        // ============================================
-        let posicionUsuario = null, headingUsuario = null, posicionAnterior = null, timestampAnterior = null;
-        let ultimaVelocidad = 0, marcadorUsuario = null, primerUbicacion = false, usarBrujulaDispositivo = false;
-        let rotacionAutomatica = false;
-        const iconoUsuario = L.divIcon({
-            className: 'punto-usuario',
-            html: '<div class="flecha" id="flechaUsuario" style="transform: translateX(-50%) rotate(0deg); display:none;"></div><div class="circulo"></div>',
-            iconSize: [22, 22], iconAnchor: [11, 11]
-        });
-        function actualizarFlecha() {
-            const flecha = document.getElementById('flechaUsuario');
-            if (!flecha) return;
-            flecha.style.transform = `translateX(-50%) rotate(${headingUsuario || 0}deg)`;
-            flecha.style.display = headingUsuario != null ? 'block' : 'none';
-        }
-        function manejarPosicion(pos) {
-            const lat = pos.coords.latitude, lng = pos.coords.longitude, ahora = Date.now();
-            if (pos.coords.speed != null && pos.coords.speed >= 0) ultimaVelocidad = pos.coords.speed * 3.6;
-            if (posicionAnterior && timestampAnterior) {
-                const dist = haversine(posicionAnterior[0], posicionAnterior[1], lat, lng);
-                if (dist > 3 && !usarBrujulaDispositivo) headingUsuario = calcularRumbo(posicionAnterior[0], posicionAnterior[1], lat, lng);
-            }
-            posicionAnterior = [lat, lng]; timestampAnterior = ahora; posicionUsuario = [lat, lng];
-            if (marcadorUsuario) marcadorUsuario.setLatLng([lat, lng]);
-            else marcadorUsuario = L.marker([lat, lng], { icon: iconoUsuario, zIndexOffset: 1000 }).addTo(map);
-            actualizarFlecha();
-            if (!primerUbicacion) { map.setView([lat, lng], 16); primerUbicacion = true; document.getElementById('aviso').style.display = 'none'; }
-            actualizarVelocimetro(); verificarRecalculo(); actualizarProgresoRuta();
-        }
-        function calcularRumbo(lat1, lng1, lat2, lng2) {
-            const toRad = (d) => d * Math.PI / 180, toDeg = (r) => r * 180 / Math.PI;
-            const dLng = toRad(lng2 - lng1);
-            const y = Math.sin(dLng) * Math.cos(toRad(lat2));
-            const x = Math.cos(toRad(lat1)) * Math.sin(toRad(lat2)) - Math.sin(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.cos(dLng);
-            return (toDeg(Math.atan2(y, x)) + 360) % 360;
-        }
-        function errorUbicacion(err) {
-            console.warn('Error GPS:', err.message);
-            document.getElementById('aviso').textContent = 'No se pudo obtener tu ubicación.';
-        }
-        if ('geolocation' in navigator) {
-            navigator.geolocation.watchPosition(manejarPosicion, errorUbicacion, { enableHighAccuracy: true, timeout: 15000, maximumAge: 2000 });
-        }
-        function manejarOrientacion(event) {
-            let heading = null;
-            if (event.webkitCompassHeading != null) heading = event.webkitCompassHeading;
-            else if (event.alpha != null) heading = 360 - event.alpha;
-            if (heading != null && !isNaN(heading)) {
-                headingUsuario = heading;
-                usarBrujulaDispositivo = true;
-                actualizarFlecha();
-                if (rotacionAutomatica && map.setBearing) {
-                    try {
-                        const actual = map.getBearing();
-                        const target = -heading;
-                        const diff = ((target - actual + 540) % 360) - 180;
-                        map.setBearing(actual + diff * 0.15);
-                    } catch (e) {}
-                }
-            }
-        }
-        function activarBrujula() {
-            if (typeof DeviceOrientationEvent !== 'undefined') {
-                if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-                    DeviceOrientationEvent.requestPermission().then((p) => {
-                        if (p === 'granted') window.addEventListener('deviceorientation', manejarOrientacion, true);
-                    }).catch(() => {});
-                } else {
-                    window.addEventListener('deviceorientationabsolute', manejarOrientacion, true);
-                    window.addEventListener('deviceorientation', manejarOrientacion, true);
-                }
-            }
-        }
-        document.addEventListener('touchstart', activarBrujula, { once: true });
-        document.addEventListener('click', activarBrujula, { once: true });
+// UBICACION + PRECISION
+let posicionUsuario=null,headingUsuario=null,posicionAnterior=null,timestampAnterior=null;
+let ultimaVelocidad=0,marcadorUsuario=null,circuloPrecision=null,primerUbicacion=false,usarBrujulaDispositivo=false;
+let rotacionAutomatica=false,precisionActual=null;
+const iconoUsuario=L.divIcon({className:'punto-usuario',html:'<div class="flecha" id="flechaUsuario" style="transform:translateX(-50%) rotate(0deg);display:none;"></div><div class="circulo"></div>',iconSize:[22,22],iconAnchor:[11,11]});
+function actualizarFlecha(){const f=document.getElementById('flechaUsuario');if(!f)return;f.style.transform=`translateX(-50%) rotate(${headingUsuario||0}deg)`;f.style.display=headingUsuario!=null?'block':'none'}
+function actualizarCalidadGps(acc){const el=document.getElementById('calidadGps'),txt=document.getElementById('calidadTexto');el.classList.remove('excelente','buena','regular','mala');let cal,label;
+if(acc<10){cal='excelente';label=`Excelente (±${Math.round(acc)} m)`}
+else if(acc<30){cal='buena';label=`Buena (±${Math.round(acc)} m)`}
+else if(acc<100){cal='regular';label=`Regular (±${Math.round(acc)} m)`}
+else{cal='mala';label=`Mala (±${Math.round(acc)} m)`}
+el.classList.add(cal,'activo');txt.textContent=label}
+function manejarPosicion(pos){const lat=pos.coords.latitude,lng=pos.coords.longitude,ahora=Date.now(),acc=pos.coords.accuracy;
+if(acc>100&&posicionUsuario)return;
+precisionActual=acc;
+if(pos.coords.speed!=null&&pos.coords.speed>=0)ultimaVelocidad=pos.coords.speed*3.6;
+if(posicionAnterior&&timestampAnterior){const dist=haversine(posicionAnterior[0],posicionAnterior[1],lat,lng);if(dist>3&&!usarBrujulaDispositivo)headingUsuario=calcularRumbo(posicionAnterior[0],posicionAnterior[1],lat,lng)}
+posicionAnterior=[lat,lng];timestampAnterior=ahora;posicionUsuario=[lat,lng];
+if(marcadorUsuario)marcadorUsuario.setLatLng([lat,lng]);else marcadorUsuario=L.marker([lat,lng],{icon:iconoUsuario,zIndexOffset:1000}).addTo(map);
+if(circuloPrecision)map.removeLayer(circuloPrecision);
+circuloPrecision=L.circle([lat,lng],{radius:acc,className:'circulo-precision',interactive:false,zIndexOffset:-1}).addTo(map);
+actualizarFlecha();
+if(!primerUbicacion){map.setView([lat,lng],16);primerUbicacion=true;document.getElementById('aviso').style.display='none'}
+actualizarVelocimetro();actualizarCalidadGps(acc);verificarRecalculo();actualizarProgresoRuta()}
+function calcularRumbo(lat1,lng1,lat2,lng2){const toRad=d=>d*Math.PI/180,toDeg=r=>r*180/Math.PI,dLng=toRad(lng2-lng1),y=Math.sin(dLng)*Math.cos(toRad(lat2)),x=Math.cos(toRad(lat1))*Math.sin(toRad(lat2))-Math.sin(toRad(lat1))*Math.cos(toRad(lat2))*Math.cos(dLng);return(toDeg(Math.atan2(y,x))+360)%360}
+function errorUbicacion(err){console.warn('Error GPS:',err.message);document.getElementById('aviso').textContent='No se pudo obtener tu ubicación.'}
+if('geolocation'in navigator){navigator.geolocation.watchPosition(manejarPosicion,errorUbicacion,{enableHighAccuracy:true,timeout:15000,maximumAge:0})}
+function manejarOrientacion(e){let h=null;if(e.webkitCompassHeading!=null)h=e.webkitCompassHeading;else if(e.alpha!=null)h=360-e.alpha;
+if(h!=null&&!isNaN(h)){headingUsuario=h;usarBrujulaDispositivo=true;actualizarFlecha();
+if(rotacionAutomatica&&map.setBearing){try{const a=map.getBearing(),t=-h,diff=((t-a+540)%360)-180;map.setBearing(a+diff*.15)}catch(e){}}}}
+function activarBrujula(){if(typeof DeviceOrientationEvent!=='undefined'){if(typeof DeviceOrientationEvent.requestPermission==='function'){DeviceOrientationEvent.requestPermission().then(p=>{if(p==='granted')window.addEventListener('deviceorientation',manejarOrientacion,true)}).catch(()=>{})}else{window.addEventListener('deviceorientationabsolute',manejarOrientacion,true);window.addEventListener('deviceorientation',manejarOrientacion,true)}}}
+document.addEventListener('touchstart',activarBrujula,{once:true});
+document.addEventListener('click',activarBrujula,{once:true});
+document.getElementById('btnRotarMapa').addEventListener('click',e=>{rotacionAutomatica=!rotacionAutomatica;
+if(rotacionAutomatica){e.target.classList.add('activo');activarBrujula();mostrarNotificacion('🧭 Mapa rotando con el celular','exito',2500)}
+else{e.target.classList.remove('activo');if(map.setBearing)map.setBearing(0);mostrarNotificacion('🧭 Norte arriba','info',2000)}});
+function actualizarVelocimetro(){const v=document.getElementById('velocimetro'),n=document.getElementById('velocidadNum');if(ultimaVelocidad>2){v.classList.add('activo');n.textContent=ultimaVelocidad.toFixed(0)}else v.classList.remove('activo')}
 
-        document.getElementById('btnRotarMapa').addEventListener('click', (e) => {
-            rotacionAutomatica = !rotacionAutomatica;
-            if (rotacionAutomatica) {
-                e.target.classList.add('activo');
-                activarBrujula();
-                mostrarNotificacion('🧭 Mapa rotando con tu celular', 'exito', 2500);
-            } else {
-                e.target.classList.remove('activo');
-                if (map.setBearing) map.setBearing(0);
-                mostrarNotificacion('🧭 Norte arriba', 'info', 2000);
-            }
-        });
+// CALLES
+let callesIndex=[],direccionesIndex=[],marcadorCalle=null,trazoCalle=null,ultimaBusqueda=null,destinoActual=null;
+async function cargarCalles(){try{const r=await fetch('data/calles.geojson'),d=await r.json();
+d.features.forEach(f=>{const n=f.properties.name;if(!n)return;let lat,lng,c;
+if(f.geometry&&f.geometry.type==='LineString'){c=f.geometry.coordinates;const m=c[Math.floor(c.length/2)];lng=m[0];lat=m[1]}
+else if(f.geometry&&f.geometry.type==='Polygon'){c=f.geometry.coordinates[0];const m=c[Math.floor(c.length/2)];lng=m[0];lat=m[1]}
+else return;
+callesIndex.push({nombre:normalizar(n),nombreOriginal:n,lat,lng,coordenadas:c.map(p=>[p[1],p[0]])})});
+const ag={};callesIndex.forEach(c=>{if(!ag[c.nombre])ag[c.nombre]={nombre:c.nombre,nombreOriginal:c.nombreOriginal,lat:c.lat,lng:c.lng,tramos:[c.coordenadas]};else ag[c.nombre].tramos.push(c.coordenadas)});
+callesIndex=Object.values(ag);console.log(`✅ ${callesIndex.length} calles cargadas`)}catch(e){console.error('Error calles:',e)}}
+async function cargarDirecciones(){try{const r=await fetch('data/direcciones.geojson');if(!r.ok)return;const d=await r.json();
+d.features.forEach(f=>{const p=f.properties,c=p['addr:street'],ns=p['addr:housenumber'];if(!c||!ns)return;const num=parseInt(ns);if(isNaN(num))return;
+let lat,lng,exacto=false;
+if(f.geometry.type==='Point'){lng=f.geometry.coordinates[0];lat=f.geometry.coordinates[1];exacto=true}
+else if(f.geometry.type==='LineString'){const co=f.geometry.coordinates;const m=co[Math.floor(co.length/2)];lng=m[0];lat=m[1]}
+else return;
+direccionesIndex.push({calle:normalizar(c),calleOriginal:c,numero:num,lat,lng,exacto,interpolacion:p['addr:interpolation']||null})});
+console.log(`✅ ${direccionesIndex.length} direcciones`)}catch(e){}}
+let mapaLineasPorNodo={},lineasPorCoordenada=[];
+async function cargarRutasSaeta(){try{const r=await fetch('data/rutas_saeta.json');if(!r.ok)return;const d=await r.json();if(!d.elements)return;
+const rels=d.elements.filter(e=>e.type==='relation'),nodos={};
+d.elements.filter(e=>e.type==='node').forEach(n=>{nodos[n.id]=n});
+let cnt=0;
+rels.forEach(rel=>{const ref=(rel.tags&&(rel.tags.ref||rel.tags.name))||null;if(!ref)return;cnt++;
+(rel.members||[]).forEach(m=>{if(m.type==='node'){const nodo=nodos[m.ref];if(!nodo)return;if(!mapaLineasPorNodo[nodo.id])mapaLineasPorNodo[nodo.id]={refs:new Set(),lat:nodo.lat,lng:nodo.lon};mapaLineasPorNodo[nodo.id].refs.add(ref)}})});
+Object.values(mapaLineasPorNodo).forEach(i=>lineasPorCoordenada.push({lat:i.lat,lng:i.lng,refs:Array.from(i.refs).sort()}));
+console.log(`✅ ${cnt} rutas SAETA`)}catch(e){}}
+function buscarLineasParaParada(lat,lng){if(lineasPorCoordenada.length===0)return[];let me=null,md=Infinity;
+for(const p of lineasPorCoordenada){const d=haversine(lat,lng,p.lat,p.lng);if(d<md){md=d;me=p}}
+if(me&&md<50)return me.refs;return[]}
+function buscarCalle(t){const n=normalizar(t);if(n.length<2)return[];return callesIndex.filter(c=>c.nombre.includes(n)).slice(0,10)}
+function buscarCalleExacta(n){const k=normalizar(n);let e=callesIndex.find(c=>c.nombre===k);if(e)return e;
+const c=callesIndex.filter(x=>x.nombre.includes(k)||k.includes(x.nombre)).sort((a,b)=>Math.abs(a.nombre.length-k.length)-Math.abs(b.nombre.length-k.length));return c[0]||null}
+function buscarDireccion(calle,num){const c=normalizar(calle);const cand=direccionesIndex.filter(d=>d.calle===c||d.calle.includes(c)||c.includes(d.calle));if(!cand.length)return null;
+let me=null,md=Infinity;for(const d of cand){const dist=Math.abs(d.numero-num);if(dist<md){md=dist;me=d}}return me}
+function parsearQuery(q){q=q.trim();const m1=q.match(/^(.+?)\s+y\s+(.+?)(?:\s+(\d+))?$/i);
+if(m1)return{tipo:'esquina',calle1:m1[1].trim(),calle2:m1[2].trim(),numero:m1[3]?parseInt(m1[3]):null};
+const m2=q.match(/^(.+?)\s+(\d+)$/);if(m2)return{tipo:'direccion',calle:m2[1].trim(),numero:parseInt(m2[2])};
+return{tipo:'calle',calle:q}}
+function interseccionSegmentos(p1,p2,p3,p4){const x1=p1[1],y1=p1[0],x2=p2[1],y2=p2[0],x3=p3[1],y3=p3[0],x4=p4[1],y4=p4[0];
+const d=(y4-y3)*(x2-x1)-(x4-x3)*(y2-y1);if(Math.abs(d)<1e-12)return null;
+const ua=((x4-x3)*(y1-y3)-(y4-y3)*(x1-x3))/d,ub=((x2-x1)*(y1-y3)-(y2-y1)*(x1-x3))/d;
+if(ua<0||ua>1||ub<0||ub>1)return null;return[y1+ua*(y2-y1),x1+ua*(x2-x1)]}
+function obtenerBBox(tr){let mnLa=Infinity,mxLa=-Infinity,mnLn=Infinity,mxLn=-Infinity;
+for(const t of tr)for(const[la,ln]of t){if(la<mnLa)mnLa=la;if(la>mxLa)mxLa=la;if(ln<mnLn)mnLn=ln;if(ln>mxLn)mxLn=ln}
+return{minLat:mnLa,maxLat:mxLa,minLng:mnLn,maxLng:mxLn}}
+function segmentoEnBBox(p1,p2,b){const mnLa=Math.min(p1[0],p2[0]),mxLa=Math.max(p1[0],p2[0]),mnLn=Math.min(p1[1],p2[1]),mxLn=Math.max(p1[1],p2[1]);
+return!(mxLa<b.minLat||mnLa>b.maxLat||mxLn<b.minLng||mnLn>b.maxLng)}
+function calcularIntersecciones(cA,cB){const res=[],bb=obtenerBBox(cB.tramos);
+for(const tA of cA.tramos)for(let i=0;i<tA.length-1;i++){const p1=tA[i],p2=tA[i+1];if(!segmentoEnBBox(p1,p2,bb))continue;
+for(const tB of cB.tramos)for(let j=0;j<tB.length-1;j++){const it=interseccionSegmentos(p1,p2,tB[j],tB[j+1]);if(it)res.push(it)}}
+return res}
+function limpiarBusqueda(){if(marcadorCalle){map.removeLayer(marcadorCalle);marcadorCalle=null}if(trazoCalle){map.removeLayer(trazoCalle);trazoCalle=null}}
+function mostrarBotonIr(lat,lng,nombre){destinoActual={lat,lng,nombre};document.getElementById('btnIr').style.display='flex';document.getElementById('btnCompartir').style.display='flex'}
+function mostrarCalle(c){limpiarBusqueda();const l=c.tramos.map(t=>L.polyline(t,{color:'#ef4444',weight:6,opacity:.85,lineCap:'round',lineJoin:'round'}));
+trazoCalle=L.layerGroup(l).addTo(map);
+marcadorCalle=L.marker([c.lat,c.lng],{icon:L.divIcon({className:'punto-calle',iconSize:[14,14]})}).addTo(map).bindPopup(`<strong>${c.nombreOriginal}</strong>`);
+map.fitBounds(L.featureGroup(l).getBounds(),{padding:[50,50]});
+ultimaBusqueda={texto:c.nombreOriginal,lat:c.lat,lng:c.lng};mostrarBotonIr(c.lat,c.lng,c.nombreOriginal)}
+function mostrarDireccion(c,d){limpiarBusqueda();const l=c.tramos.map(t=>L.polyline(t,{color:'#ef4444',weight:4,opacity:.6,lineCap:'round',lineJoin:'round'}));
+trazoCalle=L.layerGroup(l).addTo(map);
+marcadorCalle=L.marker([d.lat,d.lng],{icon:L.divIcon({className:'punto-direccion',iconSize:[26,26],iconAnchor:[13,26]}),zIndexOffset:2000}).addTo(map).bindPopup(`<strong>📍 ${d.calleOriginal} ${d.numero}</strong><br><small>Numeración ${d.exacto?'exacta':'aproximada'}</small>`).openPopup();
+map.setView([d.lat,d.lng],18);
+ultimaBusqueda={texto:`${d.calleOriginal} ${d.numero}`,lat:d.lat,lng:d.lng};mostrarBotonIr(d.lat,d.lng,`${d.calleOriginal} ${d.numero}`)}
+function mostrarInterseccion(cA,cB,num,dc){limpiarBusqueda();
+const lA=cA.tramos.map(t=>L.polyline(t,{color:'#ef4444',weight:6,opacity:.85,lineCap:'round',lineJoin:'round'}));
+const lB=cB.tramos.map(t=>L.polyline(t,{color:'#3b82f6',weight:6,opacity:.85,lineCap:'round',lineJoin:'round'}));
+trazoCalle=L.layerGroup([...lA,...lB]).addTo(map);
+const inter=calcularIntersecciones(cA,cB);
+if(!inter.length){alert(`No se encontró esquina entre "${cA.nombreOriginal}" y "${cB.nombreOriginal}"`);map.fitBounds(L.featureGroup([...lA,...lB]).getBounds(),{padding:[50,50]});return}
+const uni=[];for(const i of inter)if(!uni.some(u=>Math.abs(u[0]-i[0])<.0002&&Math.abs(u[1]-i[1])<.0002))uni.push(i);
+const marcs=uni.map(([la,ln])=>L.marker([la,ln],{icon:L.divIcon({className:'punto-esquina',iconSize:[22,22]}),zIndexOffset:2000}).bindPopup(`<strong>📍 Esquina</strong><br>${cA.nombreOriginal} y ${cB.nombreOriginal}`));
+marcadorCalle=L.layerGroup(marcs).addTo(map);
+if(dc)L.marker([dc.lat,dc.lng],{icon:L.divIcon({className:'punto-direccion',iconSize:[26,26],iconAnchor:[13,26]}),zIndexOffset:2500}).addTo(map).bindPopup(`<strong>🏠 ${dc.calleOriginal} ${dc.numero}</strong>`).openPopup();
+map.setView(uni[0],17);
+ultimaBusqueda={texto:`${cA.nombreOriginal} y ${cB.nombreOriginal}`,lat:uni[0][0],lng:uni[0][1]};
+mostrarBotonIr(uni[0][0],uni[0][1],`${cA.nombreOriginal} y ${cB.nombreOriginal}`)}
 
-        function actualizarVelocimetro() {
-            const vel = document.getElementById('velocimetro'), num = document.getElementById('velocidadNum');
-            if (ultimaVelocidad > 2) { vel.classList.add('activo'); num.textContent = ultimaVelocidad.toFixed(0); }
-            else vel.classList.remove('activo');
-        }
+// BUSCADOR
+const HIST_KEY='salta_historial_busquedas';
+const input=document.getElementById('inputBusqueda');
+const sugerencias=document.getElementById('sugerencias');
+const btnLimpiar=document.getElementById('btnLimpiar');
+const btnVoz=document.getElementById('btnVoz');
+function cargarHistorial(){try{return JSON.parse(localStorage.getItem(HIST_KEY)||'[]')}catch(e){return[]}}
+function guardarEnHistorial(texto,tipo,lat,lng,nombre){let h=cargarHistorial();h=h.filter(x=>x.texto!==texto);
+h.unshift({texto,tipo,lat,lng,nombreOriginal:nombre||texto,fecha:Date.now()});h=h.slice(0,8);
+try{localStorage.setItem(HIST_KEY,JSON.stringify(h))}catch(e){}}
+function borrarHistorial(){try{localStorage.removeItem(HIST_KEY)}catch(e){};mostrarSugerenciasIniciales()}
+const CHIPS=[{e:'🏥',t:'Hospital',c:'hospital'},{e:'💊',t:'Farmacia',c:'pharmacy'},{e:'🚓',t:'Comisaría',c:'police'},{e:'⛽',t:'Nafta',c:'fuel'},{e:'🚌',t:'Parada SAETA',c:'bus_stop'},{e:'🏦',t:'Banco',c:'bank'},{e:'🍽️',t:'Restaurante',c:'restaurant'},{e:'🛒',t:'Super',c:'supermarket'}];
+function mostrarSugerenciasIniciales(){const h=[];
+h.push('<div class="sug-titulo">⚡ Búsquedas rápidas</div><div class="sug-chips">');
+CHIPS.forEach(c=>h.push(`<button class="sug-chip" data-cat="${c.c}">${c.e} ${c.t}</button>`));
+h.push('</div>');
+const hist=cargarHistorial();
+if(hist.length){h.push('<div class="sug-titulo" style="display:flex;justify-content:space-between;align-items:center;">🕐 Recientes <button onclick="borrarHistorial()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:11px;padding:0;text-transform:none;letter-spacing:0;font-weight:700;">Borrar</button></div>');
+hist.forEach(x=>{const e=x.tipo==='esquina'?'🚦':x.tipo==='direccion'?'🏠':'🛣️';
+h.push(`<div class="sug-item historial" data-hidx="${hist.indexOf(x)}"><div class="sug-emoji">${e}</div><div class="sug-texto"><strong>${x.nombreOriginal}</strong><small>${new Date(x.fecha).toLocaleDateString('es-AR')}</small></div></div>`)})}
+sugerencias.innerHTML=h.join('');sugerencias.classList.add('activo');
+sugerencias.querySelectorAll('.sug-chip').forEach(b=>b.addEventListener('click',()=>activarCategoria(b.dataset.cat)));
+sugerencias.querySelectorAll('.sug-item.historial').forEach(it=>it.addEventListener('click',()=>{const i=parseInt(it.dataset.hidx),x=cargarHistorial()[i];if(!x)return;
+if(x.tipo==='calle'){const c=buscarCalleExacta(x.texto);if(c)mostrarCalle(c)}
+else if(x.tipo==='direccion'&&x.lat&&x.lng){map.setView([x.lat,x.lng],18);L.marker([x.lat,x.lng],{icon:L.divIcon({className:'punto-direccion',iconSize:[26,26],iconAnchor:[13,26]})}).addTo(map).bindPopup(`<strong>📍 ${x.nombreOriginal}</strong>`).openPopup()}
+else if(x.tipo==='esquina'&&x.lat&&x.lng)map.setView([x.lat,x.lng],17);
+ocultarSugerencias();input.value=x.texto}))}
+function activarCategoria(cat){if(capas[cat]&&!capasActivas[cat]){map.addLayer(capas[cat]);capasActivas[cat]=true;document.getElementById('btn-'+cat)?.classList.add('activo');actualizarBadgeFiltros()}
+if(capas[cat]){try{const b=capas[cat].getBounds?capas[cat].getBounds():L.featureGroup(capas[cat].getLayers()).getBounds();map.fitBounds(b,{padding:[50,50]})}catch(e){}}
+ocultarSugerencias();input.value=(NOMBRES[cat]||cat);mostrarNotificacion(`✅ Mostrando ${NOMBRES[cat]||cat}`,'exito',2000)}
+function ocultarSugerencias(){sugerencias.classList.remove('activo')}
+function renderizarSugerencias(q){const p=parsearQuery(q),h=[];
+if(p.tipo==='esquina')h.push(`<div class="sug-item esquina" data-tipo="esquina"><div class="sug-emoji">🚦</div><div class="sug-texto"><strong>Buscar esquina</strong><small>${p.calle1} y ${p.calle2}${p.numero?' (altura '+p.numero+')':''}</small></div></div>`);
+else if(p.tipo==='direccion'){const c=buscarCalleExacta(p.calle);if(c){const d=buscarDireccion(p.calle,p.numero),prec=d?(d.exacto?'Numeración exacta':'Numeración aproximada'):'Número no encontrado';
+h.push(`<div class="sug-item direccion" data-tipo="direccion"><div class="sug-emoji">🏠</div><div class="sug-texto"><strong>${c.nombreOriginal} ${p.numero}</strong><small>${prec}</small></div></div>`)}}else{
+const res=buscarCalle(q);res.forEach(c=>h.push(`<div class="sug-item" data-tipo="calle" data-nombre="${c.nombre}"><div class="sug-emoji">🛣️</div><div class="sug-texto"><strong>${c.nombreOriginal}</strong><small>Calle</small></div></div>`));
+if(!res.length&&q.length>=2)h.push(`<div class="sug-item"><div class="sug-emoji">😕</div><div class="sug-texto"><strong>Sin resultados</strong><small>Probá con otro nombre</small></div></div>`)}
+if(!h.length){sugerencias.classList.remove('activo');return}
+sugerencias.innerHTML=h.join('');sugerencias.classList.add('activo');
+sugerencias.querySelectorAll('.sug-item[data-tipo]').forEach(it=>it.addEventListener('click',()=>{const t=it.dataset.tipo;
+if(t==='esquina'){const cA=buscarCalleExacta(p.calle1),cB=buscarCalleExacta(p.calle2);
+if(!cA){alert(`No se encontró "${p.calle1}"`);return}if(!cB){alert(`No se encontró "${p.calle2}"`);return}
+let dc=null;if(p.numero)dc=buscarDireccion(p.calle1,p.numero)||buscarDireccion(p.calle2,p.numero);
+mostrarInterseccion(cA,cB,p.numero,dc);const txt=`${cA.nombreOriginal} y ${cB.nombreOriginal}${p.numero?' '+p.numero:''}`;
+const la=ultimaBusqueda?[ultimaBusqueda.lat,ultimaBusqueda.lng]:[0,0];
+guardarEnHistorial(txt,'esquina',la[0],la[1],txt);input.value=txt;ocultarSugerencias();input.blur()}
+else if(t==='direccion'){const c=buscarCalleExacta(p.calle),d=buscarDireccion(p.calle,p.numero);
+if(d){mostrarDireccion(c,d);const txt=`${c.nombreOriginal} ${p.numero}`;guardarEnHistorial(txt,'direccion',d.lat,d.lng,txt);input.value=txt}
+else{mostrarCalle(c);guardarEnHistorial(c.nombreOriginal,'calle',c.lat,c.lng,c.nombreOriginal);input.value=c.nombreOriginal}
+ocultarSugerencias();input.blur()}
+else if(t==='calle'){const c=callesIndex.find(x=>x.nombre===it.dataset.nombre);
+if(c){mostrarCalle(c);guardarEnHistorial(c.nombreOriginal,'calle',c.lat,c.lng,c.nombreOriginal);input.value=c.nombreOriginal;ocultarSugerencias();input.blur()}}}))}
+input.addEventListener('focus',()=>{if(input.value.trim().length<2)mostrarSugerenciasIniciales();else renderizarSugerencias(input.value)});
+input.addEventListener('input',e=>{const q=e.target.value.trim();btnLimpiar.style.display=q.length>0?'flex':'none';
+if(q.length<2)mostrarSugerenciasIniciales();else renderizarSugerencias(q)});
+input.addEventListener('keydown',e=>{if(e.key==='Enter'){const p=sugerencias.querySelector('.sug-item[data-tipo]');if(p)p.click()}});
+btnLimpiar.addEventListener('click',()=>{input.value='';btnLimpiar.style.display='none';input.focus();mostrarSugerenciasIniciales()});
+document.addEventListener('click',e=>{if(!e.target.closest('.buscador'))ocultarSugerencias()});
+btnVoz.addEventListener('click',()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR){alert('Tu navegador no soporta búsqueda por voz.');return}
+const r=new SR();r.lang='es-AR';r.interimResults=false;r.maxAlternatives=1;
+r.onstart=()=>{btnVoz.classList.add('grabando');mostrarNotificacion('🎤 Escuchando...','info',5000)};
+r.onend=()=>btnVoz.classList.remove('grabando');
+r.onerror=e=>{btnVoz.classList.remove('grabando');mostrarNotificacion('⚠️ Error: '+e.error,'aviso',3000)};
+r.onresult=e=>{const t=e.results[0][0].transcript;input.value=t;btnLimpiar.style.display='flex';renderizarSugerencias(t);mostrarNotificacion(`🎤 "${t}"`,'exito',2000)};
+try{r.start()}catch(e){}});
 
-        // ============================================
-        // CALLES Y DIRECCIONES
-        // ============================================
-        let callesIndex = [], direccionesIndex = [], marcadorCalle = null, trazoCalle = null, ultimaBusqueda = null, destinoActual = null;
-        async function cargarCalles() {
-            try {
-                const resp = await fetch('data/calles.geojson');
-                const data = await resp.json();
-                data.features.forEach(f => {
-                    const nombre = f.properties.name;
-                    if (!nombre) return;
-                    let lat, lng, coordenadas;
-                    if (f.geometry && f.geometry.type === 'LineString') {
-                        coordenadas = f.geometry.coordinates;
-                        const medio = coordenadas[Math.floor(coordenadas.length / 2)];
-                        lng = medio[0]; lat = medio[1];
-                    } else if (f.geometry && f.geometry.type === 'Polygon') {
-                        coordenadas = f.geometry.coordinates[0];
-                        const medio = coordenadas[Math.floor(coordenadas.length / 2)];
-                        lng = medio[0]; lat = medio[1];
-                    } else return;
-                    callesIndex.push({ nombre: normalizar(nombre), nombreOriginal: nombre, lat, lng, coordenadas: coordenadas.map(c => [c[1], c[0]]) });
-                });
-                const agrupadas = {};
-                callesIndex.forEach(c => {
-                    if (!agrupadas[c.nombre]) agrupadas[c.nombre] = { nombre: c.nombre, nombreOriginal: c.nombreOriginal, lat: c.lat, lng: c.lng, tramos: [c.coordenadas] };
-                    else agrupadas[c.nombre].tramos.push(c.coordenadas);
-                });
-                callesIndex = Object.values(agrupadas);
-                console.log(`✅ ${callesIndex.length} calles cargadas`);
-            } catch (e) { console.error('Error calles:', e); }
-        }
-        async function cargarDirecciones() {
-            try {
-                const resp = await fetch('data/direcciones.geojson');
-                if (!resp.ok) return;
-                const data = await resp.json();
-                data.features.forEach(f => {
-                    const props = f.properties;
-                    const calle = props['addr:street'], numeroStr = props['addr:housenumber'];
-                    if (!calle || !numeroStr) return;
-                    const numero = parseInt(numeroStr);
-                    if (isNaN(numero)) return;
-                    let lat, lng, exacto = false;
-                    if (f.geometry.type === 'Point') { lng = f.geometry.coordinates[0]; lat = f.geometry.coordinates[1]; exacto = true; }
-                    else if (f.geometry.type === 'LineString') {
-                        const coords = f.geometry.coordinates;
-                        const medio = coords[Math.floor(coords.length / 2)];
-                        lng = medio[0]; lat = medio[1];
-                    } else return;
-                    direccionesIndex.push({ calle: normalizar(calle), calleOriginal: calle, numero, lat, lng, exacto, interpolacion: props['addr:interpolation'] || null });
-                });
-                console.log(`✅ ${direccionesIndex.length} direcciones cargadas`);
-            } catch (e) { console.error('Error direcciones:', e); }
-        }
-        let mapaLineasPorNodo = {}, lineasPorCoordenada = [];
-        async function cargarRutasSaeta() {
-            try {
-                const resp = await fetch('data/rutas_saeta.json');
-                if (!resp.ok) return;
-                const data = await resp.json();
-                if (!data.elements) return;
-                const relaciones = data.elements.filter(e => e.type === 'relation');
-                const nodos = {};
-                data.elements.filter(e => e.type === 'node').forEach(n => { nodos[n.id] = n; });
-                let contadorRutas = 0;
-                relaciones.forEach(rel => {
-                    const ref = (rel.tags && (rel.tags.ref || rel.tags.name)) || null;
-                    if (!ref) return;
-                    contadorRutas++;
-                    (rel.members || []).forEach(m => {
-                        if (m.type === 'node') {
-                            const nodo = nodos[m.ref];
-                            if (!nodo) return;
-                            if (!mapaLineasPorNodo[nodo.id]) mapaLineasPorNodo[nodo.id] = { refs: new Set(), lat: nodo.lat, lng: nodo.lon };
-                            mapaLineasPorNodo[nodo.id].refs.add(ref);
-                        }
-                    });
-                });
-                Object.values(mapaLineasPorNodo).forEach(item => lineasPorCoordenada.push({ lat: item.lat, lng: item.lng, refs: Array.from(item.refs).sort() }));
-                console.log(`✅ ${contadorRutas} rutas SAETA cargadas`);
-            } catch (e) { console.error('Error rutas SAETA:', e); }
-        }
-        function buscarLineasParaParada(lat, lng) {
-            if (lineasPorCoordenada.length === 0) return [];
-            let mejor = null, mejorDist = Infinity;
-            for (const p of lineasPorCoordenada) {
-                const d = haversine(lat, lng, p.lat, p.lng);
-                if (d < mejorDist) { mejorDist = d; mejor = p; }
-            }
-            if (mejor && mejorDist < 50) return mejor.refs;
-            return [];
-        }
+(async()=>{await cargarCalles();await cargarDirecciones();await cargarRutasSaeta();input.placeholder='Buscá una calle, esquina o dirección...';cargarLugaresGuardados()})();
 
-        function buscarCalle(termino) {
-            const t = normalizar(termino);
-            if (t.length < 2) return [];
-            return callesIndex.filter(c => c.nombre.includes(t)).slice(0, 10);
-        }
-        function buscarCalleExacta(nombre) {
-            const n = normalizar(nombre);
-            let enc = callesIndex.find(c => c.nombre === n);
-            if (enc) return enc;
-            const cand = callesIndex.filter(c => c.nombre.includes(n) || n.includes(c.nombre)).sort((a, b) => Math.abs(a.nombre.length - n.length) - Math.abs(b.nombre.length - n.length));
-            return cand[0] || null;
-        }
-        function buscarDireccion(calle, numero) {
-            const c = normalizar(calle);
-            const cand = direccionesIndex.filter(d => d.calle === c || d.calle.includes(c) || c.includes(d.calle));
-            if (cand.length === 0) return null;
-            let mejor = null, mejorDist = Infinity;
-            for (const d of cand) {
-                const dist = Math.abs(d.numero - numero);
-                if (dist < mejorDist) { mejorDist = dist; mejor = d; }
-            }
-            return mejor;
-        }
-        function parsearQuery(query) {
-            const q = query.trim();
-            const m1 = q.match(/^(.+?)\s+y\s+(.+?)(?:\s+(\d+))?$/i);
-            if (m1) return { tipo: 'esquina', calle1: m1[1].trim(), calle2: m1[2].trim(), numero: m1[3] ? parseInt(m1[3]) : null };
-            const m2 = q.match(/^(.+?)\s+(\d+)$/);
-            if (m2) return { tipo: 'direccion', calle: m2[1].trim(), numero: parseInt(m2[2]) };
-            return { tipo: 'calle', calle: q };
-        }
-        function interseccionSegmentos(p1, p2, p3, p4) {
-            const x1 = p1[1], y1 = p1[0], x2 = p2[1], y2 = p2[0], x3 = p3[1], y3 = p3[0], x4 = p4[1], y4 = p4[0];
-            const denom = (y4 - y3) * (x2 - x1) - (x4 - x3) * (y2 - y1);
-            if (Math.abs(denom) < 1e-12) return null;
-            const ua = ((x4 - x3) * (y1 - y3) - (y4 - y3) * (x1 - x3)) / denom;
-            const ub = ((x2 - x1) * (y1 - y3) - (y2 - y1) * (x1 - x3)) / denom;
-            if (ua < 0 || ua > 1 || ub < 0 || ub > 1) return null;
-            return [y1 + ua * (y2 - y1), x1 + ua * (x2 - x1)];
-        }
-        function obtenerBBox(tramos) {
-            let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
-            for (const t of tramos) for (const [la, ln] of t) {
-                if (la < minLat) minLat = la; if (la > maxLat) maxLat = la;
-                if (ln < minLng) minLng = ln; if (ln > maxLng) maxLng = ln;
-            }
-            return { minLat, maxLat, minLng, maxLng };
-        }
-        function segmentoEnBBox(p1, p2, b) {
-            const mnLa = Math.min(p1[0], p2[0]), mxLa = Math.max(p1[0], p2[0]);
-            const mnLn = Math.min(p1[1], p2[1]), mxLn = Math.max(p1[1], p2[1]);
-            return !(mxLa < b.minLat || mnLa > b.maxLat || mxLn < b.minLng || mnLn > b.maxLng);
-        }
-        function calcularIntersecciones(cA, cB) {
-            const res = [];
-            const bboxB = obtenerBBox(cB.tramos);
-            for (const tA of cA.tramos) for (let i = 0; i < tA.length - 1; i++) {
-                const p1 = tA[i], p2 = tA[i + 1];
-                if (!segmentoEnBBox(p1, p2, bboxB)) continue;
-                for (const tB of cB.tramos) for (let j = 0; j < tB.length - 1; j++) {
-                    const inter = interseccionSegmentos(p1, p2, tB[j], tB[j + 1]);
-                    if (inter) res.push(inter);
-                }
-            }
-            return res;
-        }
-        function limpiarBusqueda() {
-            if (marcadorCalle) { map.removeLayer(marcadorCalle); marcadorCalle = null; }
-            if (trazoCalle) { map.removeLayer(trazoCalle); trazoCalle = null; }
-        }
-        function mostrarBotonIr(lat, lng, nombre) {
-            destinoActual = { lat, lng, nombre };
-            document.getElementById('btnIr').style.display = 'flex';
-            document.getElementById('btnCompartir').style.display = 'flex';
-        }
-        function mostrarCalle(calle) {
-            limpiarBusqueda();
-            const lineas = calle.tramos.map(t => L.polyline(t, { color: '#e74c3c', weight: 6, opacity: 0.85, lineCap: 'round', lineJoin: 'round' }));
-            trazoCalle = L.layerGroup(lineas).addTo(map);
-            marcadorCalle = L.marker([calle.lat, calle.lng], { icon: L.divIcon({ className: 'punto-calle', iconSize: [14, 14] }) }).addTo(map).bindPopup(`<strong>${calle.nombreOriginal}</strong>`);
-            map.fitBounds(L.featureGroup(lineas).getBounds(), { padding: [50, 50] });
-            ultimaBusqueda = { texto: calle.nombreOriginal, lat: calle.lat, lng: calle.lng };
-            mostrarBotonIr(calle.lat, calle.lng, calle.nombreOriginal);
-        }
-        function mostrarDireccion(calle, dir) {
-            limpiarBusqueda();
-            const lineas = calle.tramos.map(t => L.polyline(t, { color: '#e74c3c', weight: 4, opacity: 0.6, lineCap: 'round', lineJoin: 'round' }));
-            trazoCalle = L.layerGroup(lineas).addTo(map);
-            marcadorCalle = L.marker([dir.lat, dir.lng], { icon: L.divIcon({ className: 'punto-direccion', iconSize: [24, 24], iconAnchor: [12, 24] }), zIndexOffset: 2000 }).addTo(map).bindPopup(`<strong>📍 ${dir.calleOriginal} ${dir.numero}</strong><br><small>Numeración ${dir.exacto ? 'exacta' : 'aproximada'}</small>`).openPopup();
-            map.setView([dir.lat, dir.lng], 18);
-            ultimaBusqueda = { texto: `${dir.calleOriginal} ${dir.numero}`, lat: dir.lat, lng: dir.lng };
-            mostrarBotonIr(dir.lat, dir.lng, `${dir.calleOriginal} ${dir.numero}`);
-        }
-        function mostrarInterseccion(cA, cB, numero, dirCercana) {
-            limpiarBusqueda();
-            const lA = cA.tramos.map(t => L.polyline(t, { color: '#e74c3c', weight: 6, opacity: 0.85, lineCap: 'round', lineJoin: 'round' }));
-            const lB = cB.tramos.map(t => L.polyline(t, { color: '#3498db', weight: 6, opacity: 0.85, lineCap: 'round', lineJoin: 'round' }));
-            trazoCalle = L.layerGroup([...lA, ...lB]).addTo(map);
-            const inters = calcularIntersecciones(cA, cB);
-            if (inters.length === 0) {
-                alert(`No se encontró esquina entre "${cA.nombreOriginal}" y "${cB.nombreOriginal}".`);
-                map.fitBounds(L.featureGroup([...lA, ...lB]).getBounds(), { padding: [50, 50] });
-                return;
-            }
-            const unicas = [];
-            for (const i of inters) if (!unicas.some(u => Math.abs(u[0] - i[0]) < 0.0002 && Math.abs(u[1] - i[1]) < 0.0002)) unicas.push(i);
-            const marcadores = unicas.map(([la, ln]) => L.marker([la, ln], { icon: L.divIcon({ className: 'punto-esquina', iconSize: [22, 22] }), zIndexOffset: 2000 }).bindPopup(`<strong>📍 Esquina</strong><br>${cA.nombreOriginal} y ${cB.nombreOriginal}`));
-            marcadorCalle = L.layerGroup(marcadores).addTo(map);
-            if (dirCercana) {
-                L.marker([dirCercana.lat, dirCercana.lng], { icon: L.divIcon({ className: 'punto-direccion', iconSize: [24, 24], iconAnchor: [12, 24] }), zIndexOffset: 2500 }).addTo(map).bindPopup(`<strong>🏠 ${dirCercana.calleOriginal} ${dirCercana.numero}</strong>`).openPopup();
-            }
-            map.setView(unicas[0], 17);
-            ultimaBusqueda = { texto: `${cA.nombreOriginal} y ${cB.nombreOriginal}`, lat: unicas[0][0], lng: unicas[0][1] };
-            mostrarBotonIr(unicas[0][0], unicas[0][1], `${cA.nombreOriginal} y ${cB.nombreOriginal}`);
-        }
+// CATEGORIAS
+const EMOJIS={hospital:'🏥',clinic:'🩺',pharmacy:'💊',veterinary:'🐾',bank:'🏦',atm:'🏧',restaurant:'🍽️',fast_food:'🍔',bar:'🍺',cafe:'☕',supermarket:'🛒',convenience:'🏪',marketplace:'🏬',police:'🚓',fire_station:'🚒',bus_stop:'🚌',parking:'🅿️',fuel:'⛽',school:'🏫',university:'🎓',library:'📚',museum:'🏛️',cinema:'🎬',theatre:'🎭',townhall:'🏛️',post_office:'📮',hotel:'🏨',hostel:'🛏️',park:'🌳',playground:'🎠',sports_centre:'🏟️',pitch:'⚽',swimming_pool:'🏊',place_of_worship:'⛪',traffic_signals:'🚦',traffic_calming:'🛑',toilets:'🚻',drinking_water:'💧',recycling:'♻️',viewpoint:'🔭'};
+const NOMBRES={hospital:'Hospitales',clinic:'Clínicas',pharmacy:'Farmacias',veterinary:'Veterinarias',bank:'Bancos',atm:'Cajeros',restaurant:'Restaurantes',fast_food:'Comida rápida',bar:'Bares',cafe:'Cafés',supermarket:'Supermercados',convenience:'Almacenes',marketplace:'Mercados',police:'Comisarías',fire_station:'Bomberos',bus_stop:'Paradas SAETA',parking:'Estacionamientos',fuel:'Estaciones de servicio',school:'Escuelas',university:'Universidades',library:'Bibliotecas',museum:'Museos',cinema:'Cines',theatre:'Teatros',townhall:'Oficinas públicas',post_office:'Correos',hotel:'Hoteles',hostel:'Hostales',park:'Plazas y parques',playground:'Juegos infantiles',sports_centre:'Centros deportivos',pitch:'Canchas',swimming_pool:'Piletas',place_of_worship:'Iglesias',traffic_signals:'Semáforos',traffic_calming:'Lomadas',toilets:'Baños públicos',drinking_water:'Bebederos',recycling:'Reciclaje',viewpoint:'Miradores'};
+const GRUPOS={'Transporte':{emoji:'🚌',categorias:['bus_stop','parking','fuel']},'Salud':{emoji:'🏥',categorias:['hospital','clinic','pharmacy','veterinary']},'Comida y bebida':{emoji:'🍽️',categorias:['restaurant','fast_food','bar','cafe']},'Compras':{emoji:'🛒',categorias:['supermarket','convenience','marketplace']},'Finanzas':{emoji:'🏦',categorias:['bank','atm']},'Seguridad':{emoji:'🚓',categorias:['police','fire_station']},'Educación y cultura':{emoji:'📚',categorias:['school','university','library','museum','cinema','theatre']},'Recreación':{emoji:'🌳',categorias:['park','playground','sports_centre','pitch','swimming_pool']},'Vialidad':{emoji:'🚦',categorias:['traffic_signals','traffic_calming']},'Gobierno':{emoji:'🏛️',categorias:['townhall','post_office']},'Alojamiento':{emoji:'🏨',categorias:['hotel','hostel']},'Religión':{emoji:'⛪',categorias:['place_of_worship']},'Servicios':{emoji:'🚻',categorias:['toilets','drinking_water','recycling','viewpoint']}};
+const capas={},capasActivas={};
+async function cargarSitios(){const archivos=['data/hospitales.geojson','data/sitios.geojson','data/saeta.geojson','data/lugares_extra.geojson'];
+for(const a of archivos){try{const r=await fetch(a);if(!r.ok)continue;const d=await r.json();let cnt=0;
+d.features.forEach(f=>{const p=f.properties;let cat=p.amenity||p.shop||p.tourism||p.highway||p.public_transport||p.leisure;
+if(cat==='platform')cat='bus_stop';if(p.highway==='traffic_signals')cat='traffic_signals';if(p.traffic_calming)cat='traffic_calming';
+if(!cat)return;
+let lat,lng;
+if(f.geometry.type==='Point'){lng=f.geometry.coordinates[0];lat=f.geometry.coordinates[1]}
+else if(p['@geometry']==='center'&&f.geometry.coordinates){lng=f.geometry.coordinates[0];lat=f.geometry.coordinates[1]}
+else return;
+if(!capas[cat]){capas[cat]=L.layerGroup();capasActivas[cat]=false}
+const emoji=EMOJIS[cat]||'📍',esS=cat==='bus_stop',esSem=cat==='traffic_signals',esLo=cat==='traffic_calming',esPz=cat==='park';
+const size=esS?34:28;let cls='marcador-sitio';
+if(esS)cls+=' marcador-saeta';if(esSem)cls+=' marcador-semaforo';if(esLo)cls+=' marcador-lomada';if(esPz)cls+=' marcador-plaza';
+const icono=L.divIcon({className:'',html:`<div class="${cls}"><span>${emoji}</span></div>`,iconSize:[size,size],iconAnchor:[size/2,size],popupAnchor:[0,-size]});
+const nombre=p.name||p.official_name||(esS?'Parada SAETA':(esSem?'Semáforo':(esLo?'Lomada':(esPz?'Plaza':''))));
+const dir=p['addr:street']?`${p['addr:street']} ${p['addr:housenumber']||''}`:'';
+let infS='';
+if(esS){const cod=p.local_ref||p.ref,op=p.operator||p.network;
+if(cod)infS+=`<br><small>🏷️ Parada: ${cod}</small>`;if(op)infS+=`<br><small>🏢 ${op}</small>`;
+const lin=buscarLineasParaParada(lat,lng);
+if(lin.length){const ch=lin.map(l=>`<span class="linea-chip">${l}</span>`).join('');infS+=`<div class="lineas-container"><small style="color:var(--text-muted);font-weight:700;">🚌 Líneas que paran:</small><div class="lineas-lista">${ch}</div></div>`}
+else infS+=`<br><small style="color:var(--text-muted);">🚌 Sin info de líneas</small>`}
+capas[cat].addLayer(L.marker([lat,lng],{icon:icono}).bindPopup(`<strong>${emoji} ${nombre}</strong><br><small>${NOMBRES[cat]||cat}</small>${infS}${dir?'<br><small>📍 '+dir+'</small>':''}${p.phone?'<br><small>📞 '+p.phone+'</small>':''}`));
+cnt++});
+console.log(`✅ ${a}: ${cnt}`)}catch(e){}}
+generarBotonesFiltros();console.log('✅ Sitios:',Object.keys(capas).length,'categorías')}
+function generarBotonesFiltros(){const l=document.getElementById('pfLista');l.innerHTML='';const disp={};
+Object.keys(capas).forEach(c=>{let n=0;capas[c].eachLayer(()=>n++);disp[c]=n});
+const ya=new Set();
+Object.keys(GRUPOS).forEach(ng=>{const g=GRUPOS[ng],cs=g.categorias.filter(c=>disp[c]);if(!cs.length)return;
+const sec=document.createElement('div');sec.className='pf-seccion';
+const t=document.createElement('div');t.className='pf-seccion-titulo';t.textContent=`${g.emoji} ${ng}`;sec.appendChild(t);
+cs.forEach(c=>{ya.add(c);sec.appendChild(crearBotonCat(c,disp[c]))});l.appendChild(sec)});
+const sin=Object.keys(disp).filter(c=>!ya.has(c));
+if(sin.length){const sec=document.createElement('div');sec.className='pf-seccion';
+const t=document.createElement('div');t.className='pf-seccion-titulo';t.textContent='📦 Otros';sec.appendChild(t);
+sin.forEach(c=>sec.appendChild(crearBotonCat(c,disp[c])));l.appendChild(sec)}
+actualizarBadgeFiltros()}
+function crearBotonCat(cat,n){const b=document.createElement('button');b.className='pf-cat';b.id='btn-'+cat;b.dataset.categoria=cat;b.dataset.nombre=(NOMBRES[cat]||cat).toLowerCase();
+b.innerHTML=`<span class="pf-emoji">${EMOJIS[cat]||'📍'}</span><span class="pf-nombre">${NOMBRES[cat]||cat}</span><span class="pf-contador">${n}</span><span class="pf-check">✓</span>`;
+b.onclick=()=>toggleCapa(cat);return b}
+function abrirPanelFiltros(){document.getElementById('panelFiltros').classList.add('activo');document.getElementById('panelFiltrosOverlay').classList.add('activo')}
+function cerrarPanelFiltros(){document.getElementById('panelFiltros').classList.remove('activo');document.getElementById('panelFiltrosOverlay').classList.remove('activo')}
+document.getElementById('btnFiltros').addEventListener('click',abrirPanelFiltros);
+function toggleCapa(c){if(!capas[c])return;const b=document.getElementById('btn-'+c);
+if(capasActivas[c]){map.removeLayer(capas[c]);capasActivas[c]=false;b?.classList.remove('activo')}
+else{map.addLayer(capas[c]);capasActivas[c]=true;b?.classList.add('activo')}
+actualizarBadgeFiltros()}
+function mostrarTodos(){Object.keys(capas).forEach(c=>{if(!capasActivas[c]){map.addLayer(capas[c]);capasActivas[c]=true;document.getElementById('btn-'+c)?.classList.add('activo')}});actualizarBadgeFiltros();mostrarNotificacion('✅ Todos los filtros activados','exito',2000)}
+function ocultarTodos(){Object.keys(capas).forEach(c=>{if(capasActivas[c]){map.removeLayer(capas[c]);capasActivas[c]=false;document.getElementById('btn-'+c)?.classList.remove('activo')}});actualizarBadgeFiltros();mostrarNotificacion('🚫 Todos los filtros desactivados','info',2000)}
+function filtrarCategorias(){const t=document.getElementById('pfBuscar').value.toLowerCase().trim();
+const secs=document.querySelectorAll('.pf-seccion');let vt=0;
+secs.forEach(s=>{let vs=0;const bs=s.querySelectorAll('.pf-cat');
+bs.forEach(b=>{const n=b.dataset.nombre||'';if(!t||n.includes(t)){b.style.display='flex';vs++}else b.style.display='none'});
+s.style.display=vs>0?'block':'none';vt+=vs});
+let v=document.querySelector('.pf-vacio');
+if(vt===0){if(!v){v=document.createElement('div');v.className='pf-vacio';v.textContent='😕 No se encontraron categorías';document.getElementById('pfLista').appendChild(v)}}
+else if(v)v.remove()}
+function actualizarBadgeFiltros(){const a=Object.values(capasActivas).filter(v=>v).length,b=document.getElementById('badgeFiltros');
+if(a>0){b.textContent=a;b.classList.add('activo')}else b.classList.remove('activo')}
+cargarSitios();
 
-        // ============================================
-        // BUSCADOR DIDÁCTICO
-        // ============================================
-        const HIST_KEY = 'salta_historial_busquedas';
-        const input = document.getElementById('inputBusqueda');
-        const sugerencias = document.getElementById('sugerencias');
-        const btnLimpiar = document.getElementById('btnLimpiar');
-        const btnVoz = document.getElementById('btnVoz');
+// BOTONES
+document.getElementById('btnCentrar').addEventListener('click',()=>{if(posicionUsuario)map.setView(posicionUsuario,17);else alert('Todavía no se detectó tu ubicación.')});
+document.getElementById('btnCompartir').addEventListener('click',()=>{if(!ultimaBusqueda)return;
+const u=`https://www.google.com/maps?q=${ultimaBusqueda.lat},${ultimaBusqueda.lng}`;
+window.open(`https://wa.me/?text=${encodeURIComponent(`📍 ${ultimaBusqueda.texto}\n${u}`)}`,'_blank')});
 
-        function cargarHistorial() {
-            try { return JSON.parse(localStorage.getItem(HIST_KEY) || '[]'); } catch (e) { return []; }
-        }
-        function guardarEnHistorial(texto, tipo, lat, lng, nombreOriginal) {
-            let hist = cargarHistorial();
-            hist = hist.filter(h => h.texto !== texto);
-            hist.unshift({ texto, tipo, lat, lng, nombreOriginal: nombreOriginal || texto, fecha: Date.now() });
-            hist = hist.slice(0, 8);
-            try { localStorage.setItem(HIST_KEY, JSON.stringify(hist)); } catch (e) {}
-        }
-        function borrarHistorial() {
-            try { localStorage.removeItem(HIST_KEY); } catch (e) {}
-            mostrarSugerenciasIniciales();
-        }
+// MEDIR
+let modoMedir=false,puntoA=null,puntoB=null,lineaMedir=null,marcadorA=null,marcadorB=null;
+const iconoPM=L.divIcon({className:'',html:'<div style="width:14px;height:14px;background:#f59e0b;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.3);"></div>',iconSize:[14,14],iconAnchor:[7,7]});
+document.getElementById('btnMedir').addEventListener('click',()=>{modoMedir=!modoMedir;
+const b=document.getElementById('btnMedir'),a=document.getElementById('avisoMedir');
+if(modoMedir){b.classList.add('activo');a.classList.add('activo');a.textContent='📏 Tocá dos puntos';map.getContainer().style.cursor='crosshair';resetearMedicion()}
+else{b.classList.remove('activo');a.classList.remove('activo');map.getContainer().style.cursor='';resetearMedicion()}});
+function resetearMedicion(){if(lineaMedir)map.removeLayer(lineaMedir);if(marcadorA)map.removeLayer(marcadorA);if(marcadorB)map.removeLayer(marcadorB);lineaMedir=marcadorA=marcadorB=null;puntoA=puntoB=null}
+map.on('click',e=>{if(!modoMedir)return;const ll=e.latlng;
+if(!puntoA){puntoA=ll;marcadorA=L.marker(ll,{icon:iconoPM}).addTo(map).bindPopup('Punto A');document.getElementById('avisoMedir').textContent='📏 Ahora tocá el segundo punto'}
+else if(!puntoB){puntoB=ll;marcadorB=L.marker(ll,{icon:iconoPM}).addTo(map).bindPopup('Punto B');
+lineaMedir=L.polyline([puntoA,puntoB],{color:'#f59e0b',weight:4,dashArray:'8, 6'}).addTo(map);
+const d=haversine(puntoA.lat,puntoA.lng,puntoB.lat,puntoB.lng);
+document.getElementById('avisoMedir').textContent=`📏 Distancia: ${formatearDistancia(d)}`;
+const m=L.latLng((puntoA.lat+puntoB.lat)/2,(puntoA.lng+puntoB.lng)/2);
+L.popup().setLatLng(m).setContent(`<strong>📏 ${formatearDistancia(d)}</strong>`).openOn(map)}
+else{resetearMedicion();puntoA=ll;marcadorA=L.marker(ll,{icon:iconoPM}).addTo(map).bindPopup('Punto A');document.getElementById('avisoMedir').textContent='📏 Ahora tocá el segundo punto'}});
 
-        const CHIPS_RAPIDOS = [
-            { emoji: '🏥', texto: 'Hospital', tipo: 'categoria', cat: 'hospital' },
-            { emoji: '💊', texto: 'Farmacia', tipo: 'categoria', cat: 'pharmacy' },
-            { emoji: '🚓', texto: 'Comisaría', tipo: 'categoria', cat: 'police' },
-            { emoji: '⛽', texto: 'Nafta', tipo: 'categoria', cat: 'fuel' },
-            { emoji: '🚌', texto: 'Parada SAETA', tipo: 'categoria', cat: 'bus_stop' },
-            { emoji: '🏦', texto: 'Banco', tipo: 'categoria', cat: 'bank' },
-            { emoji: '🍽️', texto: 'Restaurante', tipo: 'categoria', cat: 'restaurant' },
-            { emoji: '🛒', texto: 'Super', tipo: 'categoria', cat: 'supermarket' }
-        ];
+// MIS LUGARES
+const STK='salta_mis_lugares';let misLugares=[];
+const capaLugares=L.layerGroup().addTo(map);
+function cargarLugaresGuardados(){try{const g=localStorage.getItem(STK);if(g)misLugares=JSON.parse(g)}catch(e){misLugares=[]}pintarLugares()}
+function guardarLugaresS(){try{localStorage.setItem(STK,JSON.stringify(misLugares))}catch(e){}}
+const iconoMi=L.divIcon({className:'punto-mio',iconSize:[28,28],iconAnchor:[14,28],popupAnchor:[0,-28]});
+function pintarLugares(){capaLugares.clearLayers();misLugares.forEach(l=>capaLugares.addLayer(L.marker([l.lat,l.lng],{icon:iconoMi}).bindPopup(`<strong>⭐ ${l.nombre}</strong><br><small>${l.fecha||''}</small>`)))}
+document.getElementById('btnLugares').addEventListener('click',abrirModalLugares);
+function abrirModalLugares(){const ul=document.getElementById('listaLugares');ul.innerHTML='';
+if(!misLugares.length)ul.innerHTML='<li class="vacio">Todavía no guardaste lugares</li>';
+else misLugares.forEach((l,i)=>{const li=document.createElement('li');const n=document.createElement('span');n.className='nombre';n.textContent='⭐ '+l.nombre;
+n.addEventListener('click',()=>{map.setView([l.lat,l.lng],17);cerrarModalLugares()});
+const b=document.createElement('button');b.className='borrar';b.textContent='🗑️';
+b.addEventListener('click',ev=>{ev.stopPropagation();if(confirm(`¿Borrar "${l.nombre}"?`)){misLugares.splice(i,1);guardarLugaresS();pintarLugares();abrirModalLugares()}});
+li.appendChild(n);li.appendChild(b);ul.appendChild(li)});
+document.getElementById('modalLugares').classList.add('activo')}
+function cerrarModalLugares(){document.getElementById('modalLugares').classList.remove('activo')}
+document.getElementById('btnAgregarDesdeLista').addEventListener('click',()=>{cerrarModalLugares();abrirModalLugar()});
+function abrirModalLugar(){document.getElementById('inputNombreLugar').value='';document.getElementById('modalLugar').classList.add('activo');setTimeout(()=>document.getElementById('inputNombreLugar').focus(),100)}
+function cerrarModalLugar(){document.getElementById('modalLugar').classList.remove('activo')}
+function confirmarGuardarLugar(){const n=document.getElementById('inputNombreLugar').value.trim();if(!n){alert('Poné un nombre');return}
+const c=map.getCenter();misLugares.push({nombre:n,lat:c.lat,lng:c.lng,fecha:new Date().toLocaleDateString('es-AR')});
+guardarLugaresS();pintarLugares();cerrarModalLugar();mostrarNotificacion(`⭐ "${n}" guardado`,'exito')}
+map.on('dblclick',e=>{if(modoMedir)return;map.setView(e.latlng,map.getZoom());setTimeout(abrirModalLugar,100)});
 
-        function mostrarSugerenciasIniciales() {
-            const html = [];
-            html.push('<div class="sug-titulo">⚡ Búsquedas rápidas</div>');
-            html.push('<div class="sug-chips">');
-            CHIPS_RAPIDOS.forEach(chip => {
-                html.push(`<button class="sug-chip" data-cat="${chip.cat}">${chip.emoji} ${chip.texto}</button>`);
-            });
-            html.push('</div>');
+// ROUTING
+let rutaLineas=null,marcadorDestino=null,modoTransporte='auto',autoRecalcActivo=true;
+let ultimaPosRecalc=null,recalculoEnProgreso=false,coordsRuta=[],distanciaMinRecalc=30;
+const iconoDest=L.divIcon({className:'',html:'<div style="width:34px;height:34px;background:#ef4444;border:4px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 4px 12px rgba(239,68,68,.6);display:flex;align-items:center;justify-content:center;font-size:17px;"><span style="transform:rotate(45deg);">🏁</span></div>',iconSize:[34,34],iconAnchor:[17,34]});
+document.getElementById('btnIr').addEventListener('click',()=>{if(!destinoActual){alert('Primero buscá una calle');return}
+if(!posicionUsuario){alert('Todavía no se detectó tu ubicación');return}
+calcularRuta(posicionUsuario[0],posicionUsuario[1],destinoActual.lat,destinoActual.lng,destinoActual.nombre,false)});
+function cambiarModo(m){modoTransporte=m;document.querySelectorAll('.panel-ruta .modo button').forEach(b=>b.classList.remove('activo'));
+document.getElementById('modo'+m.charAt(0).toUpperCase()+m.slice(1)).classList.add('activo');
+if(destinoActual&&posicionUsuario)calcularRuta(posicionUsuario[0],posicionUsuario[1],destinoActual.lat,destinoActual.lng,destinoActual.nombre,false)}
+function toggleAutoRecalc(){autoRecalcActivo=!autoRecalcActivo;const b=document.getElementById('btnAutoRecalc');
+b.textContent=autoRecalcActivo?'📡 Auto: ON':'📡 Auto: OFF';b.classList.toggle('activo',autoRecalcActivo);
+mostrarNotificacion(autoRecalcActivo?'🔄 Recálculo ACTIVADO':'⏸️ Recálculo DESACTIVADO','info',2000)}
+function forzarRecalculo(){if(!destinoActual||!posicionUsuario)return;calcularRuta(posicionUsuario[0],posicionUsuario[1],destinoActual.lat,destinoActual.lng,destinoActual.nombre,true)}
+function cerrarPanelRuta(){document.getElementById('panelRuta').classList.remove('activo');
+if(rutaLineas)map.removeLayer(rutaLineas);if(marcadorDestino)map.removeLayer(marcadorDestino);
+rutaLineas=marcadorDestino=null;coordsRuta=[];ultimaPosRecalc=null}
+async function calcularRuta(lat1,lng1,lat2,lng2,nombre,esRecalc){if(recalculoEnProgreso&&!esRecalc)return;recalculoEnProgreso=true;
+document.getElementById('panelRuta').classList.add('activo');
+document.getElementById('tituloRuta').textContent=`🛣️ Hacia: ${nombre}`;
+if(!esRecalc){document.getElementById('statDistancia').textContent='...';document.getElementById('statTiempo').textContent='...';document.getElementById('listaPasos').innerHTML='<li>Cargando ruta...</li>'}
+if(rutaLineas)map.removeLayer(rutaLineas);if(marcadorDestino)map.removeLayer(marcadorDestino);
+marcadorDestino=L.marker([lat2,lng2],{icon:iconoDest,zIndexOffset:3000}).addTo(map).bindPopup(`<strong>🏁 ${nombre}</strong>`);
+const perfil=modoTransporte==='auto'?'driving':modoTransporte==='pie'?'foot':'bike';
+const url=`https://router.project-osrm.org/route/v1/${perfil}/${lng1},${lat1};${lng2},${lat2}?overview=full&geometries=geojson&steps=true`;
+try{const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);
+const d=await r.json();if(!d.routes||!d.routes.length)throw new Error('Sin ruta');
+const ru=d.routes[0];coordsRuta=ru.geometry.coordinates.map(c=>[c[1],c[0]]);
+const lf=L.polyline(coordsRuta,{color:'#1e3a8a',weight:9,opacity:.5,lineCap:'round',lineJoin:'round'});
+const lr=L.polyline(coordsRuta,{color:'#3b82f6',weight:5,opacity:.95,lineCap:'round',lineJoin:'round'});
+rutaLineas=L.layerGroup([lf,lr]).addTo(map);
+ultimaPosRecalc=posicionUsuario?[...posicionUsuario]:[lat1,lng1];
+if(!esRecalc)map.fitBounds(rutaLineas.getBounds(),{padding:[80,80,80,80]});
+document.getElementById('statDistancia').textContent=formatearDistancia(ru.distance);
+document.getElementById('statTiempo').textContent=formatearTiempo(ru.duration);
+renderizarPasos(ru.legs[0].steps||[]);
+if(esRecalc)mostrarNotificacion('🔄 Ruta recalculada','exito',2000);
+actualizarProgresoRuta()}
+catch(e){rutaLineas=L.polyline([[lat1,lng1],[lat2,lng2]],{color:'#f59e0b',weight:5,dashArray:'10, 8',opacity:.9}).addTo(map);
+coordsRuta=[[lat1,lng1],[lat2,lng2]];
+if(!esRecalc)map.fitBounds(rutaLineas.getBounds(),{padding:[80,80,80,80]});
+const di=haversine(lat1,lng1,lat2,lng2);
+document.getElementById('statDistancia').textContent=formatearDistancia(di)+' (recta)';
+const v=modoTransporte==='auto'?40:modoTransporte==='bici'?15:5;
+document.getElementById('statTiempo').textContent='~'+formatearTiempo((di/1000)/v*3600);
+document.getElementById('listaPasos').innerHTML='<li><span class="icono">📡</span><span>Sin conexión: línea recta. La ruta real necesita internet.</span></li>';
+if(esRecalc)mostrarNotificacion('⚠️ Sin conexión','aviso',3000)}
+recalculoEnProgreso=false}
+function renderizarPasos(p){const ul=document.getElementById('listaPasos');ul.innerHTML='';
+p.forEach(s=>{const li=document.createElement('li');const i=iconoMan(s.maneuver);
+const d=s.distance<1000?`${Math.round(s.distance)} m`:`${(s.distance/1000).toFixed(1)} km`;
+li.innerHTML=`<span class="icono">${i}</span><span><strong>${s.name||'Continuar'}</strong><br><small>${d}</small></span>`;ul.appendChild(li)})}
+function iconoMan(m){if(!m)return'➡️';const t=m.type||'',mo=m.modifier||'';
+if(t==='depart')return'🚩';if(t==='arrive')return'🏁';
+if(t==='turn'){if(mo.includes('slight left'))return'↖️';if(mo.includes('slight right'))return'↗️';if(mo.includes('left'))return'⬅️';if(mo.includes('right'))return'➡️';return'🔄'}
+if(t==='roundabout'||t==='rotary')return'🔄';if(t==='merge')return'🔀';if(t==='continue'||t==='new name')return'⬆️';return'➡️'}
+function verificarRecalculo(){if(!autoRecalcActivo||!destinoActual||!posicionUsuario||recalculoEnProgreso||!ultimaPosRecalc)return;
+if(!document.getElementById('panelRuta').classList.contains('activo'))return;
+const d=haversine(ultimaPosRecalc[0],ultimaPosRecalc[1],posicionUsuario[0],posicionUsuario[1]);
+if(d>=distanciaMinRecalc)calcularRuta(posicionUsuario[0],posicionUsuario[1],destinoActual.lat,destinoActual.lng,destinoActual.nombre,true)}
+function actualizarProgresoRuta(){if(!posicionUsuario||!coordsRuta||coordsRuta.length<2)return;
+if(!document.getElementById('panelRuta').classList.contains('activo'))return;
+const d=haversine(posicionUsuario[0],posicionUsuario[1],destinoActual.lat,destinoActual.lng);
+if(d>5)document.getElementById('statDistancia').textContent=formatearDistancia(d)+' restantes';
+else{document.getElementById('statDistancia').textContent='¡Llegaste!';mostrarNotificacion('🏁 ¡Llegaste!','exito',4000)}}
 
-            const hist = cargarHistorial();
-            if (hist.length > 0) {
-                html.push('<div class="sug-titulo" style="display:flex;justify-content:space-between;align-items:center;">🕐 Recientes <button onclick="borrarHistorial()" style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:11px;padding:0;text-transform:none;letter-spacing:0;">Borrar</button></div>');
-                hist.forEach(h => {
-                    const emoji = h.tipo === 'esquina' ? '🚦' : h.tipo === 'direccion' ? '🏠' : '🛣️';
-                    html.push(`<div class="sug-item historial" data-hist-idx="${hist.indexOf(h)}">
-                        <div class="sug-emoji">${emoji}</div>
-                        <div class="sug-texto"><strong>${h.nombreOriginal}</strong><small>${new Date(h.fecha).toLocaleDateString('es-AR')}</small></div>
-                    </div>`);
-                });
-            }
+// OFFLINE
+const BBOX={sur:-24.92,norte:-24.65,oeste:-65.52,este:-65.30};
+const ZOOMS=[13,14,15,16];let descargaEnCurso=false;
+function lng2tile(lo,z){return Math.floor((lo+180)/360*Math.pow(2,z))}
+function lat2tile(la,z){return Math.floor((1-Math.log(Math.tan(la*Math.PI/180)+1/Math.cos(la*Math.PI/180))/Math.PI)/2*Math.pow(2,z))}
+function generarTeselas(){const t=[];for(const z of ZOOMS){const xMin=lng2tile(BBOX.oeste,z),xMax=lng2tile(BBOX.este,z),yMin=lat2tile(BBOX.norte,z),yMax=lat2tile(BBOX.sur,z);
+for(let x=xMin;x<=xMax;x++)for(let y=yMin;y<=yMax;y++){const s=['a','b','c'][(x+y)%3];t.push(`https://${s}.tile.openstreetmap.org/${z}/${x}/${y}.png`)}}return t}
+document.getElementById('btnOffline').addEventListener('click',abrirModalOffline);
+async function abrirModalOffline(){document.getElementById('modalOffline').classList.add('activo');
+document.getElementById('barraOffline').style.display='none';document.getElementById('btnIniciarOffline').style.display='block';
+document.getElementById('btnIniciarOffline').disabled=false;document.getElementById('btnIniciarOffline').textContent='📥 Descargar';
+document.getElementById('infoProgreso').textContent='';
+const t=generarTeselas(),tot=t.length;let ya=0;
+if('caches'in window){try{const c=await caches.open('salta-tiles-v12');const k=await c.keys();const s=new Set(k.map(x=>x.url));ya=t.filter(u=>s.has(u)).length}catch(e){}}
+const f=tot-ya,mb=Math.round(tot*20/1024);
+document.getElementById('estadoOffline').innerHTML=`<strong>📊 Estado actual:</strong><br>• Teselas totales: <strong>${tot}</strong><br>• Ya descargadas: <strong>${ya}</strong><br>• Faltan: <strong>${f}</strong><br>• Tamaño aprox: <strong>~${mb} MB</strong>`;
+document.getElementById('textoOffline').textContent=f===0?'✅ El mapa ya está descargado.':`Se descargarán las ${f} teselas que faltan.`;
+if(f===0){document.getElementById('btnIniciarOffline').style.display='none';document.getElementById('btnBorrarTeselas').style.display='block'}
+else document.getElementById('btnBorrarTeselas').style.display=ya>0?'block':'none'}
+function cerrarModalOffline(){if(descargaEnCurso)return;document.getElementById('modalOffline').classList.remove('activo')}
+async function iniciarDescargaOffline(){if(descargaEnCurso)return;descargaEnCurso=true;
+const b=document.getElementById('btnIniciarOffline'),bb=document.getElementById('btnBorrarTeselas');
+const ba=document.getElementById('barraOffline'),bf=document.getElementById('barraOfflineFill');
+const inf=document.getElementById('infoProgreso'),bf2=document.getElementById('btnOffline');
+b.disabled=true;b.textContent='⏳ Descargando...';bb.style.display='none';ba.style.display='block';bf.style.width='0%';bf2.textContent='⏳';
+const t=generarTeselas();let ya=new Set();
+try{const c=await caches.open('salta-tiles-v12');const k=await c.keys();ya=new Set(k.map(x=>x.url))}catch(e){}
+const p=t.filter(u=>!ya.has(u)),tp=p.length;let desc=0,err=0;const T=8;
+for(let i=0;i<p.length;i+=T){const td=p.slice(i,i+T);
+const rs=await Promise.all(td.map(async u=>{try{const r=await fetch(u,{mode:'cors'});
+if(r.ok){const c=await caches.open('salta-tiles-v12');await c.put(u,r.clone());return true}}catch(e){}return false}));
+rs.forEach(r=>r?desc++:err++);
+const pr=Math.round(((i+td.length)/tp)*100);bf.style.width=pr+'%';inf.textContent=`${i+td.length} / ${tp} (${pr}%)`;
+await new Promise(r=>setTimeout(r,100))}
+b.textContent='✅ Completado';bf2.textContent='✅';bf2.classList.add('completo');bf.style.width='100%';
+inf.textContent=`✅ ${desc} teselas descargadas${err>0?`, ${err} errores`:''}`;
+document.getElementById('estadoOffline').innerHTML=`<strong>✅ Descarga completa</strong><br>Se descargaron <strong>${desc}</strong> teselas.`;
+document.getElementById('textoOffline').textContent='';
+setTimeout(()=>{b.textContent='📥 Cerrar';b.disabled=false;
+b.onclick=()=>{document.getElementById('modalOffline').classList.remove('activo');b.onclick=iniciarDescargaOffline;descargaEnCurso=false;abrirModalOffline()}},500);
+descargaEnCurso=false}
+async function borrarTeselas(){if(!confirm('¿Borrar todas las teselas descargadas?'))return;
+try{await caches.delete('salta-tiles-v12');mostrarNotificacion('🗑️ Teselas borradas','exito',3000);
+document.getElementById('btnOffline').textContent='📥';document.getElementById('btnOffline').classList.remove('completo');cerrarModalOffline()}
+catch(e){alert('Error: '+e.message)}}
 
-            sugerencias.innerHTML = html.join('');
-            sugerencias.classList.add('activo');
+// CERCA
+function abrirModalCerca(){if(!posicionUsuario){alert('Todavía no se detectó tu ubicación.');return}
+document.getElementById('modalCerca').classList.add('activo');document.getElementById('cercaBuscar').value='';
+document.getElementById('cercaResultados').style.display='none';document.getElementById('cercaLista').style.display='flex';
+renderizarCategoriasCerca()}
+function cerrarModalCerca(){document.getElementById('modalCerca').classList.remove('activo')}
+function renderizarCategoriasCerca(filtro=''){const l=document.getElementById('cercaLista');l.innerHTML='';
+const cs=Object.keys(capas).filter(c=>{if(!filtro)return true;const n=(NOMBRES[c]||c).toLowerCase();return n.includes(filtro.toLowerCase())}).sort((a,b)=>(NOMBRES[a]||a).localeCompare(NOMBRES[b]||b));
+if(!cs.length){l.innerHTML='<div class="cerca-vacio-msg">😕 No hay categorías con ese nombre</div>';return}
+cs.forEach(c=>{let n=0;capas[c].eachLayer(()=>n++);
+const b=document.createElement('button');b.className='cerca-cat';
+b.innerHTML=`<span class="cerca-emoji">${EMOJIS[c]||'📍'}</span><span class="cerca-nombre">${NOMBRES[c]||c}</span><span class="cerca-count">${n}</span>`;
+b.onclick=()=>mostrarCercaDeMi(c);l.appendChild(b)})}
+function filtrarCategoriasCerca(){renderizarCategoriasCerca(document.getElementById('cercaBuscar').value)}
+function volverCategoriasCerca(){document.getElementById('cercaResultados').style.display='none';document.getElementById('cercaLista').style.display='flex'}
+function mostrarCercaDeMi(cat){if(!posicionUsuario)return;const[ul,ug]=posicionUsuario,its=[];
+capas[cat].eachLayer(m=>{const ll=m.getLatLng(),d=haversine(ul,ug,ll.lat,ll.lng);
+const pop=m.getPopup();let nom='Sin nombre',dir='';
+if(pop){const c=pop.getContent();if(typeof c==='string'){
+const m1=c.match(/<strong>([\s\S]*?)<\/strong>/);
+if(m1){let r=m1[1].replace(/<[^>]*>/g,'').trim();r=r.replace(/^[^\wáéíóúñÁÉÍÓÚÑ]+/,'').trim();nom=r}
+const m2=c.match(/📍\s*([^<]+)/);if(m2)dir=m2[1].trim()}}
+its.push({lat:ll.lat,lng:ll.lng,dist:d,nombre:nom,dir,marcador:m})});
+its.sort((a,b)=>a.dist-b.dist);const top=its.slice(0,5);
+const ul2=document.getElementById('cercaItems');ul2.innerHTML='';
+document.getElementById('cercaCategoriaActual').textContent=`${EMOJIS[cat]} ${NOMBRES[cat]}`;
+if(!top.length)ul2.innerHTML='<li class="cerca-vacio-msg">No hay lugares de esta categoría</li>';
+else top.forEach((it,i)=>{const li=document.createElement('li');
+const dt=it.dist<1000?`${Math.round(it.dist)} m`:`${(it.dist/1000).toFixed(2)} km`;
+const md=i===0?'🥇':i===1?'🥈':i===2?'🥉':'📍';
+li.innerHTML=`<span class="cerca-item-emoji">${md}</span><div class="cerca-item-info"><div class="cerca-item-nombre">${it.nombre||NOMBRES[cat]}</div>${it.dir?'<div class="cerca-item-dir">📍 '+it.dir+'</div>':'<div class="cerca-item-dir">📍 '+it.lat.toFixed(5)+', '+it.lng.toFixed(5)+'</div>'}</div><span class="cerca-item-dist">${dt}</span>`;
+li.addEventListener('click',()=>{cerrarModalCerca();
+if(!capasActivas[cat]){map.addLayer(capas[cat]);capasActivas[cat]=true;document.getElementById('btn-'+cat)?.classList.add('activo');actualizarBadgeFiltros()}
+map.setView([it.lat,it.lng],18);setTimeout(()=>it.marcador.openPopup(),300)});
+ul2.appendChild(li)});
+document.getElementById('cercaLista').style.display='none';document.getElementById('cercaResultados').style.display='block'}
+document.getElementById('btnCerca').addEventListener('click',abrirModalCerca);
 
-            sugerencias.querySelectorAll('.sug-chip').forEach(btn => {
-                btn.addEventListener('click', () => { activarCategoria(btn.dataset.cat); });
-            });
-            sugerencias.querySelectorAll('.sug-item.historial').forEach(item => {
-                item.addEventListener('click', () => {
-                    const idx = parseInt(item.dataset.histIdx);
-                    const h = cargarHistorial()[idx];
-                    if (!h) return;
-                    if (h.tipo === 'calle') {
-                        const calle = buscarCalleExacta(h.texto);
-                        if (calle) mostrarCalle(calle);
-                    } else if (h.tipo === 'direccion' && h.lat && h.lng) {
-                        map.setView([h.lat, h.lng], 18);
-                        L.marker([h.lat, h.lng], { icon: L.divIcon({ className: 'punto-direccion', iconSize: [24, 24], iconAnchor: [12, 24] }) }).addTo(map).bindPopup(`<strong>📍 ${h.nombreOriginal}</strong>`).openPopup();
-                    } else if (h.tipo === 'esquina' && h.lat && h.lng) {
-                        map.setView([h.lat, h.lng], 17);
-                    }
-                    ocultarSugerencias();
-                    input.value = h.texto;
-                });
-            });
-        }
-
-        function activarCategoria(cat) {
-            if (capas[cat] && !capasActivas[cat]) {
-                map.addLayer(capas[cat]);
-                capasActivas[cat] = true;
-                document.getElementById('btn-' + cat)?.classList.add('activo');
-                actualizarBadgeFiltros();
-            }
-            if (capas[cat]) {
-                try {
-                    const bounds = capas[cat].getBounds ? capas[cat].getBounds() : L.featureGroup(capas[cat].getLayers()).getBounds();
-                    map.fitBounds(bounds, { padding: [50, 50] });
-                } catch (e) {}
-            }
-            ocultarSugerencias();
-            input.value = (NOMBRES[cat] || cat);
-            mostrarNotificacion(`✅ Mostrando ${NOMBRES[cat] || cat}`, 'exito', 2000);
-        }
-
-        function ocultarSugerencias() { sugerencias.classList.remove('activo'); }
-
-        function renderizarSugerencias(query) {
-            const parsed = parsearQuery(query);
-            const html = [];
-            if (parsed.tipo === 'esquina') {
-                html.push(`<div class="sug-item esquina" data-tipo="esquina"><div class="sug-emoji">🚦</div><div class="sug-texto"><strong>Buscar esquina</strong><small>${parsed.calle1} y ${parsed.calle2}${parsed.numero ? ' (altura ' + parsed.numero + ')' : ''}</small></div></div>`);
-            } else if (parsed.tipo === 'direccion') {
-                const calle = buscarCalleExacta(parsed.calle);
-                if (calle) {
-                    const dir = buscarDireccion(parsed.calle, parsed.numero);
-                    const precision = dir ? (dir.exacto ? 'Numeración exacta' : 'Numeración aproximada') : 'Número no encontrado';
-                    html.push(`<div class="sug-item direccion" data-tipo="direccion"><div class="sug-emoji">🏠</div><div class="sug-texto"><strong>${calle.nombreOriginal} ${parsed.numero}</strong><small>${precision}</small></div></div>`);
-                }
-            } else {
-                const resultados = buscarCalle(query);
-                resultados.forEach(calle => {
-                    html.push(`<div class="sug-item" data-tipo="calle" data-nombre="${calle.nombre}"><div class="sug-emoji">🛣️</div><div class="sug-texto"><strong>${calle.nombreOriginal}</strong><small>Calle</small></div></div>`);
-                });
-                if (resultados.length === 0 && query.length >= 2) {
-                    html.push(`<div class="sug-item"><div class="sug-emoji">😕</div><div class="sug-texto"><strong>Sin resultados</strong><small>Probá con otro nombre</small></div></div>`);
-                }
-            }
-            if (html.length === 0) { sugerencias.classList.remove('activo'); return; }
-            sugerencias.innerHTML = html.join('');
-            sugerencias.classList.add('activo');
-
-            sugerencias.querySelectorAll('.sug-item[data-tipo]').forEach(item => {
-                item.addEventListener('click', () => {
-                    const tipo = item.dataset.tipo;
-                    if (tipo === 'esquina') {
-                        const cA = buscarCalleExacta(parsed.calle1), cB = buscarCalleExacta(parsed.calle2);
-                        if (!cA) { alert(`No se encontró "${parsed.calle1}"`); return; }
-                        if (!cB) { alert(`No se encontró "${parsed.calle2}"`); return; }
-                        let dc = null;
-                        if (parsed.numero) dc = buscarDireccion(parsed.calle1, parsed.numero) || buscarDireccion(parsed.calle2, parsed.numero);
-                        mostrarInterseccion(cA, cB, parsed.numero, dc);
-                        const texto = `${cA.nombreOriginal} y ${cB.nombreOriginal}${parsed.numero ? ' ' + parsed.numero : ''}`;
-                        const latlng = ultimaBusqueda ? [ultimaBusqueda.lat, ultimaBusqueda.lng] : [0, 0];
-                        guardarEnHistorial(texto, 'esquina', latlng[0], latlng[1], texto);
-                        input.value = texto;
-                        ocultarSugerencias(); input.blur();
-                    } else if (tipo === 'direccion') {
-                        const calle = buscarCalleExacta(parsed.calle);
-                        const dir = buscarDireccion(parsed.calle, parsed.numero);
-                        if (dir) {
-                            mostrarDireccion(calle, dir);
-                            const texto = `${calle.nombreOriginal} ${parsed.numero}`;
-                            guardarEnHistorial(texto, 'direccion', dir.lat, dir.lng, texto);
-                            input.value = texto;
-                        } else {
-                            mostrarCalle(calle);
-                            guardarEnHistorial(calle.nombreOriginal, 'calle', calle.lat, calle.lng, calle.nombreOriginal);
-                            input.value = calle.nombreOriginal;
-                        }
-                        ocultarSugerencias(); input.blur();
-                    } else if (tipo === 'calle') {
-                        const calle = callesIndex.find(c => c.nombre === item.dataset.nombre);
-                        if (calle) {
-                            mostrarCalle(calle);
-                            guardarEnHistorial(calle.nombreOriginal, 'calle', calle.lat, calle.lng, calle.nombreOriginal);
-                            input.value = calle.nombreOriginal;
-                            ocultarSugerencias(); input.blur();
-                        }
-                    }
-                });
-            });
-        }
-
-        input.addEventListener('focus', () => {
-            if (input.value.trim().length < 2) mostrarSugerenciasIniciales();
-            else renderizarSugerencias(input.value);
-        });
-        input.addEventListener('input', (e) => {
-            const q = e.target.value.trim();
-            btnLimpiar.style.display = q.length > 0 ? 'flex' : 'none';
-            if (q.length < 2) mostrarSugerenciasIniciales();
-            else renderizarSugerencias(q);
-        });
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const primerItem = sugerencias.querySelector('.sug-item[data-tipo]');
-                if (primerItem) primerItem.click();
-            }
-        });
-        btnLimpiar.addEventListener('click', () => {
-            input.value = '';
-            btnLimpiar.style.display = 'none';
-            input.focus();
-            mostrarSugerenciasIniciales();
-        });
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.buscador')) ocultarSugerencias();
-        });
-
-        btnVoz.addEventListener('click', () => {
-            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SR) { alert('Tu navegador no soporta búsqueda por voz. Probá con Chrome en Android.'); return; }
-            const recognition = new SR();
-            recognition.lang = 'es-AR';
-            recognition.interimResults = false;
-            recognition.maxAlternatives = 1;
-            recognition.onstart = () => { btnVoz.classList.add('grabando'); mostrarNotificacion('🎤 Escuchando...', 'info', 5000); };
-            recognition.onend = () => { btnVoz.classList.remove('grabando'); };
-            recognition.onerror = (e) => {
-                btnVoz.classList.remove('grabando');
-                if (e.error === 'not-allowed') mostrarNotificacion('❌ Permiso de micrófono denegado', 'aviso', 3000);
-                else mostrarNotificacion('⚠️ Error: ' + e.error, 'aviso', 3000);
-            };
-            recognition.onresult = (event) => {
-                const texto = event.results[0][0].transcript;
-                input.value = texto;
-                btnLimpiar.style.display = 'flex';
-                renderizarSugerencias(texto);
-                mostrarNotificacion(`🎤 "${texto}"`, 'exito', 2000);
-            };
-            try { recognition.start(); } catch (e) { mostrarNotificacion('⚠️ No se pudo iniciar el micrófono', 'aviso', 3000); }
-        });
-
-        (async () => {
-            await cargarCalles();
-            await cargarDirecciones();
-            await cargarRutasSaeta();
-            input.placeholder = 'Calle, esquina o dirección...';
-            cargarLugaresGuardados();
-        })();
-
-        // ============================================
-        // SITIOS Y CATEGORÍAS
-        // ============================================
-        const EMOJIS = {
-            hospital: '🏥', clinic: '🩺', pharmacy: '💊', veterinary: '🐾',
-            bank: '🏦', atm: '🏧',
-            restaurant: '🍽️', fast_food: '🍔', bar: '🍺', cafe: '☕',
-            supermarket: '🛒', convenience: '🏪', marketplace: '🏬',
-            police: '🚓', fire_station: '🚒',
-            bus_stop: '🚌', parking: '🅿️', fuel: '⛽',
-            school: '🏫', university: '🎓', library: '📚', museum: '🏛️', cinema: '🎬', theatre: '🎭',
-            townhall: '🏛️', post_office: '📮',
-            hotel: '🏨', hostel: '🛏️',
-            park: '🌳', playground: '🎠', sports_centre: '🏟️', pitch: '⚽', swimming_pool: '🏊',
-            place_of_worship: '⛪',
-            traffic_signals: '🚦', traffic_calming: '🛑',
-            toilets: '🚻', drinking_water: '💧', recycling: '♻️', viewpoint: '🔭'
-        };
-        const NOMBRES = {
-            hospital: 'Hospitales', clinic: 'Clínicas', pharmacy: 'Farmacias', veterinary: 'Veterinarias',
-            bank: 'Bancos', atm: 'Cajeros',
-            restaurant: 'Restaurantes', fast_food: 'Comida rápida', bar: 'Bares', cafe: 'Cafés',
-            supermarket: 'Supermercados', convenience: 'Almacenes', marketplace: 'Mercados',
-            police: 'Comisarías', fire_station: 'Bomberos',
-            bus_stop: 'Paradas SAETA', parking: 'Estacionamientos', fuel: 'Estaciones de servicio',
-            school: 'Escuelas', university: 'Universidades', library: 'Bibliotecas', museum: 'Museos', cinema: 'Cines', theatre: 'Teatros',
-            townhall: 'Oficinas públicas', post_office: 'Correos',
-            hotel: 'Hoteles', hostel: 'Hostales',
-            park: 'Plazas y parques', playground: 'Juegos infantiles', sports_centre: 'Centros deportivos', pitch: 'Canchas', swimming_pool: 'Piletas',
-            place_of_worship: 'Iglesias',
-            traffic_signals: 'Semáforos', traffic_calming: 'Lomadas',
-            toilets: 'Baños públicos', drinking_water: 'Bebederos', recycling: 'Reciclaje', viewpoint: 'Miradores'
-        };
-        const GRUPOS = {
-            'Transporte': { emoji: '🚌', categorias: ['bus_stop', 'parking', 'fuel'] },
-            'Salud': { emoji: '🏥', categorias: ['hospital', 'clinic', 'pharmacy', 'veterinary'] },
-            'Comida y bebida': { emoji: '🍽️', categorias: ['restaurant', 'fast_food', 'bar', 'cafe'] },
-            'Compras': { emoji: '🛒', categorias: ['supermarket', 'convenience', 'marketplace'] },
-            'Finanzas': { emoji: '🏦', categorias: ['bank', 'atm'] },
-            'Seguridad': { emoji: '🚓', categorias: ['police', 'fire_station'] },
-            'Educación y cultura': { emoji: '📚', categorias: ['school', 'university', 'library', 'museum', 'cinema', 'theatre'] },
-            'Recreación': { emoji: '🌳', categorias: ['park', 'playground', 'sports_centre', 'pitch', 'swimming_pool'] },
-            'Vialidad': { emoji: '🚦', categorias: ['traffic_signals', 'traffic_calming'] },
-            'Gobierno': { emoji: '🏛️', categorias: ['townhall', 'post_office'] },
-            'Alojamiento': { emoji: '🏨', categorias: ['hotel', 'hostel'] },
-            'Religión': { emoji: '⛪', categorias: ['place_of_worship'] },
-            'Servicios': { emoji: '🚻', categorias: ['toilets', 'drinking_water', 'recycling', 'viewpoint'] }
-        };
-        const capas = {}, capasActivas = {};
-
-        async function cargarSitios() {
-            const archivos = ['data/hospitales.geojson', 'data/sitios.geojson', 'data/saeta.geojson', 'data/lugares_extra.geojson'];
-            for (const archivo of archivos) {
-                try {
-                    const resp = await fetch(archivo);
-                    if (!resp.ok) { console.warn(`⚠️ No se encontró ${archivo}`); continue; }
-                    const data = await resp.json();
-                    let contador = 0;
-                    data.features.forEach(f => {
-                        const props = f.properties;
-                        let cat = props.amenity || props.shop || props.tourism || props.highway || props.public_transport || props.leisure;
-                        if (cat === 'platform') cat = 'bus_stop';
-                        if (props.highway === 'traffic_signals') cat = 'traffic_signals';
-                        if (props.traffic_calming) cat = 'traffic_calming';
-                        if (!cat) return;
-                        let lat, lng;
-                        if (f.geometry.type === 'Point') { lng = f.geometry.coordinates[0]; lat = f.geometry.coordinates[1]; }
-                        else if (props['@geometry'] === 'center' && f.geometry.coordinates) { lng = f.geometry.coordinates[0]; lat = f.geometry.coordinates[1]; }
-                        else return;
-                        if (!capas[cat]) { capas[cat] = L.layerGroup(); capasActivas[cat] = false; }
-                        const emoji = EMOJIS[cat] || '📍';
-                        const esSaeta = cat === 'bus_stop';
-                        const esSemaforo = cat === 'traffic_signals';
-                        const esLomada = cat === 'traffic_calming';
-                        const esPlaza = cat === 'park';
-                        const size = esSaeta ? 34 : 28;
-                        let clase = 'marcador-sitio';
-                        if (esSaeta) clase += ' marcador-saeta';
-                        if (esSemaforo) clase += ' marcador-semaforo';
-                        if (esLomada) clase += ' marcador-lomada';
-                        if (esPlaza) clase += ' marcador-plaza';
-                        const icono = L.divIcon({
-                            className: '',
-                            html: `<div class="${clase}"><span>${emoji}</span></div>`,
-                            iconSize: [size, size],
-                            iconAnchor: [size / 2, size],
-                            popupAnchor: [0, -size]
-                        });
-                        const nombre = props.name || props.official_name || (esSaeta ? 'Parada SAETA' : (esSemaforo ? 'Semáforo' : (esLomada ? 'Lomada' : (esPlaza ? 'Plaza / Parque' : 'Sin nombre'))));
-                        const dir = props['addr:street'] ? `${props['addr:street']} ${props['addr:housenumber'] || ''}` : '';
-                        let infoSaeta = '';
-                        if (esSaeta) {
-                            const codigo = props.local_ref || props.ref;
-                            const operador = props.operator || props.network;
-                            if (codigo) infoSaeta += `<br><small>🏷️ Parada: ${codigo}</small>`;
-                            if (operador) infoSaeta += `<br><small>🏢 ${operador}</small>`;
-                            const lineasAqui = buscarLineasParaParada(lat, lng);
-                            if (lineasAqui.length > 0) {
-                                const chips = lineasAqui.map(l => `<span class="linea-chip">${l}</span>`).join('');
-                                infoSaeta += `<div class="lineas-container"><small style="color:#555;font-weight:bold;">🚌 Líneas que paran acá:</small><div class="lineas-listas">${chips}</div></div>`;
-                            } else {
-                                infoSaeta += `<br><small style="color:#999;">🚌 Sin info de líneas</small>`;
-                            }
-                        }
-                        capas[cat].addLayer(L.marker([lat, lng], { icon: icono })
-                            .bindPopup(
-                                `<strong>${emoji} ${nombre}</strong><br>` +
-                                `<small>${NOMBRES[cat] || cat}</small>` +
-                                infoSaeta +
-                                (dir ? '<br><small>📍 ' + dir + '</small>' : '') +
-                                (props.phone ? '<br><small>📞 ' + props.phone + '</small>' : '')
-                            ));
-                        contador++;
-                    });
-                    console.log(`✅ ${archivo}: ${contador} elementos`);
-                } catch (e) { console.error(`Error cargando ${archivo}:`, e); }
-            }
-            generarBotonesFiltros();
-            console.log('✅ Sitios cargados:', Object.keys(capas).length, 'categorías');
-        }
-
-        function generarBotonesFiltros() {
-            const lista = document.getElementById('pfLista');
-            lista.innerHTML = '';
-            const categoriasDisponibles = {};
-            Object.keys(capas).forEach(cat => {
-                let contador = 0;
-                capas[cat].eachLayer(() => contador++);
-                categoriasDisponibles[cat] = contador;
-            });
-            const yaMostradas = new Set();
-            Object.keys(GRUPOS).forEach(nombreGrupo => {
-                const grupo = GRUPOS[nombreGrupo];
-                const categoriasDelGrupo = grupo.categorias.filter(cat => categoriasDisponibles[cat]);
-                if (categoriasDelGrupo.length === 0) return;
-                const seccion = document.createElement('div');
-                seccion.className = 'pf-seccion';
-                const titulo = document.createElement('div');
-                titulo.className = 'pf-seccion-titulo';
-                titulo.textContent = `${grupo.emoji} ${nombreGrupo}`;
-                seccion.appendChild(titulo);
-                categoriasDelGrupo.forEach(cat => {
-                    yaMostradas.add(cat);
-                    seccion.appendChild(crearBotonCategoria(cat, categoriasDisponibles[cat]));
-                });
-                lista.appendChild(seccion);
-            });
-            const sinGrupo = Object.keys(categoriasDisponibles).filter(cat => !yaMostradas.has(cat));
-            if (sinGrupo.length > 0) {
-                const seccion = document.createElement('div');
-                seccion.className = 'pf-seccion';
-                const titulo = document.createElement('div');
-                titulo.className = 'pf-seccion-titulo';
-                titulo.textContent = '📦 Otros';
-                seccion.appendChild(titulo);
-                sinGrupo.forEach(cat => seccion.appendChild(crearBotonCategoria(cat, categoriasDisponibles[cat])));
-                lista.appendChild(seccion);
-            }
-            actualizarBadgeFiltros();
-        }
-
-        function crearBotonCategoria(cat, contador) {
-            const btn = document.createElement('button');
-            btn.className = 'pf-cat';
-            btn.id = 'btn-' + cat;
-            btn.dataset.categoria = cat;
-            btn.dataset.nombre = (NOMBRES[cat] || cat).toLowerCase();
-            btn.innerHTML = `
-                <span class="pf-emoji">${EMOJIS[cat] || '📍'}</span>
-                <span class="pf-nombre">${NOMBRES[cat] || cat}</span>
-                <span class="pf-contador">${contador}</span>
-                <span class="pf-check">✓</span>
-            `;
-            btn.onclick = () => toggleCapa(cat);
-            return btn;
-        }
-
-        function abrirPanelFiltros() {
-            document.getElementById('panelFiltros').classList.add('activo');
-            document.getElementById('panelFiltrosOverlay').classList.add('activo');
-        }
-        function cerrarPanelFiltros() {
-            document.getElementById('panelFiltros').classList.remove('activo');
-            document.getElementById('panelFiltrosOverlay').classList.remove('activo');
-        }
-        document.getElementById('btnFiltros').addEventListener('click', abrirPanelFiltros);
-
-        function toggleCapa(cat) {
-            if (!capas[cat]) return;
-            const btn = document.getElementById('btn-' + cat);
-            if (capasActivas[cat]) {
-                map.removeLayer(capas[cat]);
-                capasActivas[cat] = false;
-                btn?.classList.remove('activo');
-            } else {
-                map.addLayer(capas[cat]);
-                capasActivas[cat] = true;
-                btn?.classList.add('activo');
-            }
-            actualizarBadgeFiltros();
-        }
-        function mostrarTodos() {
-            Object.keys(capas).forEach(cat => {
-                if (!capasActivas[cat]) {
-                    map.addLayer(capas[cat]);
-                    capasActivas[cat] = true;
-                    document.getElementById('btn-' + cat)?.classList.add('activo');
-                }
-            });
-            actualizarBadgeFiltros();
-            mostrarNotificacion('✅ Todos los filtros activados', 'exito', 2000);
-        }
-        function ocultarTodos() {
-            Object.keys(capas).forEach(cat => {
-                if (capasActivas[cat]) {
-                    map.removeLayer(capas[cat]);
-                    capasActivas[cat] = false;
-                    document.getElementById('btn-' + cat)?.classList.remove('activo');
-                }
-            });
-            actualizarBadgeFiltros();
-            mostrarNotificacion('🚫 Todos los filtros desactivados', 'info', 2000);
-        }
-        function filtrarCategorias() {
-            const texto = document.getElementById('pfBuscar').value.toLowerCase().trim();
-            const secciones = document.querySelectorAll('.pf-seccion');
-            let visiblesTotal = 0;
-            secciones.forEach(seccion => {
-                let visiblesEnSeccion = 0;
-                const botones = seccion.querySelectorAll('.pf-cat');
-                botones.forEach(btn => {
-                    const nombre = btn.dataset.nombre || '';
-                    if (!texto || nombre.includes(texto)) {
-                        btn.style.display = 'flex';
-                        visiblesEnSeccion++;
-                    } else {
-                        btn.style.display = 'none';
-                    }
-                });
-                seccion.style.display = visiblesEnSeccion > 0 ? 'block' : 'none';
-                visiblesTotal += visiblesEnSeccion;
-            });
-            let vacio = document.querySelector('.pf-vacio');
-            if (visiblesTotal === 0) {
-                if (!vacio) {
-                    vacio = document.createElement('div');
-                    vacio.className = 'pf-vacio';
-                    vacio.textContent = '😕 No se encontraron categorías';
-                    document.getElementById('pfLista').appendChild(vacio);
-                }
-            } else if (vacio) { vacio.remove(); }
-        }
-        function actualizarBadgeFiltros() {
-            const activos = Object.values(capasActivas).filter(v => v).length;
-            const badge = document.getElementById('badgeFiltros');
-            if (!badge) return;
-            if (activos > 0) { badge.textContent = activos; badge.classList.add('activo'); }
-            else { badge.classList.remove('activo'); }
-        }
-
-        cargarSitios();
-
-        // ============================================
-        // BOTONES FLOTANTES
-        // ============================================
-        document.getElementById('btnCentrar').addEventListener('click', () => {
-            if (posicionUsuario) map.setView(posicionUsuario, 17);
-            else alert('Todavía no se detectó tu ubicación.');
-        });
-        document.getElementById('btnModoOscuro').addEventListener('click', (e) => {
-            modoOscuro = !modoOscuro;
-            const tiles = document.querySelector('.leaflet-tile-pane');
-            if (modoOscuro) { tiles.classList.add('mapa-oscuro'); e.target.classList.add('activo'); e.target.textContent = '☀️'; }
-            else { tiles.classList.remove('mapa-oscuro'); e.target.classList.remove('activo'); e.target.textContent = '🌙'; }
-        });
-        document.getElementById('btnCompartir').addEventListener('click', () => {
-            if (!ultimaBusqueda) return;
-            const url = `https://www.google.com/maps?q=${ultimaBusqueda.lat},${ultimaBusqueda.lng}`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(`📍 ${ultimaBusqueda.texto}\n${url}`)}`, '_blank');
-        });
-
-        // ============================================
-        // MEDIR
-        // ============================================
-        let modoMedir = false, puntoA = null, puntoB = null, lineaMedir = null, marcadorA = null, marcadorB = null;
-        const iconoPuntoMedida = L.divIcon({ className: '', html: '<div style="width:14px;height:14px;background:#e67e22;border:3px solid white;border-radius:50%;box-shadow:0 0 8px rgba(230,126,34,1);"></div>', iconSize: [14, 14], iconAnchor: [7, 7] });
-        document.getElementById('btnMedir').addEventListener('click', () => {
-            modoMedir = !modoMedir;
-            const btn = document.getElementById('btnMedir'), aviso = document.getElementById('avisoMedir');
-            if (modoMedir) { btn.classList.add('activo'); aviso.classList.add('activo'); aviso.textContent = '📏 Tocá dos puntos'; map.getContainer().style.cursor = 'crosshair'; resetearMedicion(); }
-            else { btn.classList.remove('activo'); aviso.classList.remove('activo'); map.getContainer().style.cursor = ''; resetearMedicion(); }
-        });
-        function resetearMedicion() {
-            if (lineaMedir) map.removeLayer(lineaMedir);
-            if (marcadorA) map.removeLayer(marcadorA);
-            if (marcadorB) map.removeLayer(marcadorB);
-            lineaMedir = marcadorA = marcadorB = null; puntoA = puntoB = null;
-        }
-        map.on('click', (e) => {
-            if (!modoMedir) return;
-            const ll = e.latlng;
-            if (!puntoA) {
-                puntoA = ll;
-                marcadorA = L.marker(ll, { icon: iconoPuntoMedida }).addTo(map).bindPopup('Punto A');
-                document.getElementById('avisoMedir').textContent = '📏 Ahora tocá el segundo punto';
-            } else if (!puntoB) {
-                puntoB = ll;
-                marcadorB = L.marker(ll, { icon: iconoPuntoMedida }).addTo(map).bindPopup('Punto B');
-                lineaMedir = L.polyline([puntoA, puntoB], { color: '#e67e22', weight: 4, dashArray: '8, 6' }).addTo(map);
-                const d = haversine(puntoA.lat, puntoA.lng, puntoB.lat, puntoB.lng);
-                document.getElementById('avisoMedir').textContent = `📏 Distancia: ${formatearDistancia(d)}`;
-                const medio = L.latLng((puntoA.lat + puntoB.lat) / 2, (puntoA.lng + puntoB.lng) / 2);
-                L.popup().setLatLng(medio).setContent(`<strong>📏 ${formatearDistancia(d)}</strong>`).openOn(map);
-            } else {
-                resetearMedicion();
-                puntoA = ll;
-                marcadorA = L.marker(ll, { icon: iconoPuntoMedida }).addTo(map).bindPopup('Punto A');
-                document.getElementById('avisoMedir').textContent = '📏 Ahora tocá el segundo punto';
-            }
-        });
-
-        // ============================================
-        // MIS LUGARES
-        // ============================================
-        const STORAGE_KEY = 'salta_mis_lugares';
-        let misLugares = [];
-        const capaLugares = L.layerGroup().addTo(map);
-        function cargarLugaresGuardados() {
-            try { const g = localStorage.getItem(STORAGE_KEY); if (g) misLugares = JSON.parse(g); } catch (e) { misLugares = []; }
-            pintarLugaresEnMapa();
-        }
-        function guardarLugaresEnStorage() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(misLugares)); } catch (e) {} }
-        const iconoMio = L.divIcon({ className: 'punto-mio', iconSize: [26, 26], iconAnchor: [13, 26], popupAnchor: [0, -26] });
-        function pintarLugaresEnMapa() {
-            capaLugares.clearLayers();
-            misLugares.forEach(l => capaLugares.addLayer(L.marker([l.lat, l.lng], { icon: iconoMio }).bindPopup(`<strong>⭐ ${l.nombre}</strong><br><small>${l.fecha || ''}</small>`)));
-        }
-        document.getElementById('btnLugares').addEventListener('click', abrirModalLugares);
-        function abrirModalLugares() {
-            const ul = document.getElementById('listaLugares');
-            ul.innerHTML = '';
-            if (misLugares.length === 0) ul.innerHTML = '<li class="vacio">Todavía no guardaste lugares.</li>';
-            else misLugares.forEach((l, idx) => {
-                const li = document.createElement('li');
-                const n = document.createElement('span');
-                n.className = 'nombre'; n.textContent = '⭐ ' + l.nombre;
-                n.addEventListener('click', () => { map.setView([l.lat, l.lng], 17); cerrarModalLugares(); });
-                const b = document.createElement('button');
-                b.className = 'borrar'; b.textContent = '🗑️';
-                b.addEventListener('click', (ev) => {
-                    ev.stopPropagation();
-                    if (confirm(`¿Borrar "${l.nombre}"?`)) {
-                        misLugares.splice(idx, 1);
-                        guardarLugaresEnStorage(); pintarLugaresEnMapa(); abrirModalLugares();
-                    }
-                });
-                li.appendChild(n); li.appendChild(b); ul.appendChild(li);
-            });
-            document.getElementById('modalLugares').classList.add('activo');
-        }
-        function cerrarModalLugares() { document.getElementById('modalLugares').classList.remove('activo'); }
-        document.getElementById('btnAgregarDesdeLista').addEventListener('click', () => { cerrarModalLugares(); abrirModalLugar(); });
-        function abrirModalLugar() {
-            document.getElementById('inputNombreLugar').value = '';
-            document.getElementById('modalLugar').classList.add('activo');
-            setTimeout(() => document.getElementById('inputNombreLugar').focus(), 100);
-        }
-        function cerrarModalLugar() { document.getElementById('modalLugar').classList.remove('activo'); }
-        function confirmarGuardarLugar() {
-            const nombre = document.getElementById('inputNombreLugar').value.trim();
-            if (!nombre) { alert('Poné un nombre'); return; }
-            const c = map.getCenter();
-            misLugares.push({ nombre, lat: c.lat, lng: c.lng, fecha: new Date().toLocaleDateString('es-AR') });
-            guardarLugaresEnStorage(); pintarLugaresEnMapa(); cerrarModalLugar();
-            mostrarNotificacion(`⭐ "${nombre}" guardado`, 'exito');
-        }
-        map.on('dblclick', (e) => {
-            if (modoMedir) return;
-            map.setView(e.latlng, map.getZoom());
-            setTimeout(abrirModalLugar, 100);
-        });
-
-        // ============================================
-        // ROUTING
-        // ============================================
-        let rutaLineas = null, marcadorDestino = null, modoTransporte = 'auto', autoRecalcActivo = true;
-        let ultimaPosRecalc = null, recalculoEnProgreso = false, coordsRuta = [], distanciaMinRecalc = 30;
-        const iconoDestino = L.divIcon({
-            className: '',
-            html: '<div style="width:32px;height:32px;background:#e74c3c;border:4px solid white;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 0 12px rgba(231,76,60,1);display:flex;align-items:center;justify-content:center;font-size:16px;"><span style="transform:rotate(45deg);">🏁</span></div>',
-            iconSize: [32, 32], iconAnchor: [16, 32]
-        });
-        document.getElementById('btnIr').addEventListener('click', () => {
-            if (!destinoActual) { alert('Primero buscá una calle'); return; }
-            if (!posicionUsuario) { alert('Todavía no se detectó tu ubicación'); return; }
-            calcularRuta(posicionUsuario[0], posicionUsuario[1], destinoActual.lat, destinoActual.lng, destinoActual.nombre, false);
-        });
-        function cambiarModo(modo) {
-            modoTransporte = modo;
-            document.querySelectorAll('.panel-ruta .modo button').forEach(b => b.classList.remove('activo'));
-            document.getElementById('modo' + modo.charAt(0).toUpperCase() + modo.slice(1)).classList.add('activo');
-            if (destinoActual && posicionUsuario) calcularRuta(posicionUsuario[0], posicionUsuario[1], destinoActual.lat, destinoActual.lng, destinoActual.nombre, false);
-        }
-        function toggleAutoRecalc() {
-            autoRecalcActivo = !autoRecalcActivo;
-            const btn = document.getElementById('btnAutoRecalc');
-            btn.textContent = autoRecalcActivo ? '📡 Auto: ON' : '📡 Auto: OFF';
-            btn.classList.toggle('activo', autoRecalcActivo);
-            mostrarNotificacion(autoRecalcActivo ? '🔄 Recálculo ACTIVADO' : '⏸️ Recálculo DESACTIVADO', 'info', 2000);
-        }
-        function forzarRecalculo() {
-            if (!destinoActual || !posicionUsuario) return;
-            calcularRuta(posicionUsuario[0], posicionUsuario[1], destinoActual.lat, destinoActual.lng, destinoActual.nombre, true);
-        }
-        function cerrarPanelRuta() {
-            document.getElementById('panelRuta').classList.remove('activo');
-            if (rutaLineas) map.removeLayer(rutaLineas);
-            if (marcadorDestino) map.removeLayer(marcadorDestino);
-            rutaLineas = marcadorDestino = null; coordsRuta = []; ultimaPosRecalc = null;
-        }
-        async function calcularRuta(lat1, lng1, lat2, lng2, nombre, esRecalc) {
-            if (recalculoEnProgreso && !esRecalc) return;
-            recalculoEnProgreso = true;
-            document.getElementById('panelRuta').classList.add('activo');
-            document.getElementById('tituloRuta').textContent = `🛣️ Hacia: ${nombre}`;
-            if (!esRecalc) {
-                document.getElementById('statDistancia').textContent = '...';
-                document.getElementById('statTiempo').textContent = '...';
-                document.getElementById('listaPasos').innerHTML = '<li>Cargando ruta...</li>';
-            }
-            if (rutaLineas) map.removeLayer(rutaLineas);
-            if (marcadorDestino) map.removeLayer(marcadorDestino);
-            marcadorDestino = L.marker([lat2, lng2], { icon: iconoDestino, zIndexOffset: 3000 }).addTo(map).bindPopup(`<strong>🏁 ${nombre}</strong>`);
-            const perfil = modoTransporte === 'auto' ? 'driving' : modoTransporte === 'pie' ? 'foot' : 'bike';
-            const url = `https://router.project-osrm.org/route/v1/${perfil}/${lng1},${lat1};${lng2},${lat2}?overview=full&geometries=geojson&steps=true`;
-            try {
-                const resp = await fetch(url);
-                if (!resp.ok) throw new Error('HTTP ' + resp.status);
-                const data = await resp.json();
-                if (!data.routes || data.routes.length === 0) throw new Error('Sin ruta');
-                const ruta = data.routes[0];
-                coordsRuta = ruta.geometry.coordinates.map(c => [c[1], c[0]]);
-                const lf = L.polyline(coordsRuta, { color: '#2c3e50', weight: 9, opacity: 0.5, lineCap: 'round', lineJoin: 'round' });
-                const lr = L.polyline(coordsRuta, { color: '#3498db', weight: 5, opacity: 0.95, lineCap: 'round', lineJoin: 'round' });
-                rutaLineas = L.layerGroup([lf, lr]).addTo(map);
-                ultimaPosRecalc = posicionUsuario ? [...posicionUsuario] : [lat1, lng1];
-                if (!esRecalc) map.fitBounds(rutaLineas.getBounds(), { padding: [80, 80, 80, 80] });
-                document.getElementById('statDistancia').textContent = formatearDistancia(ruta.distance);
-                document.getElementById('statTiempo').textContent = formatearTiempo(ruta.duration);
-                renderizarPasos(ruta.legs[0].steps || []);
-                if (esRecalc) mostrarNotificacion('🔄 Ruta recalculada', 'exito', 2000);
-                actualizarProgresoRuta();
-            } catch (e) {
-                rutaLineas = L.polyline([[lat1, lng1], [lat2, lng2]], { color: '#e67e22', weight: 5, dashArray: '10, 8', opacity: 0.9 }).addTo(map);
-                coordsRuta = [[lat1, lng1], [lat2, lng2]];
-                if (!esRecalc) map.fitBounds(rutaLineas.getBounds(), { padding: [80, 80, 80, 80] });
-                const d = haversine(lat1, lng1, lat2, lng2);
-                document.getElementById('statDistancia').textContent = formatearDistancia(d) + ' (recta)';
-                const vel = modoTransporte === 'auto' ? 40 : modoTransporte === 'bici' ? 15 : 5;
-                document.getElementById('statTiempo').textContent = '~' + formatearTiempo((d / 1000) / vel * 3600);
-                document.getElementById('listaPasos').innerHTML = '<li><span class="icono">📡</span><span>Sin conexión: línea recta. La ruta real necesita internet.</span></li>';
-                if (esRecalc) mostrarNotificacion('⚠️ Sin conexión', 'aviso', 3000);
-            }
-            recalculoEnProgreso = false;
-        }
-        function renderizarPasos(pasos) {
-            const ul = document.getElementById('listaPasos');
-            ul.innerHTML = '';
-            pasos.forEach((s) => {
-                const li = document.createElement('li');
-                const icono = iconoManiobra(s.maneuver);
-                const d = s.distance < 1000 ? `${Math.round(s.distance)} m` : `${(s.distance / 1000).toFixed(1)} km`;
-                li.innerHTML = `<span class="icono">${icono}</span><span><strong>${s.name || 'Continuar'}</strong><br><small>${d}</small></span>`;
-                ul.appendChild(li);
-            });
-        }
-        function iconoManiobra(m) {
-            if (!m) return '➡️';
-            const t = m.type || '', mod = m.modifier || '';
-            if (t === 'depart') return '🚩';
-            if (t === 'arrive') return '🏁';
-            if (t === 'turn') {
-                if (mod.includes('slight left')) return '↖️';
-                if (mod.includes('slight right')) return '↗️';
-                if (mod.includes('left')) return '⬅️';
-                if (mod.includes('right')) return '➡️';
-                return '🔄';
-            }
-            if (t === 'roundabout' || t === 'rotary') return '🔄';
-            if (t === 'merge') return '🔀';
-            if (t === 'continue' || t === 'new name') return '⬆️';
-            return '➡️';
-        }
-        function verificarRecalculo() {
-            if (!autoRecalcActivo || !destinoActual || !posicionUsuario || recalculoEnProgreso || !ultimaPosRecalc) return;
-            if (!document.getElementById('panelRuta').classList.contains('activo')) return;
-            const d = haversine(ultimaPosRecalc[0], ultimaPosRecalc[1], posicionUsuario[0], posicionUsuario[1]);
-            if (d >= distanciaMinRecalc) calcularRuta(posicionUsuario[0], posicionUsuario[1], destinoActual.lat, destinoActual.lng, destinoActual.nombre, true);
-        }
-        function actualizarProgresoRuta() {
-            if (!posicionUsuario || !coordsRuta || coordsRuta.length < 2) return;
-            if (!document.getElementById('panelRuta').classList.contains('activo')) return;
-            const dRestante = haversine(posicionUsuario[0], posicionUsuario[1], destinoActual.lat, destinoActual.lng);
-            if (dRestante > 5) document.getElementById('statDistancia').textContent = formatearDistancia(dRestante) + ' restantes';
-            else { document.getElementById('statDistancia').textContent = '¡Llegaste!'; mostrarNotificacion('🏁 ¡Llegaste!', 'exito', 4000); }
-        }
-
-        // ============================================
-        // DESCARGA OFFLINE
-        // ============================================
-        const BBOX = { sur: -24.92, norte: -24.65, oeste: -65.52, este: -65.30 };
-        const ZOOMS = [13, 14, 15, 16];
-        let descargaEnCurso = false;
-        function lng2tile(lon, zoom) { return Math.floor((lon + 180) / 360 * Math.pow(2, zoom)); }
-        function lat2tile(lat, zoom) { return Math.floor((1 - Math.log(Math.tan(lat * Math.PI / 180) + 1 / Math.cos(lat * Math.PI / 180)) / Math.PI) / 2 * Math.pow(2, zoom)); }
-        function generarListaTeselas() {
-            const teselas = [];
-            for (const zoom of ZOOMS) {
-                const xMin = lng2tile(BBOX.oeste, zoom), xMax = lng2tile(BBOX.este, zoom);
-                const yMin = lat2tile(BBOX.norte, zoom), yMax = lat2tile(BBOX.sur, zoom);
-                for (let x = xMin; x <= xMax; x++) for (let y = yMin; y <= yMax; y++) {
-                    const sub = ['a', 'b', 'c'][(x + y) % 3];
-                    teselas.push(`https://${sub}.tile.openstreetmap.org/${zoom}/${x}/${y}.png`);
-                }
-            }
-            return teselas;
-        }
-        document.getElementById('btnOffline').addEventListener('click', abrirModalOffline);
-        async function abrirModalOffline() {
-            document.getElementById('modalOffline').classList.add('activo');
-            document.getElementById('barraOffline').style.display = 'none';
-            document.getElementById('btnIniciarOffline').style.display = 'block';
-            document.getElementById('btnIniciarOffline').disabled = false;
-            document.getElementById('btnIniciarOffline').textContent = '📥 Descargar';
-            document.getElementById('infoProgreso').textContent = '';
-            const teselas = generarListaTeselas();
-            const total = teselas.length;
-            let yaDescargadas = 0;
-            if ('caches' in window) {
-                try {
-                    const cache = await caches.open('salta-tiles-v12');
-                    const keys = await cache.keys();
-                    const urlsSet = new Set(keys.map(k => k.url));
-                    yaDescargadas = teselas.filter(u => urlsSet.has(u)).length;
-                } catch (e) {}
-            }
-            const faltantes = total - yaDescargadas;
-            const tamañoMB = Math.round(total * 20 / 1024);
-            document.getElementById('estadoOffline').innerHTML = `
-                <strong>📊 Estado actual:</strong><br>
-                • Teselas totales: <strong>${total}</strong><br>
-                • Ya descargadas: <strong>${yaDescargadas}</strong><br>
-                • Faltan descargar: <strong>${faltantes}</strong><br>
-                • Tamaño total aprox: <strong>~${tamañoMB} MB</strong>
-            `;
-            document.getElementById('textoOffline').textContent = faltantes === 0 ? '✅ El mapa ya está descargado.' : `Se descargarán las ${faltantes} teselas que faltan.`;
-            if (faltantes === 0) {
-                document.getElementById('btnIniciarOffline').style.display = 'none';
-                document.getElementById('btnBorrarTeselas').style.display = 'block';
-            } else {
-                document.getElementById('btnBorrarTeselas').style.display = yaDescargadas > 0 ? 'block' : 'none';
-            }
-        }
-        function cerrarModalOffline() { if (descargaEnCurso) return; document.getElementById('modalOffline').classList.remove('activo'); }
-        async function iniciarDescargaOffline() {
-            if (descargaEnCurso) return;
-            descargaEnCurso = true;
-            const btn = document.getElementById('btnIniciarOffline'), btnBorrar = document.getElementById('btnBorrarTeselas');
-            const barra = document.getElementById('barraOffline'), barraFill = document.getElementById('barraOfflineFill');
-            const info = document.getElementById('infoProgreso'), btnFlotante = document.getElementById('btnOffline');
-            btn.disabled = true; btn.textContent = '⏳ Descargando...';
-            btnBorrar.style.display = 'none'; barra.style.display = 'block'; barraFill.style.width = '0%';
-            btnFlotante.textContent = '⏳';
-            const teselas = generarListaTeselas();
-            let urlsYaDescargadas = new Set();
-            try { const cache = await caches.open('salta-tiles-v12'); const keys = await cache.keys(); urlsYaDescargadas = new Set(keys.map(k => k.url)); } catch (e) {}
-            const pendientes = teselas.filter(u => !urlsYaDescargadas.has(u));
-            const totalPendientes = pendientes.length;
-            let descargadas = 0, errores = 0;
-            const TANDA = 8;
-            for (let i = 0; i < pendientes.length; i += TANDA) {
-                const tanda = pendientes.slice(i, i + TANDA);
-                const results = await Promise.all(tanda.map(async (url) => {
-                    try {
-                        const resp = await fetch(url, { mode: 'cors' });
-                        if (resp.ok) { const cache = await caches.open('salta-tiles-v12'); await cache.put(url, resp.clone()); return true; }
-                    } catch (e) {}
-                    return false;
-                }));
-                results.forEach(r => r ? descargadas++ : errores++);
-                const prog = Math.round(((i + tanda.length) / totalPendientes) * 100);
-                barraFill.style.width = prog + '%';
-                info.textContent = `${i + tanda.length} / ${totalPendientes} teselas (${prog}%)`;
-                await new Promise(r => setTimeout(r, 100));
-            }
-            btn.textContent = '✅ Completado';
-            btnFlotante.textContent = '✅';
-            btnFlotante.classList.add('completo');
-            barraFill.style.width = '100%';
-            info.textContent = `✅ ${descargadas} teselas descargadas${errores > 0 ? `, ${errores} errores` : ''}`;
-            document.getElementById('estadoOffline').innerHTML = `<strong>✅ Descarga completa</strong><br>Se descargaron <strong>${descargadas}</strong> teselas.`;
-            document.getElementById('textoOffline').textContent = '';
-            setTimeout(() => {
-                btn.textContent = '📥 Cerrar'; btn.disabled = false;
-                btn.onclick = () => { document.getElementById('modalOffline').classList.remove('activo'); btn.onclick = iniciarDescargaOffline; descargaEnCurso = false; abrirModalOffline(); };
-            }, 500);
-            descargaEnCurso = false;
-        }
-        async function borrarTeselas() {
-            if (!confirm('¿Borrar todas las teselas descargadas?')) return;
-            try {
-                await caches.delete('salta-tiles-v12');
-                mostrarNotificacion('🗑️ Teselas borradas', 'exito', 3000);
-                document.getElementById('btnOffline').textContent = '📥';
-                document.getElementById('btnOffline').classList.remove('completo');
-                cerrarModalOffline();
-            } catch (e) { alert('Error: ' + e.message); }
-        }
-
-        // ============================================
-        // CERCA DE MÍ
-        // ============================================
-        function abrirModalCerca() {
-            if (!posicionUsuario) {
-                alert('Todavía no se detectó tu ubicación. Activá el GPS y esperá unos segundos.');
-                return;
-            }
-            document.getElementById('modalCerca').classList.add('activo');
-            document.getElementById('cercaBuscar').value = '';
-            document.getElementById('cercaResultados').style.display = 'none';
-            document.getElementById('cercaLista').style.display = 'flex';
-            renderizarCategoriasCerca();
-        }
-        function cerrarModalCerca() {
-            document.getElementById('modalCerca').classList.remove('activo');
-        }
-        function renderizarCategoriasCerca(filtro = '') {
-            const lista = document.getElementById('cercaLista');
-            lista.innerHTML = '';
-            const categorias = Object.keys(capas).filter(cat => {
-                if (!filtro) return true;
-                const nombre = (NOMBRES[cat] || cat).toLowerCase();
-                return nombre.includes(filtro.toLowerCase());
-            }).sort((a, b) => (NOMBRES[a] || a).localeCompare(NOMBRES[b] || b));
-            if (categorias.length === 0) {
-                lista.innerHTML = '<div class="cerca-vacio-msg">😕 No hay categorías con ese nombre</div>';
-                return;
-            }
-            categorias.forEach(cat => {
-                let contador = 0;
-                capas[cat].eachLayer(() => contador++);
-                const btn = document.createElement('button');
-                btn.className = 'cerca-cat';
-                btn.innerHTML = `
-                    <span class="cerca-emoji">${EMOJIS[cat] || '📍'}</span>
-                    <span class="cerca-nombre">${NOMBRES[cat] || cat}</span>
-                    <span class="cerca-count">${contador}</span>
-                `;
-                btn.onclick = () => mostrarCercaDeMi(cat);
-                lista.appendChild(btn);
-            });
-        }
-        function filtrarCategoriasCerca() {
-            renderizarCategoriasCerca(document.getElementById('cercaBuscar').value);
-        }
-        function volverCategoriasCerca() {
-            document.getElementById('cercaResultados').style.display = 'none';
-            document.getElementById('cercaLista').style.display = 'flex';
-        }
-        function mostrarCercaDeMi(categoria) {
-            if (!posicionUsuario) return;
-            const [ulat, ulng] = posicionUsuario;
-            const items = [];
-            capas[categoria].eachLayer(marcador => {
-                const ll = marcador.getLatLng();
-                const dist = haversine(ulat, ulng, ll.lat, ll.lng);
-                const popup = marcador.getPopup();
-                let nombre = 'Sin nombre';
-                let dir = '';
-                if (popup) {
-                    const content = popup.getContent();
-                    if (typeof content === 'string') {
-                        const m1 = content.match(/<strong>([\s\S]*?)<\/strong>/);
-                        if (m1) {
-                            let raw = m1[1].replace(/<[^>]*>/g, '').trim();
-                            raw = raw.replace(/^[^\wáéíóúñÁÉÍÓÚÑ]+/, '').trim();
-                            nombre = raw;
-                        }
-                        const m2 = content.match(/📍\s*([^<]+)/);
-                        if (m2) dir = m2[1].trim();
-                    }
-                }
-                items.push({ lat: ll.lat, lng: ll.lng, dist, nombre, dir, marcador });
-            });
-            items.sort((a, b) => a.dist - b.dist);
-            const top5 = items.slice(0, 5);
-            const ul = document.getElementById('cercaItems');
-            ul.innerHTML = '';
-            document.getElementById('cercaCategoriaActual').textContent = `${EMOJIS[categoria]} ${NOMBRES[categoria]}`;
-            if (top5.length === 0) {
-                ul.innerHTML = '<li class="cerca-vacio-msg">No hay lugares de esta categoría</li>';
-            } else {
-                top5.forEach((item, idx) => {
-                    const li = document.createElement('li');
-                    const distTexto = item.dist < 1000 ? `${Math.round(item.dist)} m` : `${(item.dist / 1000).toFixed(2)} km`;
-                    const medalla = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '📍';
-                    li.innerHTML = `
-                        <span class="cerca-item-emoji">${medalla}</span>
-                        <div class="cerca-item-info">
-                            <div class="cerca-item-nombre">${item.nombre}</div>
-                            ${item.dir ? '<div class="cerca-item-dir">📍 ' + item.dir + '</div>' : ''}
-                        </div>
-                        <span class="cerca-item-dist">${distTexto}</span>
-                    `;
-                    li.addEventListener('click', () => {
-                        cerrarModalCerca();
-                        if (!capasActivas[categoria]) {
-                            map.addLayer(capas[categoria]);
-                            capasActivas[categoria] = true;
-                            document.getElementById('btn-' + categoria)?.classList.add('activo');
-                            actualizarBadgeFiltros();
-                        }
-                        map.setView([item.lat, item.lng], 18);
-                        setTimeout(() => item.marcador.openPopup(), 300);
-                    });
-                    ul.appendChild(item.nombre ? li : (() => { li.remove(); return document.createElement('li'); })());
-                    if (!item.nombre) {
-                        // Si no hay nombre, igual mostrarlo con coordenadas
-                        const li2 = document.createElement('li');
-                        const distTexto2 = item.dist < 1000 ? `${Math.round(item.dist)} m` : `${(item.dist / 1000).toFixed(2)} km`;
-                        const medalla2 = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '📍';
-                        li2.innerHTML = `
-                            <span class="cerca-item-emoji">${medalla2}</span>
-                            <div class="cerca-item-info">
-                                <div class="cerca-item-nombre">${NOMBRES[categoria]}</div>
-                                <div class="cerca-item-dir">📍 ${item.lat.toFixed(5)}, ${item.lng.toFixed(5)}</div>
-                            </div>
-                            <span class="cerca-item-dist">${distTexto2}</span>
-                        `;
-                        li2.addEventListener('click', () => {
-                            cerrarModalCerca();
-                            if (!capasActivas[categoria]) {
-                                map.addLayer(capas[categoria]);
-                                capasActivas[categoria] = true;
-                                document.getElementById('btn-' + categoria)?.classList.add('activo');
-                                actualizarBadgeFiltros();
-                            }
-                            map.setView([item.lat, item.lng], 18);
-                            setTimeout(() => item.marcador.openPopup(), 300);
-                        });
-                        ul.appendChild(li2);
-                    }
-                });
-            }
-            document.getElementById('cercaLista').style.display = 'none';
-            document.getElementById('cercaResultados').style.display = 'block';
-        }
-        document.getElementById('btnCerca').addEventListener('click', abrirModalCerca);
-
-        // ============================================
-        // SERVICE WORKER
-        // ============================================
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then((reg) => console.log('✅ SW registrado:', reg.scope))
-                    .catch((err) => console.error('❌ Error SW:', err));
-            });
-        }
-    </script>
-
+// SW
+if('serviceWorker'in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').then(r=>console.log('✅ SW:',r.scope)).catch(e=>console.error('❌ SW:',e))})}
+</script>
 </body>
 </html>
