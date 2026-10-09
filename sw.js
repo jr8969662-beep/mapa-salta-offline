@@ -1,9 +1,9 @@
 // ============================================
 // SERVICE WORKER - Mapa Salta Offline
-// Versión: v12 (con Cerca de Mí)
+// Versión: v13 (tema oscuro)
 // ============================================
 
-const VERSION = 'v12';
+const VERSION = 'v13';
 const CACHE_APP = 'salta-app-' + VERSION;
 const CACHE_TILES = 'salta-tiles-' + VERSION;
 
@@ -20,24 +20,27 @@ const APP_URLS = [
     './data/lugares_extra.geojson',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
-    'https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js'
+    'https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js',
+    'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'
 ];
 
 function esTesela(url) {
-    return url.hostname.endsWith('tile.openstreetmap.org');
+    return url.hostname.endsWith('tile.openstreetmap.org') ||
+           url.hostname.includes('gstatic.com') ||
+           url.hostname.includes('googleapis.com');
 }
 
 self.addEventListener('install', (event) => {
-    console.log('🔧 Instalando Service Worker v12...');
+    console.log('🔧 Instalando SW v13...');
     event.waitUntil(
         caches.open(CACHE_APP)
-            .then((cache) => cache.addAll(APP_URLS))
+            .then((cache) => cache.addAll(APP_URLS).catch(e => console.warn('Algunos archivos no se cachearon:', e)))
             .then(() => self.skipWaiting())
     );
 });
 
 self.addEventListener('activate', (event) => {
-    console.log('✅ Service Worker v12 activado');
+    console.log('✅ SW v13 activado');
     event.waitUntil(
         caches.keys().then((nombres) => {
             return Promise.all(
@@ -54,6 +57,7 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
+
     if (esTesela(url)) {
         event.respondWith(
             caches.open(CACHE_TILES).then((cache) => {
@@ -68,6 +72,7 @@ self.addEventListener('fetch', (event) => {
         );
         return;
     }
+
     event.respondWith(
         caches.match(event.request).then((respuestaCache) => {
             return respuestaCache || fetch(event.request).then((respuestaRed) => {
