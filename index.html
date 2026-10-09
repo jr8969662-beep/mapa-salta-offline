@@ -15,151 +15,35 @@
         #map { width: 100%; height: 100vh; }
         .leaflet-tile-pane.mapa-oscuro { filter: invert(1) hue-rotate(180deg) brightness(0.95) contrast(0.9); }
 
-        /* ============================================ */
-        /* BUSCADOR DIDÁCTICO                           */
-        /* ============================================ */
+        /* BUSCADOR DIDÁCTICO */
         .buscador { position: absolute; top: 10px; left: 50px; right: 60px; z-index: 1000; max-width: 480px; }
-        .buscador-contenedor {
-            display: flex;
-            align-items: center;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            padding: 4px 8px;
-            gap: 4px;
-            transition: box-shadow 0.2s;
-        }
-        .buscador-contenedor:focus-within {
-            box-shadow: 0 6px 20px rgba(52,152,219,0.4);
-        }
-        .buscador-icono {
-            font-size: 18px;
-            flex-shrink: 0;
-            padding-left: 6px;
-        }
-        .buscador input {
-            flex: 1;
-            border: none;
-            outline: none;
-            padding: 12px 4px;
-            font-size: 16px;
-            background: transparent;
-            font-family: inherit;
-            min-width: 0;
-        }
-        .buscador-btn {
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 18px;
-            padding: 8px;
-            border-radius: 50%;
-            color: #7f8c8d;
-            transition: background 0.2s, color 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
+        .buscador-contenedor { display: flex; align-items: center; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); padding: 4px 8px; gap: 4px; transition: box-shadow 0.2s; }
+        .buscador-contenedor:focus-within { box-shadow: 0 6px 20px rgba(52,152,219,0.4); }
+        .buscador-icono { font-size: 18px; flex-shrink: 0; padding-left: 6px; }
+        .buscador input { flex: 1; border: none; outline: none; padding: 12px 4px; font-size: 16px; background: transparent; font-family: inherit; min-width: 0; }
+        .buscador-btn { background: transparent; border: none; cursor: pointer; font-size: 18px; padding: 8px; border-radius: 50%; color: #7f8c8d; transition: background 0.2s, color 0.2s; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
         .buscador-btn:hover { background: #f0f8ff; color: #2c3e50; }
-        .buscador-btn.grabando {
-            color: #e74c3c;
-            background: #fdecea;
-            animation: pulso-mic 1s infinite;
-        }
-        @keyframes pulso-mic {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.15); }
-        }
+        .buscador-btn.grabando { color: #e74c3c; background: #fdecea; animation: pulso-mic 1s infinite; }
+        @keyframes pulso-mic { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
 
-        /* Panel de sugerencias */
-        .sugerencias {
-            margin-top: 8px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
-            max-height: 60vh;
-            overflow-y: auto;
-            display: none;
-        }
+        .sugerencias { margin-top: 8px; background: white; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.2); max-height: 60vh; overflow-y: auto; display: none; }
         .sugerencias.activo { display: block; }
-
-        .sug-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            padding: 12px 12px 8px;
-        }
-        .sug-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            padding: 8px 12px;
-            background: #f0f8ff;
-            color: #2c3e50;
-            border: 1px solid #d4e8f5;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 13px;
-            font-weight: 500;
-            transition: all 0.15s;
-            font-family: inherit;
-        }
-        .sug-chip:hover, .sug-chip:active {
-            background: #3498db;
-            color: white;
-            border-color: #3498db;
-        }
-
-        .sug-titulo {
-            font-size: 11px;
-            color: #7f8c8d;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 12px 16px 4px;
-            font-weight: bold;
-        }
-
-        .sug-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 16px;
-            cursor: pointer;
-            border-bottom: 1px solid #f5f5f5;
-            transition: background 0.15s;
-        }
+        .sug-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px 12px 8px; }
+        .sug-chip { display: inline-flex; align-items: center; gap: 5px; padding: 8px 12px; background: #f0f8ff; color: #2c3e50; border: 1px solid #d4e8f5; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.15s; font-family: inherit; }
+        .sug-chip:hover, .sug-chip:active { background: #3498db; color: white; border-color: #3498db; }
+        .sug-titulo { font-size: 11px; color: #7f8c8d; text-transform: uppercase; letter-spacing: 1px; padding: 12px 16px 4px; font-weight: bold; }
+        .sug-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #f5f5f5; transition: background 0.15s; }
         .sug-item:hover, .sug-item:active { background: #f0f8ff; }
         .sug-item:last-child { border-bottom: none; }
-        .sug-item .sug-emoji {
-            font-size: 20px;
-            flex-shrink: 0;
-            width: 28px;
-            text-align: center;
-        }
-        .sug-item .sug-texto {
-            flex: 1;
-            color: #2c3e50;
-            font-size: 14px;
-            min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .sug-item .sug-texto small {
-            display: block;
-            color: #999;
-            font-size: 11px;
-            margin-top: 2px;
-            font-weight: normal;
-        }
+        .sug-item .sug-emoji { font-size: 20px; flex-shrink: 0; width: 28px; text-align: center; }
+        .sug-item .sug-texto { flex: 1; color: #2c3e50; font-size: 14px; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+        .sug-item .sug-texto small { display: block; color: #999; font-size: 11px; margin-top: 2px; font-weight: normal; }
         .sug-item .sug-texto strong { font-weight: 600; }
         .sug-item.esquina { border-left: 4px solid #f39c12; }
         .sug-item.direccion { border-left: 4px solid #27ae60; }
         .sug-item.historial { border-left: 4px solid #95a5a6; }
 
-        /* ============================================ */
-        /* BOTONES FLOTANTES                            */
-        /* ============================================ */
+        /* BOTONES FLOTANTES */
         .botones-flotantes { position: absolute; top: 10px; right: 10px; z-index: 1000; display: flex; flex-direction: column; gap: 8px; }
         .btn-flotante { width: 44px; height: 44px; border: none; border-radius: 50%; background: white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: transform 0.15s, background 0.2s; position: relative; }
         .btn-flotante:hover { transform: scale(1.08); background: #f0f8ff; }
@@ -168,12 +52,11 @@
         .btn-flotante.verde { background: #27ae60; color: white; }
         .btn-flotante.verde.completo { background: #2980b9; }
         .btn-flotante.azul { background: #3498db; color: white; }
+        .btn-flotante.azul:hover { background: #2980b9; }
         .btn-flotante .badge { position: absolute; top: -4px; right: -4px; background: #e74c3c; color: white; font-size: 10px; font-weight: bold; min-width: 18px; height: 18px; border-radius: 9px; display: none; align-items: center; justify-content: center; padding: 0 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
         .btn-flotante .badge.activo { display: flex; }
 
-        /* ============================================ */
-        /* PANEL DE FILTROS                             */
-        /* ============================================ */
+        /* PANEL DE FILTROS */
         .panel-filtros-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1999; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .panel-filtros-overlay.activo { opacity: 1; pointer-events: auto; }
         .panel-filtros { position: fixed; top: 0; right: 0; width: 400px; max-width: 92vw; height: 100vh; background: white; z-index: 2000; box-shadow: -4px 0 24px rgba(0,0,0,0.2); transform: translateX(100%); transition: transform 0.3s ease-out; display: flex; flex-direction: column; }
@@ -204,9 +87,7 @@
         .pf-cat.activo .pf-check { opacity: 1; }
         .pf-vacio { text-align: center; padding: 40px 20px; color: #999; font-size: 14px; }
 
-        /* ============================================ */
-        /* OTROS ELEMENTOS                              */
-        /* ============================================ */
+        /* PUNTO USUARIO */
         .punto-usuario { width: 22px; height: 22px; position: relative; }
         .punto-usuario .circulo { width: 100%; height: 100%; background: #0078ff; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 10px rgba(0, 120, 255, 0.8); animation: pulso 2s infinite; box-sizing: border-box; }
         .punto-usuario .flecha { position: absolute; top: -14px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 14px solid #0078ff; filter: drop-shadow(0 0 3px rgba(0,120,255,0.8)); transform-origin: 50% 25px; }
@@ -293,6 +174,29 @@
         .lista-lugares li .nombre:hover { color: #3498db; }
         .lista-lugares li .borrar { background: none; border: none; cursor: pointer; font-size: 16px; color: #e74c3c; padding: 4px 8px; }
         .lista-lugares .vacio { text-align: center; color: #999; padding: 20px; font-size: 14px; }
+
+        /* CERCA DE MÍ */
+        .modal-cerca { max-width: 500px; width: 92%; }
+        .modal-cerca .cerca-lista { display: flex; flex-direction: column; gap: 6px; max-height: 340px; overflow-y: auto; margin: 12px 0; padding: 4px; }
+        .modal-cerca .cerca-cat { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 2px solid #ecf0f1; border-radius: 10px; background: white; cursor: pointer; font-size: 14px; text-align: left; color: #2c3e50; font-family: inherit; transition: all 0.15s; width: 100%; box-sizing: border-box; }
+        .modal-cerca .cerca-cat:hover { border-color: #3498db; background: #f0f8ff; }
+        .modal-cerca .cerca-cat .cerca-emoji { font-size: 22px; width: 28px; text-align: center; flex-shrink: 0; }
+        .modal-cerca .cerca-cat .cerca-nombre { flex: 1; font-weight: 500; }
+        .modal-cerca .cerca-cat .cerca-count { font-size: 11px; background: #ecf0f1; color: #7f8c8d; padding: 3px 9px; border-radius: 12px; font-weight: bold; }
+        .cerca-header { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; margin-bottom: 8px; border-bottom: 2px solid #ecf0f1; gap: 8px; }
+        .cerca-volver { background: #ecf0f1; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; color: #2c3e50; font-weight: bold; font-family: inherit; }
+        .cerca-volver:hover { background: #d5dbdb; }
+        #cercaCategoriaActual { font-weight: bold; color: #2c3e50; font-size: 14px; }
+        .cerca-items { list-style: none; padding: 0; margin: 0; max-height: 380px; overflow-y: auto; }
+        .cerca-items li { display: flex; align-items: center; gap: 12px; padding: 12px 8px; border-bottom: 1px solid #f0f0f0; cursor: pointer; transition: background 0.15s; border-radius: 8px; }
+        .cerca-items li:hover { background: #f0f8ff; }
+        .cerca-items li:last-child { border-bottom: none; }
+        .cerca-item-emoji { font-size: 20px; width: 28px; text-align: center; flex-shrink: 0; }
+        .cerca-item-info { flex: 1; min-width: 0; }
+        .cerca-item-nombre { color: #2c3e50; font-size: 14px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .cerca-item-dir { color: #999; font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
+        .cerca-item-dist { font-size: 13px; font-weight: bold; color: #27ae60; flex-shrink: 0; }
+        .cerca-vacio-msg { text-align: center; padding: 30px 20px; color: #999; font-size: 13px; }
     </style>
 </head>
 <body>
@@ -310,6 +214,7 @@
 
     <div class="botones-flotantes">
         <button class="btn-flotante" id="btnCentrar" title="Centrar en mi ubicación">🎯</button>
+        <button class="btn-flotante azul" id="btnCerca" title="Cerca de mí">📡</button>
         <button class="btn-flotante" id="btnRotarMapa" title="Rotar mapa con el celular">🧭</button>
         <button class="btn-flotante" id="btnModoOscuro" title="Modo oscuro">🌙</button>
         <button class="btn-flotante" id="btnMedir" title="Medir distancia">📏</button>
@@ -381,6 +286,26 @@
         </div>
     </div>
 
+    <!-- MODAL: CERCA DE MÍ -->
+    <div class="modal-overlay" id="modalCerca">
+        <div class="modal modal-cerca">
+            <h3>📡 ¿Qué buscás cerca?</h3>
+            <p style="font-size:13px;color:#666;margin-bottom:8px;">Te muestro los 5 lugares más cercanos a tu ubicación actual.</p>
+            <input type="text" id="cercaBuscar" placeholder="🔍 Filtrar categoría..." oninput="filtrarCategoriasCerca()">
+            <div class="cerca-lista" id="cercaLista"></div>
+            <div class="cerca-resultados" id="cercaResultados" style="display:none;">
+                <div class="cerca-header">
+                    <button class="cerca-volver" onclick="volverCategoriasCerca()">← Volver</button>
+                    <span id="cercaCategoriaActual"></span>
+                </div>
+                <ul class="cerca-items" id="cercaItems"></ul>
+            </div>
+            <div class="botones">
+                <button class="btn-cancelar" onclick="cerrarModalCerca()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="modalLugar">
         <div class="modal">
             <h3>⭐ Guardar lugar</h3>
@@ -409,16 +334,12 @@
 
     <script>
         // ============================================
-        // MAPA CON SOPORTE DE ROTACIÓN
+        // MAPA CON ROTACIÓN
         // ============================================
         const CENTRO_SALTA = [-24.789, -65.411];
         const map = L.map('map', {
-            rotate: true,
-            rotateControl: false,
-            bearing: 0,
-            touchRotate: false,
-            shiftKeyRotate: false,
-            compassBearing: false
+            rotate: true, rotateControl: false, bearing: 0,
+            touchRotate: false, shiftKeyRotate: false, compassBearing: false
         }).setView(CENTRO_SALTA, 14);
         const capaBase = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19, attribution: '© OpenStreetMap'
@@ -463,12 +384,11 @@
         }
 
         // ============================================
-        // UBICACIÓN + BRÚJULA + ROTACIÓN
+        // UBICACIÓN + BRÚJULA
         // ============================================
         let posicionUsuario = null, headingUsuario = null, posicionAnterior = null, timestampAnterior = null;
         let ultimaVelocidad = 0, marcadorUsuario = null, primerUbicacion = false, usarBrujulaDispositivo = false;
         let rotacionAutomatica = false;
-        let brujulaActivada = false;
         const iconoUsuario = L.divIcon({
             className: 'punto-usuario',
             html: '<div class="flecha" id="flechaUsuario" style="transform: translateX(-50%) rotate(0deg); display:none;"></div><div class="circulo"></div>',
@@ -508,67 +428,48 @@
         if ('geolocation' in navigator) {
             navigator.geolocation.watchPosition(manejarPosicion, errorUbicacion, { enableHighAccuracy: true, timeout: 15000, maximumAge: 2000 });
         }
-
-        // Manejo de orientación (brújula)
         function manejarOrientacion(event) {
             let heading = null;
             if (event.webkitCompassHeading != null) heading = event.webkitCompassHeading;
-            else if (event.absolute === true && event.alpha != null) heading = 360 - event.alpha;
             else if (event.alpha != null) heading = 360 - event.alpha;
-
             if (heading != null && !isNaN(heading)) {
                 headingUsuario = heading;
                 usarBrujulaDispositivo = true;
-                brujulaActivada = true;
                 actualizarFlecha();
-
-                // Si la rotación automática está activa, rotar el mapa
-                if (rotacionAutomatica) {
+                if (rotacionAutomatica && map.setBearing) {
                     try {
-                        // Suavizar la rotación para que no salte
-                        const bearingActual = map.getBearing ? map.getBearing() : 0;
+                        const actual = map.getBearing();
                         const target = -heading;
-                        // Interpolación suave (10% por frame)
-                        const diff = ((target - bearingActual + 540) % 360) - 180;
-                        const nuevo = bearingActual + diff * 0.15;
-                        if (map.setBearing) map.setBearing(nuevo);
-                    } catch (e) {
-                        console.warn('No se pudo rotar el mapa:', e);
-                    }
+                        const diff = ((target - actual + 540) % 360) - 180;
+                        map.setBearing(actual + diff * 0.15);
+                    } catch (e) {}
                 }
             }
         }
-
         function activarBrujula() {
             if (typeof DeviceOrientationEvent !== 'undefined') {
                 if (typeof DeviceOrientationEvent.requestPermission === 'function') {
                     DeviceOrientationEvent.requestPermission().then((p) => {
-                        if (p === 'granted') {
-                            window.addEventListener('deviceorientation', manejarOrientacion, true);
-                            brujulaActivada = true;
-                        }
+                        if (p === 'granted') window.addEventListener('deviceorientation', manejarOrientacion, true);
                     }).catch(() => {});
                 } else {
                     window.addEventListener('deviceorientationabsolute', manejarOrientacion, true);
                     window.addEventListener('deviceorientation', manejarOrientacion, true);
-                    brujulaActivada = true;
                 }
             }
         }
-
         document.addEventListener('touchstart', activarBrujula, { once: true });
         document.addEventListener('click', activarBrujula, { once: true });
 
-        // Botón de rotación automática
         document.getElementById('btnRotarMapa').addEventListener('click', (e) => {
             rotacionAutomatica = !rotacionAutomatica;
             if (rotacionAutomatica) {
                 e.target.classList.add('activo');
-                activarBrujula(); // Asegurarse de que la brújula esté activa
+                activarBrujula();
                 mostrarNotificacion('🧭 Mapa rotando con tu celular', 'exito', 2500);
             } else {
                 e.target.classList.remove('activo');
-                if (map.setBearing) map.setBearing(0); // Volver a norte arriba
+                if (map.setBearing) map.setBearing(0);
                 mostrarNotificacion('🧭 Norte arriba', 'info', 2000);
             }
         });
@@ -813,7 +714,6 @@
             mostrarSugerenciasIniciales();
         }
 
-        // Chips de búsquedas rápidas
         const CHIPS_RAPIDOS = [
             { emoji: '🏥', texto: 'Hospital', tipo: 'categoria', cat: 'hospital' },
             { emoji: '💊', texto: 'Farmacia', tipo: 'categoria', cat: 'pharmacy' },
@@ -827,7 +727,6 @@
 
         function mostrarSugerenciasIniciales() {
             const html = [];
-            // Chips rápidos
             html.push('<div class="sug-titulo">⚡ Búsquedas rápidas</div>');
             html.push('<div class="sug-chips">');
             CHIPS_RAPIDOS.forEach(chip => {
@@ -835,7 +734,6 @@
             });
             html.push('</div>');
 
-            // Historial
             const hist = cargarHistorial();
             if (hist.length > 0) {
                 html.push('<div class="sug-titulo" style="display:flex;justify-content:space-between;align-items:center;">🕐 Recientes <button onclick="borrarHistorial()" style="background:none;border:none;color:#e74c3c;cursor:pointer;font-size:11px;padding:0;text-transform:none;letter-spacing:0;">Borrar</button></div>');
@@ -851,13 +749,9 @@
             sugerencias.innerHTML = html.join('');
             sugerencias.classList.add('activo');
 
-            // Listener para chips
             sugerencias.querySelectorAll('.sug-chip').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    activarCategoria(btn.dataset.cat);
-                });
+                btn.addEventListener('click', () => { activarCategoria(btn.dataset.cat); });
             });
-            // Listener para historial
             sugerencias.querySelectorAll('.sug-item.historial').forEach(item => {
                 item.addEventListener('click', () => {
                     const idx = parseInt(item.dataset.histIdx);
@@ -879,78 +773,50 @@
         }
 
         function activarCategoria(cat) {
-            // Activar la capa correspondiente si no está activa
             if (capas[cat] && !capasActivas[cat]) {
                 map.addLayer(capas[cat]);
                 capasActivas[cat] = true;
                 document.getElementById('btn-' + cat)?.classList.add('activo');
                 actualizarBadgeFiltros();
             }
-            // Centrar en el primer marcador de esa categoría
             if (capas[cat]) {
-                let primerMarcador = null;
-                capas[cat].eachLayer(m => { if (!primerMarcador) primerMarcador = m; });
-                if (primerMarcador) {
-                    const ll = primerMarcador.getLatLng();
-                    // Ajustar vista a todos los marcadores de esa categoría
-                    try {
-                        const bounds = capas[cat].getBounds ? capas[cat].getBounds() : L.featureGroup(capas[cat].getLayers()).getBounds();
-                        map.fitBounds(bounds, { padding: [50, 50] });
-                    } catch (e) {
-                        map.setView(ll, 15);
-                    }
-                }
+                try {
+                    const bounds = capas[cat].getBounds ? capas[cat].getBounds() : L.featureGroup(capas[cat].getLayers()).getBounds();
+                    map.fitBounds(bounds, { padding: [50, 50] });
+                } catch (e) {}
             }
             ocultarSugerencias();
             input.value = (NOMBRES[cat] || cat);
             mostrarNotificacion(`✅ Mostrando ${NOMBRES[cat] || cat}`, 'exito', 2000);
         }
 
-        function ocultarSugerencias() {
-            sugerencias.classList.remove('activo');
-        }
+        function ocultarSugerencias() { sugerencias.classList.remove('activo'); }
 
         function renderizarSugerencias(query) {
             const parsed = parsearQuery(query);
             const html = [];
-
             if (parsed.tipo === 'esquina') {
-                html.push(`<div class="sug-item esquina" data-tipo="esquina">
-                    <div class="sug-emoji">🚦</div>
-                    <div class="sug-texto"><strong>Buscar esquina</strong><small>${parsed.calle1} y ${parsed.calle2}${parsed.numero ? ' (altura ' + parsed.numero + ')' : ''}</small></div>
-                </div>`);
+                html.push(`<div class="sug-item esquina" data-tipo="esquina"><div class="sug-emoji">🚦</div><div class="sug-texto"><strong>Buscar esquina</strong><small>${parsed.calle1} y ${parsed.calle2}${parsed.numero ? ' (altura ' + parsed.numero + ')' : ''}</small></div></div>`);
             } else if (parsed.tipo === 'direccion') {
                 const calle = buscarCalleExacta(parsed.calle);
                 if (calle) {
                     const dir = buscarDireccion(parsed.calle, parsed.numero);
                     const precision = dir ? (dir.exacto ? 'Numeración exacta' : 'Numeración aproximada') : 'Número no encontrado';
-                    html.push(`<div class="sug-item direccion" data-tipo="direccion">
-                        <div class="sug-emoji">🏠</div>
-                        <div class="sug-texto"><strong>${calle.nombreOriginal} ${parsed.numero}</strong><small>${precision}</small></div>
-                    </div>`);
+                    html.push(`<div class="sug-item direccion" data-tipo="direccion"><div class="sug-emoji">🏠</div><div class="sug-texto"><strong>${calle.nombreOriginal} ${parsed.numero}</strong><small>${precision}</small></div></div>`);
                 }
             } else {
-                // Buscar calles normales
                 const resultados = buscarCalle(query);
                 resultados.forEach(calle => {
-                    html.push(`<div class="sug-item" data-tipo="calle" data-nombre="${calle.nombre}">
-                        <div class="sug-emoji">🛣️</div>
-                        <div class="sug-texto"><strong>${calle.nombreOriginal}</strong><small>Calle</small></div>
-                    </div>`);
+                    html.push(`<div class="sug-item" data-tipo="calle" data-nombre="${calle.nombre}"><div class="sug-emoji">🛣️</div><div class="sug-texto"><strong>${calle.nombreOriginal}</strong><small>Calle</small></div></div>`);
                 });
                 if (resultados.length === 0 && query.length >= 2) {
                     html.push(`<div class="sug-item"><div class="sug-emoji">😕</div><div class="sug-texto"><strong>Sin resultados</strong><small>Probá con otro nombre</small></div></div>`);
                 }
             }
-
-            if (html.length === 0) {
-                sugerencias.classList.remove('activo');
-                return;
-            }
+            if (html.length === 0) { sugerencias.classList.remove('activo'); return; }
             sugerencias.innerHTML = html.join('');
             sugerencias.classList.add('activo');
 
-            // Listener de los items
             sugerencias.querySelectorAll('.sug-item[data-tipo]').forEach(item => {
                 item.addEventListener('click', () => {
                     const tipo = item.dataset.tipo;
@@ -961,13 +827,11 @@
                         let dc = null;
                         if (parsed.numero) dc = buscarDireccion(parsed.calle1, parsed.numero) || buscarDireccion(parsed.calle2, parsed.numero);
                         mostrarInterseccion(cA, cB, parsed.numero, dc);
-                        // Guardar en historial
                         const texto = `${cA.nombreOriginal} y ${cB.nombreOriginal}${parsed.numero ? ' ' + parsed.numero : ''}`;
                         const latlng = ultimaBusqueda ? [ultimaBusqueda.lat, ultimaBusqueda.lng] : [0, 0];
                         guardarEnHistorial(texto, 'esquina', latlng[0], latlng[1], texto);
                         input.value = texto;
-                        ocultarSugerencias();
-                        input.blur();
+                        ocultarSugerencias(); input.blur();
                     } else if (tipo === 'direccion') {
                         const calle = buscarCalleExacta(parsed.calle);
                         const dir = buscarDireccion(parsed.calle, parsed.numero);
@@ -981,16 +845,14 @@
                             guardarEnHistorial(calle.nombreOriginal, 'calle', calle.lat, calle.lng, calle.nombreOriginal);
                             input.value = calle.nombreOriginal;
                         }
-                        ocultarSugerencias();
-                        input.blur();
+                        ocultarSugerencias(); input.blur();
                     } else if (tipo === 'calle') {
                         const calle = callesIndex.find(c => c.nombre === item.dataset.nombre);
                         if (calle) {
                             mostrarCalle(calle);
                             guardarEnHistorial(calle.nombreOriginal, 'calle', calle.lat, calle.lng, calle.nombreOriginal);
                             input.value = calle.nombreOriginal;
-                            ocultarSugerencias();
-                            input.blur();
+                            ocultarSugerencias(); input.blur();
                         }
                     }
                 });
@@ -998,64 +860,40 @@
         }
 
         input.addEventListener('focus', () => {
-            if (input.value.trim().length < 2) {
-                mostrarSugerenciasIniciales();
-            } else {
-                renderizarSugerencias(input.value);
-            }
+            if (input.value.trim().length < 2) mostrarSugerenciasIniciales();
+            else renderizarSugerencias(input.value);
         });
-
         input.addEventListener('input', (e) => {
             const q = e.target.value.trim();
             btnLimpiar.style.display = q.length > 0 ? 'flex' : 'none';
-            if (q.length < 2) {
-                mostrarSugerenciasIniciales();
-            } else {
-                renderizarSugerencias(q);
-            }
+            if (q.length < 2) mostrarSugerenciasIniciales();
+            else renderizarSugerencias(q);
         });
-
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Enter') {
-                const q = input.value.trim();
-                if (q.length < 2) return;
-                const parsed = parsearQuery(q);
                 const primerItem = sugerencias.querySelector('.sug-item[data-tipo]');
                 if (primerItem) primerItem.click();
             }
         });
-
         btnLimpiar.addEventListener('click', () => {
             input.value = '';
             btnLimpiar.style.display = 'none';
             input.focus();
             mostrarSugerenciasIniciales();
         });
-
-        // Cerrar sugerencias al tocar afuera
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.buscador')) ocultarSugerencias();
         });
 
-        // Búsqueda por voz
         btnVoz.addEventListener('click', () => {
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SR) {
-                alert('Tu navegador no soporta búsqueda por voz. Probá con Chrome en Android.');
-                return;
-            }
+            if (!SR) { alert('Tu navegador no soporta búsqueda por voz. Probá con Chrome en Android.'); return; }
             const recognition = new SR();
             recognition.lang = 'es-AR';
             recognition.interimResults = false;
             recognition.maxAlternatives = 1;
-
-            recognition.onstart = () => {
-                btnVoz.classList.add('grabando');
-                mostrarNotificacion('🎤 Escuchando...', 'info', 5000);
-            };
-            recognition.onend = () => {
-                btnVoz.classList.remove('grabando');
-            };
+            recognition.onstart = () => { btnVoz.classList.add('grabando'); mostrarNotificacion('🎤 Escuchando...', 'info', 5000); };
+            recognition.onend = () => { btnVoz.classList.remove('grabando'); };
             recognition.onerror = (e) => {
                 btnVoz.classList.remove('grabando');
                 if (e.error === 'not-allowed') mostrarNotificacion('❌ Permiso de micrófono denegado', 'aviso', 3000);
@@ -1068,10 +906,7 @@
                 renderizarSugerencias(texto);
                 mostrarNotificacion(`🎤 "${texto}"`, 'exito', 2000);
             };
-
-            try { recognition.start(); } catch (e) {
-                mostrarNotificacion('⚠️ No se pudo iniciar el micrófono', 'aviso', 3000);
-            }
+            try { recognition.start(); } catch (e) { mostrarNotificacion('⚠️ No se pudo iniciar el micrófono', 'aviso', 3000); }
         });
 
         (async () => {
@@ -1181,7 +1016,7 @@
                             const lineasAqui = buscarLineasParaParada(lat, lng);
                             if (lineasAqui.length > 0) {
                                 const chips = lineasAqui.map(l => `<span class="linea-chip">${l}</span>`).join('');
-                                infoSaeta += `<div class="lineas-container"><small style="color:#555;font-weight:bold;">🚌 Líneas que paran acá:</small><div class="lineas-lista">${chips}</div></div>`;
+                                infoSaeta += `<div class="lineas-container"><small style="color:#555;font-weight:bold;">🚌 Líneas que paran acá:</small><div class="lineas-listas">${chips}</div></div>`;
                             } else {
                                 infoSaeta += `<br><small style="color:#999;">🚌 Sin info de líneas</small>`;
                             }
@@ -1622,7 +1457,7 @@
             let yaDescargadas = 0;
             if ('caches' in window) {
                 try {
-                    const cache = await caches.open('salta-tiles-v10');
+                    const cache = await caches.open('salta-tiles-v12');
                     const keys = await cache.keys();
                     const urlsSet = new Set(keys.map(k => k.url));
                     yaDescargadas = teselas.filter(u => urlsSet.has(u)).length;
@@ -1657,7 +1492,7 @@
             btnFlotante.textContent = '⏳';
             const teselas = generarListaTeselas();
             let urlsYaDescargadas = new Set();
-            try { const cache = await caches.open('salta-tiles-v10'); const keys = await cache.keys(); urlsYaDescargadas = new Set(keys.map(k => k.url)); } catch (e) {}
+            try { const cache = await caches.open('salta-tiles-v12'); const keys = await cache.keys(); urlsYaDescargadas = new Set(keys.map(k => k.url)); } catch (e) {}
             const pendientes = teselas.filter(u => !urlsYaDescargadas.has(u));
             const totalPendientes = pendientes.length;
             let descargadas = 0, errores = 0;
@@ -1667,7 +1502,7 @@
                 const results = await Promise.all(tanda.map(async (url) => {
                     try {
                         const resp = await fetch(url, { mode: 'cors' });
-                        if (resp.ok) { const cache = await caches.open('salta-tiles-v10'); await cache.put(url, resp.clone()); return true; }
+                        if (resp.ok) { const cache = await caches.open('salta-tiles-v12'); await cache.put(url, resp.clone()); return true; }
                     } catch (e) {}
                     return false;
                 }));
@@ -1693,7 +1528,7 @@
         async function borrarTeselas() {
             if (!confirm('¿Borrar todas las teselas descargadas?')) return;
             try {
-                await caches.delete('salta-tiles-v10');
+                await caches.delete('salta-tiles-v12');
                 mostrarNotificacion('🗑️ Teselas borradas', 'exito', 3000);
                 document.getElementById('btnOffline').textContent = '📥';
                 document.getElementById('btnOffline').classList.remove('completo');
@@ -1701,6 +1536,149 @@
             } catch (e) { alert('Error: ' + e.message); }
         }
 
+        // ============================================
+        // CERCA DE MÍ
+        // ============================================
+        function abrirModalCerca() {
+            if (!posicionUsuario) {
+                alert('Todavía no se detectó tu ubicación. Activá el GPS y esperá unos segundos.');
+                return;
+            }
+            document.getElementById('modalCerca').classList.add('activo');
+            document.getElementById('cercaBuscar').value = '';
+            document.getElementById('cercaResultados').style.display = 'none';
+            document.getElementById('cercaLista').style.display = 'flex';
+            renderizarCategoriasCerca();
+        }
+        function cerrarModalCerca() {
+            document.getElementById('modalCerca').classList.remove('activo');
+        }
+        function renderizarCategoriasCerca(filtro = '') {
+            const lista = document.getElementById('cercaLista');
+            lista.innerHTML = '';
+            const categorias = Object.keys(capas).filter(cat => {
+                if (!filtro) return true;
+                const nombre = (NOMBRES[cat] || cat).toLowerCase();
+                return nombre.includes(filtro.toLowerCase());
+            }).sort((a, b) => (NOMBRES[a] || a).localeCompare(NOMBRES[b] || b));
+            if (categorias.length === 0) {
+                lista.innerHTML = '<div class="cerca-vacio-msg">😕 No hay categorías con ese nombre</div>';
+                return;
+            }
+            categorias.forEach(cat => {
+                let contador = 0;
+                capas[cat].eachLayer(() => contador++);
+                const btn = document.createElement('button');
+                btn.className = 'cerca-cat';
+                btn.innerHTML = `
+                    <span class="cerca-emoji">${EMOJIS[cat] || '📍'}</span>
+                    <span class="cerca-nombre">${NOMBRES[cat] || cat}</span>
+                    <span class="cerca-count">${contador}</span>
+                `;
+                btn.onclick = () => mostrarCercaDeMi(cat);
+                lista.appendChild(btn);
+            });
+        }
+        function filtrarCategoriasCerca() {
+            renderizarCategoriasCerca(document.getElementById('cercaBuscar').value);
+        }
+        function volverCategoriasCerca() {
+            document.getElementById('cercaResultados').style.display = 'none';
+            document.getElementById('cercaLista').style.display = 'flex';
+        }
+        function mostrarCercaDeMi(categoria) {
+            if (!posicionUsuario) return;
+            const [ulat, ulng] = posicionUsuario;
+            const items = [];
+            capas[categoria].eachLayer(marcador => {
+                const ll = marcador.getLatLng();
+                const dist = haversine(ulat, ulng, ll.lat, ll.lng);
+                const popup = marcador.getPopup();
+                let nombre = 'Sin nombre';
+                let dir = '';
+                if (popup) {
+                    const content = popup.getContent();
+                    if (typeof content === 'string') {
+                        const m1 = content.match(/<strong>([\s\S]*?)<\/strong>/);
+                        if (m1) {
+                            let raw = m1[1].replace(/<[^>]*>/g, '').trim();
+                            raw = raw.replace(/^[^\wáéíóúñÁÉÍÓÚÑ]+/, '').trim();
+                            nombre = raw;
+                        }
+                        const m2 = content.match(/📍\s*([^<]+)/);
+                        if (m2) dir = m2[1].trim();
+                    }
+                }
+                items.push({ lat: ll.lat, lng: ll.lng, dist, nombre, dir, marcador });
+            });
+            items.sort((a, b) => a.dist - b.dist);
+            const top5 = items.slice(0, 5);
+            const ul = document.getElementById('cercaItems');
+            ul.innerHTML = '';
+            document.getElementById('cercaCategoriaActual').textContent = `${EMOJIS[categoria]} ${NOMBRES[categoria]}`;
+            if (top5.length === 0) {
+                ul.innerHTML = '<li class="cerca-vacio-msg">No hay lugares de esta categoría</li>';
+            } else {
+                top5.forEach((item, idx) => {
+                    const li = document.createElement('li');
+                    const distTexto = item.dist < 1000 ? `${Math.round(item.dist)} m` : `${(item.dist / 1000).toFixed(2)} km`;
+                    const medalla = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '📍';
+                    li.innerHTML = `
+                        <span class="cerca-item-emoji">${medalla}</span>
+                        <div class="cerca-item-info">
+                            <div class="cerca-item-nombre">${item.nombre}</div>
+                            ${item.dir ? '<div class="cerca-item-dir">📍 ' + item.dir + '</div>' : ''}
+                        </div>
+                        <span class="cerca-item-dist">${distTexto}</span>
+                    `;
+                    li.addEventListener('click', () => {
+                        cerrarModalCerca();
+                        if (!capasActivas[categoria]) {
+                            map.addLayer(capas[categoria]);
+                            capasActivas[categoria] = true;
+                            document.getElementById('btn-' + categoria)?.classList.add('activo');
+                            actualizarBadgeFiltros();
+                        }
+                        map.setView([item.lat, item.lng], 18);
+                        setTimeout(() => item.marcador.openPopup(), 300);
+                    });
+                    ul.appendChild(item.nombre ? li : (() => { li.remove(); return document.createElement('li'); })());
+                    if (!item.nombre) {
+                        // Si no hay nombre, igual mostrarlo con coordenadas
+                        const li2 = document.createElement('li');
+                        const distTexto2 = item.dist < 1000 ? `${Math.round(item.dist)} m` : `${(item.dist / 1000).toFixed(2)} km`;
+                        const medalla2 = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : '📍';
+                        li2.innerHTML = `
+                            <span class="cerca-item-emoji">${medalla2}</span>
+                            <div class="cerca-item-info">
+                                <div class="cerca-item-nombre">${NOMBRES[categoria]}</div>
+                                <div class="cerca-item-dir">📍 ${item.lat.toFixed(5)}, ${item.lng.toFixed(5)}</div>
+                            </div>
+                            <span class="cerca-item-dist">${distTexto2}</span>
+                        `;
+                        li2.addEventListener('click', () => {
+                            cerrarModalCerca();
+                            if (!capasActivas[categoria]) {
+                                map.addLayer(capas[categoria]);
+                                capasActivas[categoria] = true;
+                                document.getElementById('btn-' + categoria)?.classList.add('activo');
+                                actualizarBadgeFiltros();
+                            }
+                            map.setView([item.lat, item.lng], 18);
+                            setTimeout(() => item.marcador.openPopup(), 300);
+                        });
+                        ul.appendChild(li2);
+                    }
+                });
+            }
+            document.getElementById('cercaLista').style.display = 'none';
+            document.getElementById('cercaResultados').style.display = 'block';
+        }
+        document.getElementById('btnCerca').addEventListener('click', abrirModalCerca);
+
+        // ============================================
+        // SERVICE WORKER
+        // ============================================
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
