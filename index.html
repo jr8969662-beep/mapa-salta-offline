@@ -11,6 +11,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 <style>
 :root{
 --primary:#1e40af;--primary-light:#3b82f6;--primary-dark:#1e3a8a;
@@ -75,6 +77,13 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 .btn-flotante .badge{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;font-size:10px;font-weight:700;min-width:20px;height:20px;border-radius:10px;display:none;align-items:center;justify-content:center;padding:0 6px;box-shadow:var(--sh-md);border:2px solid var(--bg)}
 .btn-flotante .badge.activo{display:flex}
 
+/* CLUSTERS */
+.marker-cluster-custom{background:transparent!important}
+.cluster-icon{width:44px;height:44px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;box-shadow:0 4px 12px rgba(30,64,175,.5),0 0 0 6px rgba(59,130,246,.2);border:3px solid #fff;transition:transform .2s;font-family:Inter,sans-serif}
+.cluster-icon:hover{transform:scale(1.1)}
+.cluster-icon.medium{background:var(--accent);box-shadow:0 4px 12px rgba(245,158,11,.5),0 0 0 8px rgba(245,158,11,.2)}
+.cluster-icon.large{width:52px;height:52px;font-size:16px;background:var(--danger);box-shadow:0 4px 14px rgba(239,68,68,.6),0 0 0 10px rgba(239,68,68,.2)}
+
 /* PUNTO USUARIO */
 .punto-usuario{width:22px;height:22px;position:relative}
 .punto-usuario .circulo{width:100%;height:100%;background:var(--primary-light);border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 2px rgba(59,130,246,.3),0 4px 12px rgba(0,0,0,.3);animation:pulso 2s infinite}
@@ -116,7 +125,6 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 .notificacion.aviso{background:var(--warning)}
 .notificacion.exito{background:var(--success)}
 
-/* CALIDAD GPS */
 .calidad-gps{position:absolute;bottom:24px;left:24px;z-index:1000;background:var(--bg);border:1px solid var(--border);padding:8px 14px;border-radius:24px;font-size:12px;font-weight:600;display:none;align-items:center;gap:6px;box-shadow:var(--sh-md);color:var(--text)}
 .calidad-gps.activo{display:flex}
 .calidad-gps .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
@@ -214,7 +222,6 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 .lista-lugares li .borrar:hover{background:rgba(239,68,68,.1)}
 .lista-lugares .vacio{text-align:center;color:var(--text-muted);padding:30px;font-size:14px;font-weight:500}
 
-/* CERCA DE MÍ */
 .modal-cerca{max-width:520px;width:94%}
 .modal-cerca .cerca-lista{display:flex;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto;margin:14px 0;padding:4px}
 .modal-cerca .cerca-cat{display:flex;align-items:center;gap:12px;padding:14px 16px;border:2px solid var(--border);border-radius:var(--r-sm);background:var(--bg);cursor:pointer;font-size:14px;text-align:left;color:var(--text);font-family:inherit;transition:all var(--t);width:100%}
@@ -237,7 +244,7 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 .cerca-item-dist{font-size:13px;font-weight:700;color:var(--success);flex-shrink:0}
 .cerca-vacio-msg{text-align:center;padding:30px 20px;color:var(--text-muted);font-size:13px;font-weight:500}
 
-/* POPUP LEAFLET */
+/* POPUP */
 .leaflet-popup-content-wrapper{border-radius:var(--r);box-shadow:var(--sh-xl);background:var(--bg);color:var(--text)}
 .leaflet-popup-content{margin:14px 18px;font-family:'Inter',sans-serif;font-size:14px}
 .leaflet-popup-tip{background:var(--bg)}
@@ -245,7 +252,6 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 .leaflet-control-attribution{background:rgba(255,255,255,.8)!important;font-size:10px!important}
 [data-theme=dark] .leaflet-control-attribution{background:rgba(17,24,39,.8)!important;color:#9ca3af!important}
 
-/* SCROLLBAR */
 ::-webkit-scrollbar{width:8px;height:8px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--g-300);border-radius:4px}
@@ -287,10 +293,7 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 
 <div class="panel-filtros-overlay" id="panelFiltrosOverlay" onclick="cerrarPanelFiltros()"></div>
 <div class="panel-filtros" id="panelFiltros">
-<div class="pf-header">
-<h3>🎛️ Filtros del mapa</h3>
-<button class="pf-cerrar" onclick="cerrarPanelFiltros()">✕</button>
-</div>
+<div class="pf-header"><h3>🎛️ Filtros del mapa</h3><button class="pf-cerrar" onclick="cerrarPanelFiltros()">✕</button></div>
 <div class="pf-acciones">
 <button class="pf-btn-todo" onclick="mostrarTodos()">✅ Mostrar todos</button>
 <button class="pf-btn-nada" onclick="ocultarTodos()">❌ Ocultar todos</button>
@@ -300,10 +303,7 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 </div>
 
 <div class="panel-ruta" id="panelRuta">
-<div class="encabezado">
-<h3 id="tituloRuta">🛣️ Ruta</h3>
-<button class="cerrar" onclick="cerrarPanelRuta()">✕</button>
-</div>
+<div class="encabezado"><h3 id="tituloRuta">🛣️ Ruta</h3><button class="cerrar" onclick="cerrarPanelRuta()">✕</button></div>
 <div class="modo">
 <button id="modoAuto" class="activo" onclick="cambiarModo('auto')">🚗 Auto</button>
 <button id="modoPie" onclick="cambiarModo('pie')">🚶 A pie</button>
@@ -344,15 +344,10 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 <input type="text" id="cercaBuscar" placeholder="🔍 Filtrar categoría..." oninput="filtrarCategoriasCerca()">
 <div class="cerca-lista" id="cercaLista"></div>
 <div class="cerca-resultados" id="cercaResultados" style="display:none;">
-<div class="cerca-header">
-<button class="cerca-volver" onclick="volverCategoriasCerca()">← Volver</button>
-<span id="cercaCategoriaActual"></span>
-</div>
+<div class="cerca-header"><button class="cerca-volver" onclick="volverCategoriasCerca()">← Volver</button><span id="cercaCategoriaActual"></span></div>
 <ul class="cerca-items" id="cercaItems"></ul>
 </div>
-<div class="botones">
-<button class="btn-cancelar" onclick="cerrarModalCerca()">Cerrar</button>
-</div>
+<div class="botones"><button class="btn-cancelar" onclick="cerrarModalCerca()">Cerrar</button></div>
 </div>
 </div>
 
@@ -381,37 +376,44 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script>
-// TEMA
+/* ==========================================
+   TEMA
+   ========================================== */
 const TEMA_KEY='salta_tema';
 function aplicarTema(t){document.documentElement.setAttribute('data-theme',t);document.getElementById('btnTema').textContent=t==='dark'?'☀️':'🌙';try{localStorage.setItem(TEMA_KEY,t)}catch(e){}}
-(function initTema(){let t=null;try{t=localStorage.getItem(TEMA_KEY)}catch(e){}
-if(!t){const h=new Date().getHours();t=(h>=20||h<7)?'dark':'light'}
-aplicarTema(t)})();
-document.getElementById('btnTema').addEventListener('click',()=>{
-const actual=document.documentElement.getAttribute('data-theme');
-aplicarTema(actual==='dark'?'light':'dark')});
+(function(){let t=null;try{t=localStorage.getItem(TEMA_KEY)}catch(e){};if(!t){const h=new Date().getHours();t=(h>=20||h<7)?'dark':'light'}aplicarTema(t)})();
+document.getElementById('btnTema').addEventListener('click',()=>{const a=document.documentElement.getAttribute('data-theme');aplicarTema(a==='dark'?'light':'dark')});
 
-// MAPA
+/* ==========================================
+   MAPA
+   ========================================== */
 const CENTRO_SALTA=[-24.789,-65.411];
-const map=L.map('map',{rotate:true,rotateControl:false,bearing:0,touchRotate:false,shiftKeyRotate:false,compassBearing:false}).setView(CENTRO_SALTA,14);
-const capaBase=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'});
+const map=L.map('map',{rotate:true,rotateControl:false,bearing:0,touchRotate:false,shiftKeyRotate:false,compassBearing:false,preferCanvas:true}).setView(CENTRO_SALTA,14);
+const capaBase=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap',updateWhenIdle:true,keepBuffer:4});
 capaBase.addTo(map);
 
-// UTIL
+/* ==========================================
+   UTILIDADES
+   ========================================== */
 function normalizar(t){if(!t)return'';return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\b(avenida|av\.?|calle|pasaje|pje\.?|ruta|rn|rp)\b/g,'').replace(/[.,]/g,'').replace(/\s+/g,' ').trim()}
 function haversine(lat1,lng1,lat2,lng2){const R=6371000,toRad=d=>d*Math.PI/180,dLat=toRad(lat2-lat1),dLng=toRad(lng2-lng1),a=Math.sin(dLat/2)**2+Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
 function formatearDistancia(m){if(m<1000)return`${Math.round(m)} m`;return`${(m/1000).toFixed(2)} km`}
 function formatearTiempo(s){const min=Math.round(s/60);if(min<60)return`${min} min`;const h=Math.floor(min/60);return`${h}h ${min%60}m`}
 function mostrarNotificacion(t,tipo='info',dur=3000){const n=document.getElementById('notificacion');n.textContent=t;n.className='notificacion activo '+(tipo==='aviso'?'aviso':tipo==='exito'?'exito':'');clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove('activo'),dur)}
+function debounce(fn,ms=150){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms)}}
 
-// UBICACION + PRECISION
+/* ==========================================
+   UBICACIÓN + PRECISIÓN GPS
+   ========================================== */
 let posicionUsuario=null,headingUsuario=null,posicionAnterior=null,timestampAnterior=null;
 let ultimaVelocidad=0,marcadorUsuario=null,circuloPrecision=null,primerUbicacion=false,usarBrujulaDispositivo=false;
 let rotacionAutomatica=false,precisionActual=null;
 const iconoUsuario=L.divIcon({className:'punto-usuario',html:'<div class="flecha" id="flechaUsuario" style="transform:translateX(-50%) rotate(0deg);display:none;"></div><div class="circulo"></div>',iconSize:[22,22],iconAnchor:[11,11]});
 function actualizarFlecha(){const f=document.getElementById('flechaUsuario');if(!f)return;f.style.transform=`translateX(-50%) rotate(${headingUsuario||0}deg)`;f.style.display=headingUsuario!=null?'block':'none'}
-function actualizarCalidadGps(acc){const el=document.getElementById('calidadGps'),txt=document.getElementById('calidadTexto');el.classList.remove('excelente','buena','regular','mala');let cal,label;
+function actualizarCalidadGps(acc){const el=document.getElementById('calidadGps'),txt=document.getElementById('calidadTexto');el.classList.remove('excelente','buena','regular','mala');
+let cal,label;
 if(acc<10){cal='excelente';label=`Excelente (±${Math.round(acc)} m)`}
 else if(acc<30){cal='buena';label=`Buena (±${Math.round(acc)} m)`}
 else if(acc<100){cal='regular';label=`Regular (±${Math.round(acc)} m)`}
@@ -425,14 +427,15 @@ if(posicionAnterior&&timestampAnterior){const dist=haversine(posicionAnterior[0]
 posicionAnterior=[lat,lng];timestampAnterior=ahora;posicionUsuario=[lat,lng];
 if(marcadorUsuario)marcadorUsuario.setLatLng([lat,lng]);else marcadorUsuario=L.marker([lat,lng],{icon:iconoUsuario,zIndexOffset:1000}).addTo(map);
 if(circuloPrecision)map.removeLayer(circuloPrecision);
-circuloPrecision=L.circle([lat,lng],{radius:acc,className:'circulo-precision',interactive:false,zIndexOffset:-1}).addTo(map);
+circuloPrecision=L.circle([lat,lng],{radius:acc,className:'circulo-precision',interactive:false}).addTo(map);
 actualizarFlecha();
 if(!primerUbicacion){map.setView([lat,lng],16);primerUbicacion=true;document.getElementById('aviso').style.display='none'}
 actualizarVelocimetro();actualizarCalidadGps(acc);verificarRecalculo();actualizarProgresoRuta()}
 function calcularRumbo(lat1,lng1,lat2,lng2){const toRad=d=>d*Math.PI/180,toDeg=r=>r*180/Math.PI,dLng=toRad(lng2-lng1),y=Math.sin(dLng)*Math.cos(toRad(lat2)),x=Math.cos(toRad(lat1))*Math.sin(toRad(lat2))-Math.sin(toRad(lat1))*Math.cos(toRad(lat2))*Math.cos(dLng);return(toDeg(Math.atan2(y,x))+360)%360}
 function errorUbicacion(err){console.warn('Error GPS:',err.message);document.getElementById('aviso').textContent='No se pudo obtener tu ubicación.'}
 if('geolocation'in navigator){navigator.geolocation.watchPosition(manejarPosicion,errorUbicacion,{enableHighAccuracy:true,timeout:15000,maximumAge:0})}
-function manejarOrientacion(e){let h=null;if(e.webkitCompassHeading!=null)h=e.webkitCompassHeading;else if(e.alpha!=null)h=360-e.alpha;
+function manejarOrientacion(e){let h=null;
+if(e.webkitCompassHeading!=null)h=e.webkitCompassHeading;else if(e.alpha!=null)h=360-e.alpha;
 if(h!=null&&!isNaN(h)){headingUsuario=h;usarBrujulaDispositivo=true;actualizarFlecha();
 if(rotacionAutomatica&&map.setBearing){try{const a=map.getBearing(),t=-h,diff=((t-a+540)%360)-180;map.setBearing(a+diff*.15)}catch(e){}}}}
 function activarBrujula(){if(typeof DeviceOrientationEvent!=='undefined'){if(typeof DeviceOrientationEvent.requestPermission==='function'){DeviceOrientationEvent.requestPermission().then(p=>{if(p==='granted')window.addEventListener('deviceorientation',manejarOrientacion,true)}).catch(()=>{})}else{window.addEventListener('deviceorientationabsolute',manejarOrientacion,true);window.addEventListener('deviceorientation',manejarOrientacion,true)}}}
@@ -443,71 +446,209 @@ if(rotacionAutomatica){e.target.classList.add('activo');activarBrujula();mostrar
 else{e.target.classList.remove('activo');if(map.setBearing)map.setBearing(0);mostrarNotificacion('🧭 Norte arriba','info',2000)}});
 function actualizarVelocimetro(){const v=document.getElementById('velocimetro'),n=document.getElementById('velocidadNum');if(ultimaVelocidad>2){v.classList.add('activo');n.textContent=ultimaVelocidad.toFixed(0)}else v.classList.remove('activo')}
 
-// CALLES
-let callesIndex=[],direccionesIndex=[],marcadorCalle=null,trazoCalle=null,ultimaBusqueda=null,destinoActual=null;
-async function cargarCalles(){try{const r=await fetch('data/calles.geojson'),d=await r.json();
-d.features.forEach(f=>{const n=f.properties.name;if(!n)return;let lat,lng,c;
+/* ==========================================
+   CALLES - CON ÍNDICE RÁPIDO
+   ========================================== */
+let callesIndex=[];             // Array completo
+let callesMap=new Map();        // Nombre normalizado -> calle (exacto)
+let callesPalabras=new Map();   // palabra -> Set de índices (para búsqueda rápida)
+let direccionesIndex=[];
+let direccionesMap=new Map();   // calle normalizada -> array de direcciones ordenadas
+let marcadorCalle=null,trazoCalle=null,ultimaBusqueda=null,destinoActual=null;
+
+async function cargarCalles(){
+try{
+const r=await fetch('data/calles.geojson');
+const d=await r.json();
+const agrupadas={};
+d.features.forEach(f=>{
+const n=f.properties.name;if(!n)return;
+let lat,lng,c;
 if(f.geometry&&f.geometry.type==='LineString'){c=f.geometry.coordinates;const m=c[Math.floor(c.length/2)];lng=m[0];lat=m[1]}
 else if(f.geometry&&f.geometry.type==='Polygon'){c=f.geometry.coordinates[0];const m=c[Math.floor(c.length/2)];lng=m[0];lat=m[1]}
 else return;
-callesIndex.push({nombre:normalizar(n),nombreOriginal:n,lat,lng,coordenadas:c.map(p=>[p[1],p[0]])})});
-const ag={};callesIndex.forEach(c=>{if(!ag[c.nombre])ag[c.nombre]={nombre:c.nombre,nombreOriginal:c.nombreOriginal,lat:c.lat,lng:c.lng,tramos:[c.coordenadas]};else ag[c.nombre].tramos.push(c.coordenadas)});
-callesIndex=Object.values(ag);console.log(`✅ ${callesIndex.length} calles cargadas`)}catch(e){console.error('Error calles:',e)}}
-async function cargarDirecciones(){try{const r=await fetch('data/direcciones.geojson');if(!r.ok)return;const d=await r.json();
-d.features.forEach(f=>{const p=f.properties,c=p['addr:street'],ns=p['addr:housenumber'];if(!c||!ns)return;const num=parseInt(ns);if(isNaN(num))return;
+const norm=normalizar(n);
+if(!agrupadas[norm])agrupadas[norm]={nombre:norm,nombreOriginal:n,lat,lng,tramos:[c.map(p=>[p[1],p[0]])]};
+else agrupadas[norm].tramos.push(c.map(p=>[p[1],p[0]]));
+});
+callesIndex=Object.values(agrupadas);
+// Índice por nombre exacto
+callesIndex.forEach(c=>callesMap.set(c.nombre,c));
+// Índice por palabras (para búsqueda rápida sin recorrer todo)
+callesIndex.forEach((c,i)=>{
+const palabras=c.nombre.split(' ').filter(p=>p.length>2);
+palabras.forEach(p=>{if(!callesPalabras.has(p))callesPalabras.set(p,[]);callesPalabras.get(p).push(i)});
+});
+console.log(`✅ ${callesIndex.length} calles indexadas`);
+}catch(e){console.error('Error calles:',e)}
+}
+
+async function cargarDirecciones(){
+try{
+const r=await fetch('data/direcciones.geojson');if(!r.ok)return;
+const d=await r.json();
+d.features.forEach(f=>{
+const p=f.properties,c=p['addr:street'],ns=p['addr:housenumber'];
+if(!c||!ns)return;
+const num=parseInt(ns);if(isNaN(num))return;
 let lat,lng,exacto=false;
 if(f.geometry.type==='Point'){lng=f.geometry.coordinates[0];lat=f.geometry.coordinates[1];exacto=true}
 else if(f.geometry.type==='LineString'){const co=f.geometry.coordinates;const m=co[Math.floor(co.length/2)];lng=m[0];lat=m[1]}
 else return;
-direccionesIndex.push({calle:normalizar(c),calleOriginal:c,numero:num,lat,lng,exacto,interpolacion:p['addr:interpolation']||null})});
-console.log(`✅ ${direccionesIndex.length} direcciones`)}catch(e){}}
+const cn=normalizar(c);
+if(!direccionesMap.has(cn))direccionesMap.set(cn,[]);
+direccionesMap.get(cn).push({calle:cn,calleOriginal:c,numero:num,lat,lng,exacto,interpolacion:p['addr:interpolation']||null});
+});
+// Ordenar por número para búsqueda binaria
+for(const[_,arr]of direccionesMap)arr.sort((a,b)=>a.numero-b.numero);
+let total=0;for(const[_,arr]of direccionesMap)total+=arr.length;
+console.log(`✅ ${total} direcciones indexadas en ${direccionesMap.size} calles`);
+}catch(e){}
+}
+
+/* ==========================================
+   RUTAS SAETA
+   ========================================== */
 let mapaLineasPorNodo={},lineasPorCoordenada=[];
-async function cargarRutasSaeta(){try{const r=await fetch('data/rutas_saeta.json');if(!r.ok)return;const d=await r.json();if(!d.elements)return;
+async function cargarRutasSaeta(){
+try{
+const r=await fetch('data/rutas_saeta.json');if(!r.ok)return;
+const d=await r.json();if(!d.elements)return;
 const rels=d.elements.filter(e=>e.type==='relation'),nodos={};
 d.elements.filter(e=>e.type==='node').forEach(n=>{nodos[n.id]=n});
 let cnt=0;
-rels.forEach(rel=>{const ref=(rel.tags&&(rel.tags.ref||rel.tags.name))||null;if(!ref)return;cnt++;
-(rel.members||[]).forEach(m=>{if(m.type==='node'){const nodo=nodos[m.ref];if(!nodo)return;if(!mapaLineasPorNodo[nodo.id])mapaLineasPorNodo[nodo.id]={refs:new Set(),lat:nodo.lat,lng:nodo.lon};mapaLineasPorNodo[nodo.id].refs.add(ref)}})});
+rels.forEach(rel=>{
+const ref=(rel.tags&&(rel.tags.ref||rel.tags.name))||null;if(!ref)return;cnt++;
+(rel.members||[]).forEach(m=>{if(m.type==='node'){const nodo=nodos[m.ref];if(!nodo)return;
+if(!mapaLineasPorNodo[nodo.id])mapaLineasPorNodo[nodo.id]={refs:new Set(),lat:nodo.lat,lng:nodo.lon};
+mapaLineasPorNodo[nodo.id].refs.add(ref)}});
+});
 Object.values(mapaLineasPorNodo).forEach(i=>lineasPorCoordenada.push({lat:i.lat,lng:i.lng,refs:Array.from(i.refs).sort()}));
-console.log(`✅ ${cnt} rutas SAETA`)}catch(e){}}
-function buscarLineasParaParada(lat,lng){if(lineasPorCoordenada.length===0)return[];let me=null,md=Infinity;
+console.log(`✅ ${cnt} rutas SAETA`);
+}catch(e){}
+}
+
+function buscarLineasParaParada(lat,lng){
+if(lineasPorCoordenada.length===0)return[];
+let me=null,md=Infinity;
 for(const p of lineasPorCoordenada){const d=haversine(lat,lng,p.lat,p.lng);if(d<md){md=d;me=p}}
-if(me&&md<50)return me.refs;return[]}
-function buscarCalle(t){const n=normalizar(t);if(n.length<2)return[];return callesIndex.filter(c=>c.nombre.includes(n)).slice(0,10)}
-function buscarCalleExacta(n){const k=normalizar(n);let e=callesIndex.find(c=>c.nombre===k);if(e)return e;
-const c=callesIndex.filter(x=>x.nombre.includes(k)||k.includes(x.nombre)).sort((a,b)=>Math.abs(a.nombre.length-k.length)-Math.abs(b.nombre.length-k.length));return c[0]||null}
-function buscarDireccion(calle,num){const c=normalizar(calle);const cand=direccionesIndex.filter(d=>d.calle===c||d.calle.includes(c)||c.includes(d.calle));if(!cand.length)return null;
-let me=null,md=Infinity;for(const d of cand){const dist=Math.abs(d.numero-num);if(dist<md){md=dist;me=d}}return me}
-function parsearQuery(q){q=q.trim();const m1=q.match(/^(.+?)\s+y\s+(.+?)(?:\s+(\d+))?$/i);
+if(me&&md<50)return me.refs;return[];
+}
+
+/* ==========================================
+   BÚSQUEDA RÁPIDA CON ÍNDICE
+   ========================================== */
+function buscarCalleRapido(termino){
+const n=normalizar(termino);
+if(n.length<2)return[];
+const palabras=n.split(' ').filter(p=>p.length>1);
+const candidatos=new Set();
+// Usar índice de palabras
+palabras.forEach(p=>{
+// Coincidencia por palabra completa o prefijo
+for(const[k,idxs]of callesPalabras){
+if(k.startsWith(p)){idxs.forEach(i=>candidatos.add(i))}
+}
+});
+let resultados=Array.from(candidatos).map(i=>callesIndex[i]);
+// Filtrar los que realmente incluyen el término completo
+resultados=resultados.filter(c=>c.nombre.includes(n));
+// Si no hay, fallback a búsqueda lineal
+if(resultados.length===0)resultados=callesIndex.filter(c=>c.nombre.includes(n));
+return resultados.slice(0,10);
+}
+
+function buscarCalleExacta(nombre){
+const k=normalizar(nombre);
+let e=callesMap.get(k);if(e)return e;
+// Búsqueda parcial
+const cand=callesIndex.filter(x=>x.nombre.includes(k)||k.includes(x.nombre))
+.sort((a,b)=>Math.abs(a.nombre.length-k.length)-Math.abs(b.nombre.length-k.length));
+return cand[0]||null;
+}
+
+function buscarDireccionRapido(calle,num){
+const c=normalizar(calle);
+// Probar coincidencia exacta primero
+let arr=direccionesMap.get(c);
+// Si no, buscar por inclusión
+if(!arr){
+for(const[k,v]of direccionesMap){
+if(k.includes(c)||c.includes(k)){arr=v;break}
+}
+}
+if(!arr||!arr.length)return null;
+// Búsqueda binaria del número más cercano
+let lo=0,hi=arr.length-1,mejor=arr[0],mejorDist=Math.abs(arr[0].numero-num);
+while(lo<=hi){
+const mid=Math.floor((lo+hi)/2);
+const dist=Math.abs(arr[mid].numero-num);
+if(dist<mejorDist){mejorDist=dist;mejor=arr[mid]}
+if(arr[mid].numero<num)lo=mid+1;else if(arr[mid].numero>num)hi=mid-1;else return arr[mid];
+}
+return mejor;
+}
+
+function parsearQuery(q){
+q=q.trim();
+const m1=q.match(/^(.+?)\s+y\s+(.+?)(?:\s+(\d+))?$/i);
 if(m1)return{tipo:'esquina',calle1:m1[1].trim(),calle2:m1[2].trim(),numero:m1[3]?parseInt(m1[3]):null};
-const m2=q.match(/^(.+?)\s+(\d+)$/);if(m2)return{tipo:'direccion',calle:m2[1].trim(),numero:parseInt(m2[2])};
-return{tipo:'calle',calle:q}}
-function interseccionSegmentos(p1,p2,p3,p4){const x1=p1[1],y1=p1[0],x2=p2[1],y2=p2[0],x3=p3[1],y3=p3[0],x4=p4[1],y4=p4[0];
+const m2=q.match(/^(.+?)\s+(\d+)$/);
+if(m2)return{tipo:'direccion',calle:m2[1].trim(),numero:parseInt(m2[2])};
+return{tipo:'calle',calle:q};
+}
+
+/* ==========================================
+   GEOMETRÍA CON CACHÉ DE INTERSECCIONES
+   ========================================== */
+const cacheIntersecciones=new Map();
+function interseccionSegmentos(p1,p2,p3,p4){
+const x1=p1[1],y1=p1[0],x2=p2[1],y2=p2[0],x3=p3[1],y3=p3[0],x4=p4[1],y4=p4[0];
 const d=(y4-y3)*(x2-x1)-(x4-x3)*(y2-y1);if(Math.abs(d)<1e-12)return null;
 const ua=((x4-x3)*(y1-y3)-(y4-y3)*(x1-x3))/d,ub=((x2-x1)*(y1-y3)-(y2-y1)*(x1-x3))/d;
-if(ua<0||ua>1||ub<0||ub>1)return null;return[y1+ua*(y2-y1),x1+ua*(x2-x1)]}
+if(ua<0||ua>1||ub<0||ub>1)return null;return[y1+ua*(y2-y1),x1+ua*(x2-x1)];
+}
 function obtenerBBox(tr){let mnLa=Infinity,mxLa=-Infinity,mnLn=Infinity,mxLn=-Infinity;
 for(const t of tr)for(const[la,ln]of t){if(la<mnLa)mnLa=la;if(la>mxLa)mxLa=la;if(ln<mnLn)mnLn=ln;if(ln>mxLn)mxLn=ln}
 return{minLat:mnLa,maxLat:mxLa,minLng:mnLn,maxLng:mxLn}}
 function segmentoEnBBox(p1,p2,b){const mnLa=Math.min(p1[0],p2[0]),mxLa=Math.max(p1[0],p2[0]),mnLn=Math.min(p1[1],p2[1]),mxLn=Math.max(p1[1],p2[1]);
 return!(mxLa<b.minLat||mnLa>b.maxLat||mxLn<b.minLng||mnLn>b.maxLng)}
-function calcularIntersecciones(cA,cB){const res=[],bb=obtenerBBox(cB.tramos);
-for(const tA of cA.tramos)for(let i=0;i<tA.length-1;i++){const p1=tA[i],p2=tA[i+1];if(!segmentoEnBBox(p1,p2,bb))continue;
-for(const tB of cB.tramos)for(let j=0;j<tB.length-1;j++){const it=interseccionSegmentos(p1,p2,tB[j],tB[j+1]);if(it)res.push(it)}}
-return res}
+function calcularIntersecciones(cA,cB){
+const key=cA.nombre+'|'+cB.nombre;
+if(cacheIntersecciones.has(key))return cacheIntersecciones.get(key);
+const res=[],bb=obtenerBBox(cB.tramos);
+for(const tA of cA.tramos)for(let i=0;i<tA.length-1;i++){
+const p1=tA[i],p2=tA[i+1];if(!segmentoEnBBox(p1,p2,bb))continue;
+for(const tB of cB.tramos)for(let j=0;j<tB.length-1;j++){
+const it=interseccionSegmentos(p1,p2,tB[j],tB[j+1]);if(it)res.push(it)}}
+cacheIntersecciones.set(key,res);
+return res;
+}
+
+/* ==========================================
+   MOSTRAR EN MAPA
+   ========================================== */
 function limpiarBusqueda(){if(marcadorCalle){map.removeLayer(marcadorCalle);marcadorCalle=null}if(trazoCalle){map.removeLayer(trazoCalle);trazoCalle=null}}
 function mostrarBotonIr(lat,lng,nombre){destinoActual={lat,lng,nombre};document.getElementById('btnIr').style.display='flex';document.getElementById('btnCompartir').style.display='flex'}
-function mostrarCalle(c){limpiarBusqueda();const l=c.tramos.map(t=>L.polyline(t,{color:'#ef4444',weight:6,opacity:.85,lineCap:'round',lineJoin:'round'}));
+
+function mostrarCalle(c){
+limpiarBusqueda();
+const l=c.tramos.map(t=>L.polyline(t,{color:'#ef4444',weight:6,opacity:.85,lineCap:'round',lineJoin:'round'}));
 trazoCalle=L.layerGroup(l).addTo(map);
 marcadorCalle=L.marker([c.lat,c.lng],{icon:L.divIcon({className:'punto-calle',iconSize:[14,14]})}).addTo(map).bindPopup(`<strong>${c.nombreOriginal}</strong>`);
 map.fitBounds(L.featureGroup(l).getBounds(),{padding:[50,50]});
-ultimaBusqueda={texto:c.nombreOriginal,lat:c.lat,lng:c.lng};mostrarBotonIr(c.lat,c.lng,c.nombreOriginal)}
-function mostrarDireccion(c,d){limpiarBusqueda();const l=c.tramos.map(t=>L.polyline(t,{color:'#ef4444',weight:4,opacity:.6,lineCap:'round',lineJoin:'round'}));
+ultimaBusqueda={texto:c.nombreOriginal,lat:c.lat,lng:c.lng};mostrarBotonIr(c.lat,c.lng,c.nombreOriginal);
+}
+function mostrarDireccion(c,d){
+limpiarBusqueda();
+const l=c.tramos.map(t=>L.polyline(t,{color:'#ef4444',weight:4,opacity:.6,lineCap:'round',lineJoin:'round'}));
 trazoCalle=L.layerGroup(l).addTo(map);
 marcadorCalle=L.marker([d.lat,d.lng],{icon:L.divIcon({className:'punto-direccion',iconSize:[26,26],iconAnchor:[13,26]}),zIndexOffset:2000}).addTo(map).bindPopup(`<strong>📍 ${d.calleOriginal} ${d.numero}</strong><br><small>Numeración ${d.exacto?'exacta':'aproximada'}</small>`).openPopup();
 map.setView([d.lat,d.lng],18);
-ultimaBusqueda={texto:`${d.calleOriginal} ${d.numero}`,lat:d.lat,lng:d.lng};mostrarBotonIr(d.lat,d.lng,`${d.calleOriginal} ${d.numero}`)}
-function mostrarInterseccion(cA,cB,num,dc){limpiarBusqueda();
+ultimaBusqueda={texto:`${d.calleOriginal} ${d.numero}`,lat:d.lat,lng:d.lng};mostrarBotonIr(d.lat,d.lng,`${d.calleOriginal} ${d.numero}`);
+}
+function mostrarInterseccion(cA,cB,num,dc){
+limpiarBusqueda();
 const lA=cA.tramos.map(t=>L.polyline(t,{color:'#ef4444',weight:6,opacity:.85,lineCap:'round',lineJoin:'round'}));
 const lB=cB.tramos.map(t=>L.polyline(t,{color:'#3b82f6',weight:6,opacity:.85,lineCap:'round',lineJoin:'round'}));
 trazoCalle=L.layerGroup([...lA,...lB]).addTo(map);
@@ -519,159 +660,356 @@ marcadorCalle=L.layerGroup(marcs).addTo(map);
 if(dc)L.marker([dc.lat,dc.lng],{icon:L.divIcon({className:'punto-direccion',iconSize:[26,26],iconAnchor:[13,26]}),zIndexOffset:2500}).addTo(map).bindPopup(`<strong>🏠 ${dc.calleOriginal} ${dc.numero}</strong>`).openPopup();
 map.setView(uni[0],17);
 ultimaBusqueda={texto:`${cA.nombreOriginal} y ${cB.nombreOriginal}`,lat:uni[0][0],lng:uni[0][1]};
-mostrarBotonIr(uni[0][0],uni[0][1],`${cA.nombreOriginal} y ${cB.nombreOriginal}`)}
+mostrarBotonIr(uni[0][0],uni[0][1],`${cA.nombreOriginal} y ${cB.nombreOriginal}`);
+}
 
-// BUSCADOR
+/* ==========================================
+   BUSCADOR CON DEBOUNCE
+   ========================================== */
 const HIST_KEY='salta_historial_busquedas';
 const input=document.getElementById('inputBusqueda');
 const sugerencias=document.getElementById('sugerencias');
 const btnLimpiar=document.getElementById('btnLimpiar');
 const btnVoz=document.getElementById('btnVoz');
 function cargarHistorial(){try{return JSON.parse(localStorage.getItem(HIST_KEY)||'[]')}catch(e){return[]}}
-function guardarEnHistorial(texto,tipo,lat,lng,nombre){let h=cargarHistorial();h=h.filter(x=>x.texto!==texto);
-h.unshift({texto,tipo,lat,lng,nombreOriginal:nombre||texto,fecha:Date.now()});h=h.slice(0,8);
+function guardarEnHistorial(texto,tipo,lat,lng,nombre){
+let h=cargarHistorial();h=h.filter(x=>x.texto!==texto);
+h.unshift({texto,tipo,lat,lng,nombreOriginal:nombre||texto,fecha:Date.now()});
+h=h.slice(0,8);
 try{localStorage.setItem(HIST_KEY,JSON.stringify(h))}catch(e){}}
 function borrarHistorial(){try{localStorage.removeItem(HIST_KEY)}catch(e){};mostrarSugerenciasIniciales()}
 const CHIPS=[{e:'🏥',t:'Hospital',c:'hospital'},{e:'💊',t:'Farmacia',c:'pharmacy'},{e:'🚓',t:'Comisaría',c:'police'},{e:'⛽',t:'Nafta',c:'fuel'},{e:'🚌',t:'Parada SAETA',c:'bus_stop'},{e:'🏦',t:'Banco',c:'bank'},{e:'🍽️',t:'Restaurante',c:'restaurant'},{e:'🛒',t:'Super',c:'supermarket'}];
-function mostrarSugerenciasIniciales(){const h=[];
+
+function mostrarSugerenciasIniciales(){
+const h=[];
 h.push('<div class="sug-titulo">⚡ Búsquedas rápidas</div><div class="sug-chips">');
 CHIPS.forEach(c=>h.push(`<button class="sug-chip" data-cat="${c.c}">${c.e} ${c.t}</button>`));
 h.push('</div>');
 const hist=cargarHistorial();
-if(hist.length){h.push('<div class="sug-titulo" style="display:flex;justify-content:space-between;align-items:center;">🕐 Recientes <button onclick="borrarHistorial()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:11px;padding:0;text-transform:none;letter-spacing:0;font-weight:700;">Borrar</button></div>');
+if(hist.length){
+h.push('<div class="sug-titulo" style="display:flex;justify-content:space-between;align-items:center;">🕐 Recientes <button onclick="borrarHistorial()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:11px;padding:0;text-transform:none;letter-spacing:0;font-weight:700;">Borrar</button></div>');
 hist.forEach(x=>{const e=x.tipo==='esquina'?'🚦':x.tipo==='direccion'?'🏠':'🛣️';
-h.push(`<div class="sug-item historial" data-hidx="${hist.indexOf(x)}"><div class="sug-emoji">${e}</div><div class="sug-texto"><strong>${x.nombreOriginal}</strong><small>${new Date(x.fecha).toLocaleDateString('es-AR')}</small></div></div>`)})}
-sugerencias.innerHTML=h.join('');sugerencias.classList.add('activo');
+h.push(`<div class="sug-item historial" data-hidx="${hist.indexOf(x)}"><div class="sug-emoji">${e}</div><div class="sug-texto"><strong>${x.nombreOriginal}</strong><small>${new Date(x.fecha).toLocaleDateString('es-AR')}</small></div></div>`)})
+}
+sugerencias.innerHTML=h.join('');
+sugerencias.classList.add('activo');
 sugerencias.querySelectorAll('.sug-chip').forEach(b=>b.addEventListener('click',()=>activarCategoria(b.dataset.cat)));
-sugerencias.querySelectorAll('.sug-item.historial').forEach(it=>it.addEventListener('click',()=>{const i=parseInt(it.dataset.hidx),x=cargarHistorial()[i];if(!x)return;
+sugerencias.querySelectorAll('.sug-item.historial').forEach(it=>it.addEventListener('click',()=>{
+const i=parseInt(it.dataset.hidx),x=cargarHistorial()[i];if(!x)return;
 if(x.tipo==='calle'){const c=buscarCalleExacta(x.texto);if(c)mostrarCalle(c)}
-else if(x.tipo==='direccion'&&x.lat&&x.lng){map.setView([x.lat,x.lng],18);L.marker([x.lat,x.lng],{icon:L.divIcon({className:'punto-direccion',iconSize:[26,26],iconAnchor:[13,26]})}).addTo(map).bindPopup(`<strong>📍 ${x.nombreOriginal}</strong>`).openPopup()}
+else if(x.tipo==='direccion'&&x.lat&&x.lng){map.setView([x.lat,x.lng],18);
+L.marker([x.lat,x.lng],{icon:L.divIcon({className:'punto-direccion',iconSize:[26,26],iconAnchor:[13,26]})}).addTo(map).bindPopup(`<strong>📍 ${x.nombreOriginal}</strong>`).openPopup()}
 else if(x.tipo==='esquina'&&x.lat&&x.lng)map.setView([x.lat,x.lng],17);
-ocultarSugerencias();input.value=x.texto}))}
-function activarCategoria(cat){if(capas[cat]&&!capasActivas[cat]){map.addLayer(capas[cat]);capasActivas[cat]=true;document.getElementById('btn-'+cat)?.classList.add('activo');actualizarBadgeFiltros()}
-if(capas[cat]){try{const b=capas[cat].getBounds?capas[cat].getBounds():L.featureGroup(capas[cat].getLayers()).getBounds();map.fitBounds(b,{padding:[50,50]})}catch(e){}}
-ocultarSugerencias();input.value=(NOMBRES[cat]||cat);mostrarNotificacion(`✅ Mostrando ${NOMBRES[cat]||cat}`,'exito',2000)}
+ocultarSugerencias();input.value=x.texto}));
+}
+
+function activarCategoria(cat){
+if(capas[cat]&&!capasActivas[cat]){
+map.addLayer(capas[cat]);capasActivas[cat]=true;
+document.getElementById('btn-'+cat)?.classList.add('activo');actualizarBadgeFiltros();
+}
+if(capas[cat]){
+try{const b=capas[cat].getBounds?capas[cat].getBounds():L.featureGroup(capas[cat].getLayers()).getBounds();
+if(b.isValid())map.fitBounds(b,{padding:[50,50]})}catch(e){}
+}
+ocultarSugerencias();
+input.value=(NOMBRES[cat]||cat);
+mostrarNotificacion(`✅ Mostrando ${NOMBRES[cat]||cat}`,'exito',2000);
+}
+
 function ocultarSugerencias(){sugerencias.classList.remove('activo')}
-function renderizarSugerencias(q){const p=parsearQuery(q),h=[];
-if(p.tipo==='esquina')h.push(`<div class="sug-item esquina" data-tipo="esquina"><div class="sug-emoji">🚦</div><div class="sug-texto"><strong>Buscar esquina</strong><small>${p.calle1} y ${p.calle2}${p.numero?' (altura '+p.numero+')':''}</small></div></div>`);
-else if(p.tipo==='direccion'){const c=buscarCalleExacta(p.calle);if(c){const d=buscarDireccion(p.calle,p.numero),prec=d?(d.exacto?'Numeración exacta':'Numeración aproximada'):'Número no encontrado';
-h.push(`<div class="sug-item direccion" data-tipo="direccion"><div class="sug-emoji">🏠</div><div class="sug-texto"><strong>${c.nombreOriginal} ${p.numero}</strong><small>${prec}</small></div></div>`)}}else{
-const res=buscarCalle(q);res.forEach(c=>h.push(`<div class="sug-item" data-tipo="calle" data-nombre="${c.nombre}"><div class="sug-emoji">🛣️</div><div class="sug-texto"><strong>${c.nombreOriginal}</strong><small>Calle</small></div></div>`));
-if(!res.length&&q.length>=2)h.push(`<div class="sug-item"><div class="sug-emoji">😕</div><div class="sug-texto"><strong>Sin resultados</strong><small>Probá con otro nombre</small></div></div>`)}
+
+function renderizarSugerencias(q){
+const p=parsearQuery(q),h=[];
+if(p.tipo==='esquina'){
+h.push(`<div class="sug-item esquina" data-tipo="esquina"><div class="sug-emoji">🚦</div><div class="sug-texto"><strong>Buscar esquina</strong><small>${p.calle1} y ${p.calle2}${p.numero?' (altura '+p.numero+')':''}</small></div></div>`);
+}
+else if(p.tipo==='direccion'){
+const c=buscarCalleExacta(p.calle);
+if(c){const d=buscarDireccionRapido(p.calle,p.numero);
+const prec=d?(d.exacto?'Numeración exacta':'Numeración aproximada'):'Número no encontrado';
+h.push(`<div class="sug-item direccion" data-tipo="direccion"><div class="sug-emoji">🏠</div><div class="sug-texto"><strong>${c.nombreOriginal} ${p.numero}</strong><small>${prec}</small></div></div>`)}
+}
+else{
+const res=buscarCalleRapido(q);
+res.forEach(c=>h.push(`<div class="sug-item" data-tipo="calle" data-nombre="${c.nombre}"><div class="sug-emoji">🛣️</div><div class="sug-texto"><strong>${c.nombreOriginal}</strong><small>Calle</small></div></div>`));
+if(!res.length&&q.length>=2)h.push(`<div class="sug-item"><div class="sug-emoji">😕</div><div class="sug-texto"><strong>Sin resultados</strong><small>Probá con otro nombre</small></div></div>`);
+}
 if(!h.length){sugerencias.classList.remove('activo');return}
-sugerencias.innerHTML=h.join('');sugerencias.classList.add('activo');
-sugerencias.querySelectorAll('.sug-item[data-tipo]').forEach(it=>it.addEventListener('click',()=>{const t=it.dataset.tipo;
-if(t==='esquina'){const cA=buscarCalleExacta(p.calle1),cB=buscarCalleExacta(p.calle2);
-if(!cA){alert(`No se encontró "${p.calle1}"`);return}if(!cB){alert(`No se encontró "${p.calle2}"`);return}
-let dc=null;if(p.numero)dc=buscarDireccion(p.calle1,p.numero)||buscarDireccion(p.calle2,p.numero);
-mostrarInterseccion(cA,cB,p.numero,dc);const txt=`${cA.nombreOriginal} y ${cB.nombreOriginal}${p.numero?' '+p.numero:''}`;
+sugerencias.innerHTML=h.join('');
+sugerencias.classList.add('activo');
+sugerencias.querySelectorAll('.sug-item[data-tipo]').forEach(it=>it.addEventListener('click',()=>{
+const t=it.dataset.tipo;
+if(t==='esquina'){
+const cA=buscarCalleExacta(p.calle1),cB=buscarCalleExacta(p.calle2);
+if(!cA){alert(`No se encontró "${p.calle1}"`);return}
+if(!cB){alert(`No se encontró "${p.calle2}"`);return}
+let dc=null;if(p.numero)dc=buscarDireccionRapido(p.calle1,p.numero)||buscarDireccionRapido(p.calle2,p.numero);
+mostrarInterseccion(cA,cB,p.numero,dc);
+const txt=`${cA.nombreOriginal} y ${cB.nombreOriginal}${p.numero?' '+p.numero:''}`;
 const la=ultimaBusqueda?[ultimaBusqueda.lat,ultimaBusqueda.lng]:[0,0];
-guardarEnHistorial(txt,'esquina',la[0],la[1],txt);input.value=txt;ocultarSugerencias();input.blur()}
-else if(t==='direccion'){const c=buscarCalleExacta(p.calle),d=buscarDireccion(p.calle,p.numero);
-if(d){mostrarDireccion(c,d);const txt=`${c.nombreOriginal} ${p.numero}`;guardarEnHistorial(txt,'direccion',d.lat,d.lng,txt);input.value=txt}
+guardarEnHistorial(txt,'esquina',la[0],la[1],txt);
+input.value=txt;ocultarSugerencias();input.blur();
+}
+else if(t==='direccion'){
+const c=buscarCalleExacta(p.calle),d=buscarDireccionRapido(p.calle,p.numero);
+if(d){mostrarDireccion(c,d);const txt=`${c.nombreOriginal} ${p.numero}`;
+guardarEnHistorial(txt,'direccion',d.lat,d.lng,txt);input.value=txt}
 else{mostrarCalle(c);guardarEnHistorial(c.nombreOriginal,'calle',c.lat,c.lng,c.nombreOriginal);input.value=c.nombreOriginal}
-ocultarSugerencias();input.blur()}
-else if(t==='calle'){const c=callesIndex.find(x=>x.nombre===it.dataset.nombre);
-if(c){mostrarCalle(c);guardarEnHistorial(c.nombreOriginal,'calle',c.lat,c.lng,c.nombreOriginal);input.value=c.nombreOriginal;ocultarSugerencias();input.blur()}}}))}
+ocultarSugerencias();input.blur();
+}
+else if(t==='calle'){
+const c=callesMap.get(it.dataset.nombre)||callesIndex.find(x=>x.nombre===it.dataset.nombre);
+if(c){mostrarCalle(c);guardarEnHistorial(c.nombreOriginal,'calle',c.lat,c.lng,c.nombreOriginal);
+input.value=c.nombreOriginal;ocultarSugerencias();input.blur()}
+}
+}));
+}
+
+// Debounce para input
+const renderDebounced=debounce(q=>renderizarSugerencias(q),120);
 input.addEventListener('focus',()=>{if(input.value.trim().length<2)mostrarSugerenciasIniciales();else renderizarSugerencias(input.value)});
-input.addEventListener('input',e=>{const q=e.target.value.trim();btnLimpiar.style.display=q.length>0?'flex':'none';
-if(q.length<2)mostrarSugerenciasIniciales();else renderizarSugerencias(q)});
+input.addEventListener('input',e=>{
+const q=e.target.value.trim();
+btnLimpiar.style.display=q.length>0?'flex':'none';
+if(q.length<2)mostrarSugerenciasIniciales();
+else renderDebounced(q);
+});
 input.addEventListener('keydown',e=>{if(e.key==='Enter'){const p=sugerencias.querySelector('.sug-item[data-tipo]');if(p)p.click()}});
 btnLimpiar.addEventListener('click',()=>{input.value='';btnLimpiar.style.display='none';input.focus();mostrarSugerenciasIniciales()});
 document.addEventListener('click',e=>{if(!e.target.closest('.buscador'))ocultarSugerencias()});
-btnVoz.addEventListener('click',()=>{const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+
+btnVoz.addEventListener('click',()=>{
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 if(!SR){alert('Tu navegador no soporta búsqueda por voz.');return}
 const r=new SR();r.lang='es-AR';r.interimResults=false;r.maxAlternatives=1;
 r.onstart=()=>{btnVoz.classList.add('grabando');mostrarNotificacion('🎤 Escuchando...','info',5000)};
 r.onend=()=>btnVoz.classList.remove('grabando');
 r.onerror=e=>{btnVoz.classList.remove('grabando');mostrarNotificacion('⚠️ Error: '+e.error,'aviso',3000)};
 r.onresult=e=>{const t=e.results[0][0].transcript;input.value=t;btnLimpiar.style.display='flex';renderizarSugerencias(t);mostrarNotificacion(`🎤 "${t}"`,'exito',2000)};
-try{r.start()}catch(e){}});
+try{r.start()}catch(e){}
+});
 
-(async()=>{await cargarCalles();await cargarDirecciones();await cargarRutasSaeta();input.placeholder='Buscá una calle, esquina o dirección...';cargarLugaresGuardados()})();
-
-// CATEGORIAS
+/* ==========================================
+   CATEGORÍAS CON CLUSTERING
+   ========================================== */
 const EMOJIS={hospital:'🏥',clinic:'🩺',pharmacy:'💊',veterinary:'🐾',bank:'🏦',atm:'🏧',restaurant:'🍽️',fast_food:'🍔',bar:'🍺',cafe:'☕',supermarket:'🛒',convenience:'🏪',marketplace:'🏬',police:'🚓',fire_station:'🚒',bus_stop:'🚌',parking:'🅿️',fuel:'⛽',school:'🏫',university:'🎓',library:'📚',museum:'🏛️',cinema:'🎬',theatre:'🎭',townhall:'🏛️',post_office:'📮',hotel:'🏨',hostel:'🛏️',park:'🌳',playground:'🎠',sports_centre:'🏟️',pitch:'⚽',swimming_pool:'🏊',place_of_worship:'⛪',traffic_signals:'🚦',traffic_calming:'🛑',toilets:'🚻',drinking_water:'💧',recycling:'♻️',viewpoint:'🔭'};
 const NOMBRES={hospital:'Hospitales',clinic:'Clínicas',pharmacy:'Farmacias',veterinary:'Veterinarias',bank:'Bancos',atm:'Cajeros',restaurant:'Restaurantes',fast_food:'Comida rápida',bar:'Bares',cafe:'Cafés',supermarket:'Supermercados',convenience:'Almacenes',marketplace:'Mercados',police:'Comisarías',fire_station:'Bomberos',bus_stop:'Paradas SAETA',parking:'Estacionamientos',fuel:'Estaciones de servicio',school:'Escuelas',university:'Universidades',library:'Bibliotecas',museum:'Museos',cinema:'Cines',theatre:'Teatros',townhall:'Oficinas públicas',post_office:'Correos',hotel:'Hoteles',hostel:'Hostales',park:'Plazas y parques',playground:'Juegos infantiles',sports_centre:'Centros deportivos',pitch:'Canchas',swimming_pool:'Piletas',place_of_worship:'Iglesias',traffic_signals:'Semáforos',traffic_calming:'Lomadas',toilets:'Baños públicos',drinking_water:'Bebederos',recycling:'Reciclaje',viewpoint:'Miradores'};
 const GRUPOS={'Transporte':{emoji:'🚌',categorias:['bus_stop','parking','fuel']},'Salud':{emoji:'🏥',categorias:['hospital','clinic','pharmacy','veterinary']},'Comida y bebida':{emoji:'🍽️',categorias:['restaurant','fast_food','bar','cafe']},'Compras':{emoji:'🛒',categorias:['supermarket','convenience','marketplace']},'Finanzas':{emoji:'🏦',categorias:['bank','atm']},'Seguridad':{emoji:'🚓',categorias:['police','fire_station']},'Educación y cultura':{emoji:'📚',categorias:['school','university','library','museum','cinema','theatre']},'Recreación':{emoji:'🌳',categorias:['park','playground','sports_centre','pitch','swimming_pool']},'Vialidad':{emoji:'🚦',categorias:['traffic_signals','traffic_calming']},'Gobierno':{emoji:'🏛️',categorias:['townhall','post_office']},'Alojamiento':{emoji:'🏨',categorias:['hotel','hostel']},'Religión':{emoji:'⛪',categorias:['place_of_worship']},'Servicios':{emoji:'🚻',categorias:['toilets','drinking_water','recycling','viewpoint']}};
 const capas={},capasActivas={};
-async function cargarSitios(){const archivos=['data/hospitales.geojson','data/sitios.geojson','data/saeta.geojson','data/lugares_extra.geojson'];
-for(const a of archivos){try{const r=await fetch(a);if(!r.ok)continue;const d=await r.json();let cnt=0;
-d.features.forEach(f=>{const p=f.properties;let cat=p.amenity||p.shop||p.tourism||p.highway||p.public_transport||p.leisure;
-if(cat==='platform')cat='bus_stop';if(p.highway==='traffic_signals')cat='traffic_signals';if(p.traffic_calming)cat='traffic_calming';
+
+function crearClusterGroup(){
+return L.markerClusterGroup({
+maxClusterRadius:50,
+spiderfyOnMaxZoom:true,
+showCoverageOnHover:false,
+zoomToBoundsOnClick:true,
+disableClusteringAtZoom:17,
+removeOutsideVisibleBounds:true,
+chunkedLoading:true,
+iconCreateFunction:function(cluster){
+const count=cluster.getChildCount();
+let cls='cluster-icon';
+if(count>100)cls+=' large';
+else if(count>20)cls+=' medium';
+return L.divIcon({html:'<div class="'+cls+'">'+count+'</div>',className:'marker-cluster-custom',iconSize:L.point(44,44)});
+}
+});
+}
+
+async function cargarSitios(){
+const archivos=['data/hospitales.geojson','data/sitios.geojson','data/saeta.geojson','data/lugares_extra.geojson'];
+// Cargar todos en paralelo
+const resultados=await Promise.all(archivos.map(async a=>{
+try{const r=await fetch(a);if(!r.ok)return{archivo:a,data:null};const d=await r.json();return{archivo:a,data:d}}catch(e){return{archivo:a,data:null}}
+}));
+for(const{archivo,data}of resultados){
+if(!data)continue;
+let cnt=0;
+data.features.forEach(f=>{
+const p=f.properties;
+let cat=p.amenity||p.shop||p.tourism||p.highway||p.public_transport||p.leisure;
+if(cat==='platform')cat='bus_stop';
+if(p.highway==='traffic_signals')cat='traffic_signals';
+if(p.traffic_calming)cat='traffic_calming';
 if(!cat)return;
 let lat,lng;
 if(f.geometry.type==='Point'){lng=f.geometry.coordinates[0];lat=f.geometry.coordinates[1]}
 else if(p['@geometry']==='center'&&f.geometry.coordinates){lng=f.geometry.coordinates[0];lat=f.geometry.coordinates[1]}
 else return;
-if(!capas[cat]){capas[cat]=L.layerGroup();capasActivas[cat]=false}
+if(!capas[cat]){capas[cat]=crearClusterGroup();capasActivas[cat]=false}
 const emoji=EMOJIS[cat]||'📍',esS=cat==='bus_stop',esSem=cat==='traffic_signals',esLo=cat==='traffic_calming',esPz=cat==='park';
-const size=esS?34:28;let cls='marcador-sitio';
+const size=esS?34:28;
+let cls='marcador-sitio';
 if(esS)cls+=' marcador-saeta';if(esSem)cls+=' marcador-semaforo';if(esLo)cls+=' marcador-lomada';if(esPz)cls+=' marcador-plaza';
 const icono=L.divIcon({className:'',html:`<div class="${cls}"><span>${emoji}</span></div>`,iconSize:[size,size],iconAnchor:[size/2,size],popupAnchor:[0,-size]});
 const nombre=p.name||p.official_name||(esS?'Parada SAETA':(esSem?'Semáforo':(esLo?'Lomada':(esPz?'Plaza':''))));
 const dir=p['addr:street']?`${p['addr:street']} ${p['addr:housenumber']||''}`:'';
 let infS='';
-if(esS){const cod=p.local_ref||p.ref,op=p.operator||p.network;
-if(cod)infS+=`<br><small>🏷️ Parada: ${cod}</small>`;if(op)infS+=`<br><small>🏢 ${op}</small>`;
+if(esS){
+const cod=p.local_ref||p.ref,op=p.operator||p.network;
+if(cod)infS+=`<br><small>🏷️ Parada: ${cod}</small>`;
+if(op)infS+=`<br><small>🏢 ${op}</small>`;
 const lin=buscarLineasParaParada(lat,lng);
-if(lin.length){const ch=lin.map(l=>`<span class="linea-chip">${l}</span>`).join('');infS+=`<div class="lineas-container"><small style="color:var(--text-muted);font-weight:700;">🚌 Líneas que paran:</small><div class="lineas-lista">${ch}</div></div>`}
-else infS+=`<br><small style="color:var(--text-muted);">🚌 Sin info de líneas</small>`}
-capas[cat].addLayer(L.marker([lat,lng],{icon:icono}).bindPopup(`<strong>${emoji} ${nombre}</strong><br><small>${NOMBRES[cat]||cat}</small>${infS}${dir?'<br><small>📍 '+dir+'</small>':''}${p.phone?'<br><small>📞 '+p.phone+'</small>':''}`));
-cnt++});
-console.log(`✅ ${a}: ${cnt}`)}catch(e){}}
-generarBotonesFiltros();console.log('✅ Sitios:',Object.keys(capas).length,'categorías')}
-function generarBotonesFiltros(){const l=document.getElementById('pfLista');l.innerHTML='';const disp={};
+if(lin.length){const ch=lin.map(l=>`<span class="linea-chip">${l}</span>`).join('');
+infS+=`<div class="lineas-container"><small style="color:var(--text-muted);font-weight:700;">🚌 Líneas que paran:</small><div class="lineas-lista">${ch}</div></div>`}
+else infS+=`<br><small style="color:var(--text-muted);">🚌 Sin info de líneas</small>`;
+}
+capas[cat].addLayer(L.marker([lat,lng],{icon:icono})
+.bindPopup(`<strong>${emoji} ${nombre}</strong><br><small>${NOMBRES[cat]||cat}</small>${infS}${dir?'<br><small>📍 '+dir+'</small>':''}${p.phone?'<br><small>📞 '+p.phone+'</small>':''}`));
+cnt++;
+});
+console.log(`✅ ${archivo}: ${cnt}`);
+}
+generarBotonesFiltros();
+console.log('✅ Sitios:',Object.keys(capas).length,'categorías');
+}
+
+function generarBotonesFiltros(){
+const l=document.getElementById('pfLista');l.innerHTML='';
+const disp={};
 Object.keys(capas).forEach(c=>{let n=0;capas[c].eachLayer(()=>n++);disp[c]=n});
 const ya=new Set();
-Object.keys(GRUPOS).forEach(ng=>{const g=GRUPOS[ng],cs=g.categorias.filter(c=>disp[c]);if(!cs.length)return;
+Object.keys(GRUPOS).forEach(ng=>{
+const g=GRUPOS[ng],cs=g.categorias.filter(c=>disp[c]);if(!cs.length)return;
 const sec=document.createElement('div');sec.className='pf-seccion';
 const t=document.createElement('div');t.className='pf-seccion-titulo';t.textContent=`${g.emoji} ${ng}`;sec.appendChild(t);
-cs.forEach(c=>{ya.add(c);sec.appendChild(crearBotonCat(c,disp[c]))});l.appendChild(sec)});
+cs.forEach(c=>{ya.add(c);sec.appendChild(crearBotonCat(c,disp[c]))});l.appendChild(sec);
+});
 const sin=Object.keys(disp).filter(c=>!ya.has(c));
 if(sin.length){const sec=document.createElement('div');sec.className='pf-seccion';
 const t=document.createElement('div');t.className='pf-seccion-titulo';t.textContent='📦 Otros';sec.appendChild(t);
 sin.forEach(c=>sec.appendChild(crearBotonCat(c,disp[c])));l.appendChild(sec)}
-actualizarBadgeFiltros()}
-function crearBotonCat(cat,n){const b=document.createElement('button');b.className='pf-cat';b.id='btn-'+cat;b.dataset.categoria=cat;b.dataset.nombre=(NOMBRES[cat]||cat).toLowerCase();
+actualizarBadgeFiltros();
+}
+
+function crearBotonCat(cat,n){
+const b=document.createElement('button');b.className='pf-cat';b.id='btn-'+cat;
+b.dataset.categoria=cat;b.dataset.nombre=(NOMBRES[cat]||cat).toLowerCase();
 b.innerHTML=`<span class="pf-emoji">${EMOJIS[cat]||'📍'}</span><span class="pf-nombre">${NOMBRES[cat]||cat}</span><span class="pf-contador">${n}</span><span class="pf-check">✓</span>`;
-b.onclick=()=>toggleCapa(cat);return b}
+b.onclick=()=>toggleCapa(cat);return b;
+}
+
 function abrirPanelFiltros(){document.getElementById('panelFiltros').classList.add('activo');document.getElementById('panelFiltrosOverlay').classList.add('activo')}
 function cerrarPanelFiltros(){document.getElementById('panelFiltros').classList.remove('activo');document.getElementById('panelFiltrosOverlay').classList.remove('activo')}
 document.getElementById('btnFiltros').addEventListener('click',abrirPanelFiltros);
-function toggleCapa(c){if(!capas[c])return;const b=document.getElementById('btn-'+c);
+
+function toggleCapa(c){
+if(!capas[c])return;
+const b=document.getElementById('btn-'+c);
 if(capasActivas[c]){map.removeLayer(capas[c]);capasActivas[c]=false;b?.classList.remove('activo')}
 else{map.addLayer(capas[c]);capasActivas[c]=true;b?.classList.add('activo')}
-actualizarBadgeFiltros()}
-function mostrarTodos(){Object.keys(capas).forEach(c=>{if(!capasActivas[c]){map.addLayer(capas[c]);capasActivas[c]=true;document.getElementById('btn-'+c)?.classList.add('activo')}});actualizarBadgeFiltros();mostrarNotificacion('✅ Todos los filtros activados','exito',2000)}
-function ocultarTodos(){Object.keys(capas).forEach(c=>{if(capasActivas[c]){map.removeLayer(capas[c]);capasActivas[c]=false;document.getElementById('btn-'+c)?.classList.remove('activo')}});actualizarBadgeFiltros();mostrarNotificacion('🚫 Todos los filtros desactivados','info',2000)}
-function filtrarCategorias(){const t=document.getElementById('pfBuscar').value.toLowerCase().trim();
+actualizarBadgeFiltros();
+guardarEstado();
+}
+function mostrarTodos(){
+Object.keys(capas).forEach(c=>{if(!capasActivas[c]){map.addLayer(capas[c]);capasActivas[c]=true;document.getElementById('btn-'+c)?.classList.add('activo')}});
+actualizarBadgeFiltros();guardarEstado();mostrarNotificacion('✅ Todos los filtros activados','exito',2000);
+}
+function ocultarTodos(){
+Object.keys(capas).forEach(c=>{if(capasActivas[c]){map.removeLayer(capas[c]);capasActivas[c]=false;document.getElementById('btn-'+c)?.classList.remove('activo')}});
+actualizarBadgeFiltros();guardarEstado();mostrarNotificacion('🚫 Todos los filtros desactivados','info',2000);
+}
+const filtrarCatDebounced=debounce(()=>{
+const t=document.getElementById('pfBuscar').value.toLowerCase().trim();
 const secs=document.querySelectorAll('.pf-seccion');let vt=0;
-secs.forEach(s=>{let vs=0;const bs=s.querySelectorAll('.pf-cat');
+secs.forEach(s=>{
+let vs=0;const bs=s.querySelectorAll('.pf-cat');
 bs.forEach(b=>{const n=b.dataset.nombre||'';if(!t||n.includes(t)){b.style.display='flex';vs++}else b.style.display='none'});
-s.style.display=vs>0?'block':'none';vt+=vs});
+s.style.display=vs>0?'block':'none';vt+=vs;
+});
 let v=document.querySelector('.pf-vacio');
 if(vt===0){if(!v){v=document.createElement('div');v.className='pf-vacio';v.textContent='😕 No se encontraron categorías';document.getElementById('pfLista').appendChild(v)}}
-else if(v)v.remove()}
-function actualizarBadgeFiltros(){const a=Object.values(capasActivas).filter(v=>v).length,b=document.getElementById('badgeFiltros');
-if(a>0){b.textContent=a;b.classList.add('activo')}else b.classList.remove('activo')}
-cargarSitios();
+else if(v)v.remove();
+},100);
+function filtrarCategorias(){filtrarCatDebounced()}
+function actualizarBadgeFiltros(){const a=Object.values(capasActivas).filter(v=>v).length,b=document.getElementById('badgeFiltros');if(a>0){b.textContent=a;b.classList.add('activo')}else b.classList.remove('activo')}
 
-// BOTONES
+/* ==========================================
+   AUTO-GUARDADO DE ESTADO
+   ========================================== */
+const ESTADO_KEY='salta_estado_v1';
+const guardarEstadoDebounced=debounce(()=>{
+try{
+const c=map.getCenter();
+const estado={
+lat:c.lat,lng:c.lng,zoom:map.getZoom(),
+filtros:Object.keys(capasActivas).filter(k=>capasActivas[k])
+};
+localStorage.setItem(ESTADO_KEY,JSON.stringify(estado));
+}catch(e){}
+},500);
+
+async function restaurarEstado(){
+try{
+const s=JSON.parse(localStorage.getItem(ESTADO_KEY));
+if(!s)return;
+if(s.lat&&s.lng){
+map.setView([s.lat,s.lng],s.zoom||14);
+primerUbicacion=true;
+document.getElementById('aviso').style.display='none';
+}
+if(s.filtros&&s.filtros.length){
+// Esperar a que las capas se generen
+setTimeout(()=>{
+s.filtros.forEach(c=>{
+if(capas[c]&&!capasActivas[c]){
+map.addLayer(capas[c]);capasActivas[c]=true;
+document.getElementById('btn-'+c)?.classList.add('activo');
+}
+});
+actualizarBadgeFiltros();
+},500);
+}
+}catch(e){}
+}
+
+map.on('moveend',guardarEstadoDebounced);
+map.on('zoomend',guardarEstadoDebounced);
+
+/* ==========================================
+   CARGA INICIAL PARALELA
+   ========================================== */
+(async()=>{
+console.time('carga total');
+await Promise.all([
+cargarCalles(),
+cargarDirecciones(),
+cargarRutasSaeta(),
+cargarSitios()
+]);
+input.placeholder='Buscá una calle, esquina o dirección...';
+cargarLugaresGuardados();
+restaurarEstado();
+console.timeEnd('carga total');
+console.log('✅ App lista');
+})();
+
+/* ==========================================
+   BOTONES FLOTANTES
+   ========================================== */
 document.getElementById('btnCentrar').addEventListener('click',()=>{if(posicionUsuario)map.setView(posicionUsuario,17);else alert('Todavía no se detectó tu ubicación.')});
-document.getElementById('btnCompartir').addEventListener('click',()=>{if(!ultimaBusqueda)return;
+document.getElementById('btnCompartir').addEventListener('click',()=>{
+if(!ultimaBusqueda)return;
 const u=`https://www.google.com/maps?q=${ultimaBusqueda.lat},${ultimaBusqueda.lng}`;
-window.open(`https://wa.me/?text=${encodeURIComponent(`📍 ${ultimaBusqueda.texto}\n${u}`)}`,'_blank')});
+window.open(`https://wa.me/?text=${encodeURIComponent(`📍 ${ultimaBusqueda.texto}\n${u}`)}`,'_blank');
+});
 
-// MEDIR
+/* ==========================================
+   MEDIR
+   ========================================== */
 let modoMedir=false,puntoA=null,puntoB=null,lineaMedir=null,marcadorA=null,marcadorB=null;
 const iconoPM=L.divIcon({className:'',html:'<div style="width:14px;height:14px;background:#f59e0b;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.3);"></div>',iconSize:[14,14],iconAnchor:[7,7]});
-document.getElementById('btnMedir').addEventListener('click',()=>{modoMedir=!modoMedir;
+document.getElementById('btnMedir').addEventListener('click',()=>{
+modoMedir=!modoMedir;
 const b=document.getElementById('btnMedir'),a=document.getElementById('avisoMedir');
 if(modoMedir){b.classList.add('activo');a.classList.add('activo');a.textContent='📏 Tocá dos puntos';map.getContainer().style.cursor='crosshair';resetearMedicion()}
-else{b.classList.remove('activo');a.classList.remove('activo');map.getContainer().style.cursor='';resetearMedicion()}});
+else{b.classList.remove('activo');a.classList.remove('activo');map.getContainer().style.cursor='';resetearMedicion()}
+});
 function resetearMedicion(){if(lineaMedir)map.removeLayer(lineaMedir);if(marcadorA)map.removeLayer(marcadorA);if(marcadorB)map.removeLayer(marcadorB);lineaMedir=marcadorA=marcadorB=null;puntoA=puntoB=null}
-map.on('click',e=>{if(!modoMedir)return;const ll=e.latlng;
+map.on('click',e=>{
+if(!modoMedir)return;
+const ll=e.latlng;
 if(!puntoA){puntoA=ll;marcadorA=L.marker(ll,{icon:iconoPM}).addTo(map).bindPopup('Punto A');document.getElementById('avisoMedir').textContent='📏 Ahora tocá el segundo punto'}
 else if(!puntoB){puntoB=ll;marcadorB=L.marker(ll,{icon:iconoPM}).addTo(map).bindPopup('Punto B');
 lineaMedir=L.polyline([puntoA,puntoB],{color:'#f59e0b',weight:4,dashArray:'8, 6'}).addTo(map);
@@ -679,51 +1017,76 @@ const d=haversine(puntoA.lat,puntoA.lng,puntoB.lat,puntoB.lng);
 document.getElementById('avisoMedir').textContent=`📏 Distancia: ${formatearDistancia(d)}`;
 const m=L.latLng((puntoA.lat+puntoB.lat)/2,(puntoA.lng+puntoB.lng)/2);
 L.popup().setLatLng(m).setContent(`<strong>📏 ${formatearDistancia(d)}</strong>`).openOn(map)}
-else{resetearMedicion();puntoA=ll;marcadorA=L.marker(ll,{icon:iconoPM}).addTo(map).bindPopup('Punto A');document.getElementById('avisoMedir').textContent='📏 Ahora tocá el segundo punto'}});
+else{resetearMedicion();puntoA=ll;marcadorA=L.marker(ll,{icon:iconoPM}).addTo(map).bindPopup('Punto A');document.getElementById('avisoMedir').textContent='📏 Ahora tocá el segundo punto'}
+});
 
-// MIS LUGARES
+/* ==========================================
+   MIS LUGARES
+   ========================================== */
 const STK='salta_mis_lugares';let misLugares=[];
 const capaLugares=L.layerGroup().addTo(map);
 function cargarLugaresGuardados(){try{const g=localStorage.getItem(STK);if(g)misLugares=JSON.parse(g)}catch(e){misLugares=[]}pintarLugares()}
 function guardarLugaresS(){try{localStorage.setItem(STK,JSON.stringify(misLugares))}catch(e){}}
 const iconoMi=L.divIcon({className:'punto-mio',iconSize:[28,28],iconAnchor:[14,28],popupAnchor:[0,-28]});
-function pintarLugares(){capaLugares.clearLayers();misLugares.forEach(l=>capaLugares.addLayer(L.marker([l.lat,l.lng],{icon:iconoMi}).bindPopup(`<strong>⭐ ${l.nombre}</strong><br><small>${l.fecha||''}</small>`)))}
+function pintarLugares(){capaLugares.clearLayers();
+misLugares.forEach(l=>capaLugares.addLayer(L.marker([l.lat,l.lng],{icon:iconoMi}).bindPopup(`<strong>⭐ ${l.nombre}</strong><br><small>${l.fecha||''}</small>`)))}
 document.getElementById('btnLugares').addEventListener('click',abrirModalLugares);
-function abrirModalLugares(){const ul=document.getElementById('listaLugares');ul.innerHTML='';
+function abrirModalLugares(){
+const ul=document.getElementById('listaLugares');ul.innerHTML='';
 if(!misLugares.length)ul.innerHTML='<li class="vacio">Todavía no guardaste lugares</li>';
-else misLugares.forEach((l,i)=>{const li=document.createElement('li');const n=document.createElement('span');n.className='nombre';n.textContent='⭐ '+l.nombre;
+else misLugares.forEach((l,i)=>{
+const li=document.createElement('li');
+const n=document.createElement('span');n.className='nombre';n.textContent='⭐ '+l.nombre;
 n.addEventListener('click',()=>{map.setView([l.lat,l.lng],17);cerrarModalLugares()});
 const b=document.createElement('button');b.className='borrar';b.textContent='🗑️';
 b.addEventListener('click',ev=>{ev.stopPropagation();if(confirm(`¿Borrar "${l.nombre}"?`)){misLugares.splice(i,1);guardarLugaresS();pintarLugares();abrirModalLugares()}});
-li.appendChild(n);li.appendChild(b);ul.appendChild(li)});
-document.getElementById('modalLugares').classList.add('activo')}
+li.appendChild(n);li.appendChild(b);ul.appendChild(li);
+});
+document.getElementById('modalLugares').classList.add('activo');
+}
 function cerrarModalLugares(){document.getElementById('modalLugares').classList.remove('activo')}
 document.getElementById('btnAgregarDesdeLista').addEventListener('click',()=>{cerrarModalLugares();abrirModalLugar()});
 function abrirModalLugar(){document.getElementById('inputNombreLugar').value='';document.getElementById('modalLugar').classList.add('activo');setTimeout(()=>document.getElementById('inputNombreLugar').focus(),100)}
 function cerrarModalLugar(){document.getElementById('modalLugar').classList.remove('activo')}
-function confirmarGuardarLugar(){const n=document.getElementById('inputNombreLugar').value.trim();if(!n){alert('Poné un nombre');return}
-const c=map.getCenter();misLugares.push({nombre:n,lat:c.lat,lng:c.lng,fecha:new Date().toLocaleDateString('es-AR')});
-guardarLugaresS();pintarLugares();cerrarModalLugar();mostrarNotificacion(`⭐ "${n}" guardado`,'exito')}
+function confirmarGuardarLugar(){
+const n=document.getElementById('inputNombreLugar').value.trim();if(!n){alert('Poné un nombre');return}
+const c=map.getCenter();
+misLugares.push({nombre:n,lat:c.lat,lng:c.lng,fecha:new Date().toLocaleDateString('es-AR')});
+guardarLugaresS();pintarLugares();cerrarModalLugar();
+mostrarNotificacion(`⭐ "${n}" guardado`,'exito');
+}
 map.on('dblclick',e=>{if(modoMedir)return;map.setView(e.latlng,map.getZoom());setTimeout(abrirModalLugar,100)});
 
-// ROUTING
+/* ==========================================
+   ROUTING
+   ========================================== */
 let rutaLineas=null,marcadorDestino=null,modoTransporte='auto',autoRecalcActivo=true;
 let ultimaPosRecalc=null,recalculoEnProgreso=false,coordsRuta=[],distanciaMinRecalc=30;
 const iconoDest=L.divIcon({className:'',html:'<div style="width:34px;height:34px;background:#ef4444;border:4px solid #fff;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 4px 12px rgba(239,68,68,.6);display:flex;align-items:center;justify-content:center;font-size:17px;"><span style="transform:rotate(45deg);">🏁</span></div>',iconSize:[34,34],iconAnchor:[17,34]});
-document.getElementById('btnIr').addEventListener('click',()=>{if(!destinoActual){alert('Primero buscá una calle');return}
+document.getElementById('btnIr').addEventListener('click',()=>{
+if(!destinoActual){alert('Primero buscá una calle');return}
 if(!posicionUsuario){alert('Todavía no se detectó tu ubicación');return}
-calcularRuta(posicionUsuario[0],posicionUsuario[1],destinoActual.lat,destinoActual.lng,destinoActual.nombre,false)});
-function cambiarModo(m){modoTransporte=m;document.querySelectorAll('.panel-ruta .modo button').forEach(b=>b.classList.remove('activo'));
+calcularRuta(posicionUsuario[0],posicionUsuario[1],destinoActual.lat,destinoActual.lng,destinoActual.nombre,false);
+});
+function cambiarModo(m){modoTransporte=m;
+document.querySelectorAll('.panel-ruta .modo button').forEach(b=>b.classList.remove('activo'));
 document.getElementById('modo'+m.charAt(0).toUpperCase()+m.slice(1)).classList.add('activo');
-if(destinoActual&&posicionUsuario)calcularRuta(posicionUsuario[0],posicionUsuario[1],destinoActual.lat,destinoActual.lng,destinoActual.nombre,false)}
-function toggleAutoRecalc(){autoRecalcActivo=!autoRecalcActivo;const b=document.getElementById('btnAutoRecalc');
-b.textContent=autoRecalcActivo?'📡 Auto: ON':'📡 Auto: OFF';b.classList.toggle('activo',autoRecalcActivo);
-mostrarNotificacion(autoRecalcActivo?'🔄 Recálculo ACTIVADO':'⏸️ Recálculo DESACTIVADO','info',2000)}
+if(destinoActual&&posicionUsuario)calcularRuta(posicionUsuario[0],posicionUsuario[1],destinoActual.lat,destinoActual.lng,destinoActual.nombre,false);
+}
+function toggleAutoRecalc(){autoRecalcActivo=!autoRecalcActivo;
+const b=document.getElementById('btnAutoRecalc');
+b.textContent=autoRecalcActivo?'📡 Auto: ON':'📡 Auto: OFF';
+b.classList.toggle('activo',autoRecalcActivo);
+mostrarNotificacion(autoRecalcActivo?'🔄 Recálculo ACTIVADO':'⏸️ Recálculo DESACTIVADO','info',2000);
+}
 function forzarRecalculo(){if(!destinoActual||!posicionUsuario)return;calcularRuta(posicionUsuario[0],posicionUsuario[1],destinoActual.lat,destinoActual.lng,destinoActual.nombre,true)}
 function cerrarPanelRuta(){document.getElementById('panelRuta').classList.remove('activo');
 if(rutaLineas)map.removeLayer(rutaLineas);if(marcadorDestino)map.removeLayer(marcadorDestino);
-rutaLineas=marcadorDestino=null;coordsRuta=[];ultimaPosRecalc=null}
-async function calcularRuta(lat1,lng1,lat2,lng2,nombre,esRecalc){if(recalculoEnProgreso&&!esRecalc)return;recalculoEnProgreso=true;
+rutaLineas=marcadorDestino=null;coordsRuta=[];ultimaPosRecalc=null;
+}
+async function calcularRuta(lat1,lng1,lat2,lng2,nombre,esRecalc){
+if(recalculoEnProgreso&&!esRecalc)return;
+recalculoEnProgreso=true;
 document.getElementById('panelRuta').classList.add('activo');
 document.getElementById('tituloRuta').textContent=`🛣️ Hacia: ${nombre}`;
 if(!esRecalc){document.getElementById('statDistancia').textContent='...';document.getElementById('statTiempo').textContent='...';document.getElementById('listaPasos').innerHTML='<li>Cargando ruta...</li>'}
@@ -731,9 +1094,13 @@ if(rutaLineas)map.removeLayer(rutaLineas);if(marcadorDestino)map.removeLayer(mar
 marcadorDestino=L.marker([lat2,lng2],{icon:iconoDest,zIndexOffset:3000}).addTo(map).bindPopup(`<strong>🏁 ${nombre}</strong>`);
 const perfil=modoTransporte==='auto'?'driving':modoTransporte==='pie'?'foot':'bike';
 const url=`https://router.project-osrm.org/route/v1/${perfil}/${lng1},${lat1};${lng2},${lat2}?overview=full&geometries=geojson&steps=true`;
-try{const r=await fetch(url);if(!r.ok)throw new Error('HTTP '+r.status);
-const d=await r.json();if(!d.routes||!d.routes.length)throw new Error('Sin ruta');
-const ru=d.routes[0];coordsRuta=ru.geometry.coordinates.map(c=>[c[1],c[0]]);
+try{
+const r=await fetch(url);
+if(!r.ok)throw new Error('HTTP '+r.status);
+const d=await r.json();
+if(!d.routes||!d.routes.length)throw new Error('Sin ruta');
+const ru=d.routes[0];
+coordsRuta=ru.geometry.coordinates.map(c=>[c[1],c[0]]);
 const lf=L.polyline(coordsRuta,{color:'#1e3a8a',weight:9,opacity:.5,lineCap:'round',lineJoin:'round'});
 const lr=L.polyline(coordsRuta,{color:'#3b82f6',weight:5,opacity:.95,lineCap:'round',lineJoin:'round'});
 rutaLineas=L.layerGroup([lf,lr]).addTo(map);
@@ -743,8 +1110,10 @@ document.getElementById('statDistancia').textContent=formatearDistancia(ru.dista
 document.getElementById('statTiempo').textContent=formatearTiempo(ru.duration);
 renderizarPasos(ru.legs[0].steps||[]);
 if(esRecalc)mostrarNotificacion('🔄 Ruta recalculada','exito',2000);
-actualizarProgresoRuta()}
-catch(e){rutaLineas=L.polyline([[lat1,lng1],[lat2,lng2]],{color:'#f59e0b',weight:5,dashArray:'10, 8',opacity:.9}).addTo(map);
+actualizarProgresoRuta();
+}
+catch(e){
+rutaLineas=L.polyline([[lat1,lng1],[lat2,lng2]],{color:'#f59e0b',weight:5,dashArray:'10, 8',opacity:.9}).addTo(map);
 coordsRuta=[[lat1,lng1],[lat2,lng2]];
 if(!esRecalc)map.fitBounds(rutaLineas.getBounds(),{padding:[80,80,80,80]});
 const di=haversine(lat1,lng1,lat2,lng2);
@@ -752,112 +1121,211 @@ document.getElementById('statDistancia').textContent=formatearDistancia(di)+' (r
 const v=modoTransporte==='auto'?40:modoTransporte==='bici'?15:5;
 document.getElementById('statTiempo').textContent='~'+formatearTiempo((di/1000)/v*3600);
 document.getElementById('listaPasos').innerHTML='<li><span class="icono">📡</span><span>Sin conexión: línea recta. La ruta real necesita internet.</span></li>';
-if(esRecalc)mostrarNotificacion('⚠️ Sin conexión','aviso',3000)}
-recalculoEnProgreso=false}
-function renderizarPasos(p){const ul=document.getElementById('listaPasos');ul.innerHTML='';
-p.forEach(s=>{const li=document.createElement('li');const i=iconoMan(s.maneuver);
+if(esRecalc)mostrarNotificacion('⚠️ Sin conexión','aviso',3000);
+}
+recalculoEnProgreso=false;
+}
+function renderizarPasos(p){
+const ul=document.getElementById('listaPasos');ul.innerHTML='';
+p.forEach(s=>{
+const li=document.createElement('li');
+const i=iconoMan(s.maneuver);
 const d=s.distance<1000?`${Math.round(s.distance)} m`:`${(s.distance/1000).toFixed(1)} km`;
-li.innerHTML=`<span class="icono">${i}</span><span><strong>${s.name||'Continuar'}</strong><br><small>${d}</small></span>`;ul.appendChild(li)})}
-function iconoMan(m){if(!m)return'➡️';const t=m.type||'',mo=m.modifier||'';
+li.innerHTML=`<span class="icono">${i}</span><span><strong>${s.name||'Continuar'}</strong><br><small>${d}</small></span>`;
+ul.appendChild(li);
+});
+}
+function iconoMan(m){
+if(!m)return'➡️';
+const t=m.type||'',mo=m.modifier||'';
 if(t==='depart')return'🚩';if(t==='arrive')return'🏁';
 if(t==='turn'){if(mo.includes('slight left'))return'↖️';if(mo.includes('slight right'))return'↗️';if(mo.includes('left'))return'⬅️';if(mo.includes('right'))return'➡️';return'🔄'}
-if(t==='roundabout'||t==='rotary')return'🔄';if(t==='merge')return'🔀';if(t==='continue'||t==='new name')return'⬆️';return'➡️'}
-function verificarRecalculo(){if(!autoRecalcActivo||!destinoActual||!posicionUsuario||recalculoEnProgreso||!ultimaPosRecalc)return;
+if(t==='roundabout'||t==='rotary')return'🔄';if(t==='merge')return'🔀';if(t==='continue'||t==='new name')return'⬆️';
+return'➡️';
+}
+function verificarRecalculo(){
+if(!autoRecalcActivo||!destinoActual||!posicionUsuario||recalculoEnProgreso||!ultimaPosRecalc)return;
 if(!document.getElementById('panelRuta').classList.contains('activo'))return;
 const d=haversine(ultimaPosRecalc[0],ultimaPosRecalc[1],posicionUsuario[0],posicionUsuario[1]);
-if(d>=distanciaMinRecalc)calcularRuta(posicionUsuario[0],posicionUsuario[1],destinoActual.lat,destinoActual.lng,destinoActual.nombre,true)}
-function actualizarProgresoRuta(){if(!posicionUsuario||!coordsRuta||coordsRuta.length<2)return;
+if(d>=distanciaMinRecalc)calcularRuta(posicionUsuario[0],posicionUsuario[1],destinoActual.lat,destinoActual.lng,destinoActual.nombre,true);
+}
+function actualizarProgresoRuta(){
+if(!posicionUsuario||!coordsRuta||coordsRuta.length<2)return;
 if(!document.getElementById('panelRuta').classList.contains('activo'))return;
 const d=haversine(posicionUsuario[0],posicionUsuario[1],destinoActual.lat,destinoActual.lng);
 if(d>5)document.getElementById('statDistancia').textContent=formatearDistancia(d)+' restantes';
-else{document.getElementById('statDistancia').textContent='¡Llegaste!';mostrarNotificacion('🏁 ¡Llegaste!','exito',4000)}}
+else{document.getElementById('statDistancia').textContent='¡Llegaste!';mostrarNotificacion('🏁 ¡Llegaste!','exito',4000)}
+}
 
-// OFFLINE
+/* ==========================================
+   DESCARGA OFFLINE
+   ========================================== */
 const BBOX={sur:-24.92,norte:-24.65,oeste:-65.52,este:-65.30};
 const ZOOMS=[13,14,15,16];let descargaEnCurso=false;
 function lng2tile(lo,z){return Math.floor((lo+180)/360*Math.pow(2,z))}
 function lat2tile(la,z){return Math.floor((1-Math.log(Math.tan(la*Math.PI/180)+1/Math.cos(la*Math.PI/180))/Math.PI)/2*Math.pow(2,z))}
-function generarTeselas(){const t=[];for(const z of ZOOMS){const xMin=lng2tile(BBOX.oeste,z),xMax=lng2tile(BBOX.este,z),yMin=lat2tile(BBOX.norte,z),yMax=lat2tile(BBOX.sur,z);
-for(let x=xMin;x<=xMax;x++)for(let y=yMin;y<=yMax;y++){const s=['a','b','c'][(x+y)%3];t.push(`https://${s}.tile.openstreetmap.org/${z}/${x}/${y}.png`)}}return t}
+function generarTeselas(){
+const t=[];
+for(const z of ZOOMS){
+const xMin=lng2tile(BBOX.oeste,z),xMax=lng2tile(BBOX.este,z),yMin=lat2tile(BBOX.norte,z),yMax=lat2tile(BBOX.sur,z);
+for(let x=xMin;x<=xMax;x++)for(let y=yMin;y<=yMax;y++){
+const s=['a','b','c'][(x+y)%3];
+t.push(`https://${s}.tile.openstreetmap.org/${z}/${x}/${y}.png`);
+}
+}
+return t;
+}
 document.getElementById('btnOffline').addEventListener('click',abrirModalOffline);
-async function abrirModalOffline(){document.getElementById('modalOffline').classList.add('activo');
-document.getElementById('barraOffline').style.display='none';document.getElementById('btnIniciarOffline').style.display='block';
-document.getElementById('btnIniciarOffline').disabled=false;document.getElementById('btnIniciarOffline').textContent='📥 Descargar';
+async function abrirModalOffline(){
+document.getElementById('modalOffline').classList.add('activo');
+document.getElementById('barraOffline').style.display='none';
+document.getElementById('btnIniciarOffline').style.display='block';
+document.getElementById('btnIniciarOffline').disabled=false;
+document.getElementById('btnIniciarOffline').textContent='📥 Descargar';
 document.getElementById('infoProgreso').textContent='';
 const t=generarTeselas(),tot=t.length;let ya=0;
-if('caches'in window){try{const c=await caches.open('salta-tiles-v12');const k=await c.keys();const s=new Set(k.map(x=>x.url));ya=t.filter(u=>s.has(u)).length}catch(e){}}
+if('caches'in window){
+try{const c=await caches.open('salta-tiles-v13');const k=await c.keys();const s=new Set(k.map(x=>x.url));ya=t.filter(u=>s.has(u)).length}catch(e){}
+}
 const f=tot-ya,mb=Math.round(tot*20/1024);
 document.getElementById('estadoOffline').innerHTML=`<strong>📊 Estado actual:</strong><br>• Teselas totales: <strong>${tot}</strong><br>• Ya descargadas: <strong>${ya}</strong><br>• Faltan: <strong>${f}</strong><br>• Tamaño aprox: <strong>~${mb} MB</strong>`;
 document.getElementById('textoOffline').textContent=f===0?'✅ El mapa ya está descargado.':`Se descargarán las ${f} teselas que faltan.`;
 if(f===0){document.getElementById('btnIniciarOffline').style.display='none';document.getElementById('btnBorrarTeselas').style.display='block'}
-else document.getElementById('btnBorrarTeselas').style.display=ya>0?'block':'none'}
+else document.getElementById('btnBorrarTeselas').style.display=ya>0?'block':'none';
+}
 function cerrarModalOffline(){if(descargaEnCurso)return;document.getElementById('modalOffline').classList.remove('activo')}
-async function iniciarDescargaOffline(){if(descargaEnCurso)return;descargaEnCurso=true;
+async function iniciarDescargaOffline(){
+if(descargaEnCurso)return;
+descargaEnCurso=true;
 const b=document.getElementById('btnIniciarOffline'),bb=document.getElementById('btnBorrarTeselas');
 const ba=document.getElementById('barraOffline'),bf=document.getElementById('barraOfflineFill');
 const inf=document.getElementById('infoProgreso'),bf2=document.getElementById('btnOffline');
-b.disabled=true;b.textContent='⏳ Descargando...';bb.style.display='none';ba.style.display='block';bf.style.width='0%';bf2.textContent='⏳';
+b.disabled=true;b.textContent='⏳ Descargando...';bb.style.display='none';
+ba.style.display='block';bf.style.width='0%';bf2.textContent='⏳';
 const t=generarTeselas();let ya=new Set();
-try{const c=await caches.open('salta-tiles-v12');const k=await c.keys();ya=new Set(k.map(x=>x.url))}catch(e){}
-const p=t.filter(u=>!ya.has(u)),tp=p.length;let desc=0,err=0;const T=8;
-for(let i=0;i<p.length;i+=T){const td=p.slice(i,i+T);
-const rs=await Promise.all(td.map(async u=>{try{const r=await fetch(u,{mode:'cors'});
-if(r.ok){const c=await caches.open('salta-tiles-v12');await c.put(u,r.clone());return true}}catch(e){}return false}));
+try{const c=await caches.open('salta-tiles-v13');const k=await c.keys();ya=new Set(k.map(x=>x.url))}catch(e){}
+const p=t.filter(u=>!ya.has(u)),tp=p.length;
+let desc=0,err=0;const T=8;
+for(let i=0;i<p.length;i+=T){
+const td=p.slice(i,i+T);
+const rs=await Promise.all(td.map(async u=>{
+try{const r=await fetch(u,{mode:'cors'});
+if(r.ok){const c=await caches.open('salta-tiles-v13');await c.put(u,r.clone());return true}
+}catch(e){}
+return false;
+}));
 rs.forEach(r=>r?desc++:err++);
-const pr=Math.round(((i+td.length)/tp)*100);bf.style.width=pr+'%';inf.textContent=`${i+td.length} / ${tp} (${pr}%)`;
-await new Promise(r=>setTimeout(r,100))}
-b.textContent='✅ Completado';bf2.textContent='✅';bf2.classList.add('completo');bf.style.width='100%';
+const pr=Math.round(((i+td.length)/tp)*100);
+bf.style.width=pr+'%';
+inf.textContent=`${i+td.length} / ${tp} (${pr}%)`;
+await new Promise(r=>setTimeout(r,100));
+}
+b.textContent='✅ Completado';
+bf2.textContent='✅';bf2.classList.add('completo');
+bf.style.width='100%';
 inf.textContent=`✅ ${desc} teselas descargadas${err>0?`, ${err} errores`:''}`;
 document.getElementById('estadoOffline').innerHTML=`<strong>✅ Descarga completa</strong><br>Se descargaron <strong>${desc}</strong> teselas.`;
 document.getElementById('textoOffline').textContent='';
-setTimeout(()=>{b.textContent='📥 Cerrar';b.disabled=false;
-b.onclick=()=>{document.getElementById('modalOffline').classList.remove('activo');b.onclick=iniciarDescargaOffline;descargaEnCurso=false;abrirModalOffline()}},500);
-descargaEnCurso=false}
-async function borrarTeselas(){if(!confirm('¿Borrar todas las teselas descargadas?'))return;
-try{await caches.delete('salta-tiles-v12');mostrarNotificacion('🗑️ Teselas borradas','exito',3000);
-document.getElementById('btnOffline').textContent='📥';document.getElementById('btnOffline').classList.remove('completo');cerrarModalOffline()}
-catch(e){alert('Error: '+e.message)}}
+setTimeout(()=>{
+b.textContent='📥 Cerrar';b.disabled=false;
+b.onclick=()=>{document.getElementById('modalOffline').classList.remove('activo');b.onclick=iniciarDescargaOffline;descargaEnCurso=false;abrirModalOffline()};
+},500);
+descargaEnCurso=false;
+}
+async function borrarTeselas(){
+if(!confirm('¿Borrar todas las teselas descargadas?'))return;
+try{
+await caches.delete('salta-tiles-v13');
+mostrarNotificacion('🗑️ Teselas borradas','exito',3000);
+document.getElementById('btnOffline').textContent='📥';
+document.getElementById('btnOffline').classList.remove('completo');
+cerrarModalOffline();
+}catch(e){alert('Error: '+e.message)}
+}
 
-// CERCA
-function abrirModalCerca(){if(!posicionUsuario){alert('Todavía no se detectó tu ubicación.');return}
-document.getElementById('modalCerca').classList.add('activo');document.getElementById('cercaBuscar').value='';
-document.getElementById('cercaResultados').style.display='none';document.getElementById('cercaLista').style.display='flex';
-renderizarCategoriasCerca()}
+/* ==========================================
+   CERCA DE MÍ
+   ========================================== */
+function abrirModalCerca(){
+if(!posicionUsuario){alert('Todavía no se detectó tu ubicación.');return}
+document.getElementById('modalCerca').classList.add('activo');
+document.getElementById('cercaBuscar').value='';
+document.getElementById('cercaResultados').style.display='none';
+document.getElementById('cercaLista').style.display='flex';
+renderizarCategoriasCerca();
+}
 function cerrarModalCerca(){document.getElementById('modalCerca').classList.remove('activo')}
-function renderizarCategoriasCerca(filtro=''){const l=document.getElementById('cercaLista');l.innerHTML='';
-const cs=Object.keys(capas).filter(c=>{if(!filtro)return true;const n=(NOMBRES[c]||c).toLowerCase();return n.includes(filtro.toLowerCase())}).sort((a,b)=>(NOMBRES[a]||a).localeCompare(NOMBRES[b]||b));
+function renderizarCategoriasCerca(filtro=''){
+const l=document.getElementById('cercaLista');l.innerHTML='';
+const cs=Object.keys(capas).filter(c=>{
+if(!filtro)return true;
+const n=(NOMBRES[c]||c).toLowerCase();
+return n.includes(filtro.toLowerCase());
+}).sort((a,b)=>(NOMBRES[a]||a).localeCompare(NOMBRES[b]||b));
 if(!cs.length){l.innerHTML='<div class="cerca-vacio-msg">😕 No hay categorías con ese nombre</div>';return}
-cs.forEach(c=>{let n=0;capas[c].eachLayer(()=>n++);
+cs.forEach(c=>{
+let n=0;capas[c].eachLayer(()=>n++);
 const b=document.createElement('button');b.className='cerca-cat';
 b.innerHTML=`<span class="cerca-emoji">${EMOJIS[c]||'📍'}</span><span class="cerca-nombre">${NOMBRES[c]||c}</span><span class="cerca-count">${n}</span>`;
-b.onclick=()=>mostrarCercaDeMi(c);l.appendChild(b)})}
+b.onclick=()=>mostrarCercaDeMi(c);l.appendChild(b);
+});
+}
 function filtrarCategoriasCerca(){renderizarCategoriasCerca(document.getElementById('cercaBuscar').value)}
 function volverCategoriasCerca(){document.getElementById('cercaResultados').style.display='none';document.getElementById('cercaLista').style.display='flex'}
-function mostrarCercaDeMi(cat){if(!posicionUsuario)return;const[ul,ug]=posicionUsuario,its=[];
-capas[cat].eachLayer(m=>{const ll=m.getLatLng(),d=haversine(ul,ug,ll.lat,ll.lng);
-const pop=m.getPopup();let nom='Sin nombre',dir='';
-if(pop){const c=pop.getContent();if(typeof c==='string'){
+function mostrarCercaDeMi(cat){
+if(!posicionUsuario)return;
+const[ul,ug]=posicionUsuario,its=[];
+capas[cat].eachLayer(m=>{
+const ll=m.getLatLng(),d=haversine(ul,ug,ll.lat,ll.lng);
+const pop=m.getPopup();
+let nom='Sin nombre',dir='';
+if(pop){
+const c=pop.getContent();
+if(typeof c==='string'){
 const m1=c.match(/<strong>([\s\S]*?)<\/strong>/);
 if(m1){let r=m1[1].replace(/<[^>]*>/g,'').trim();r=r.replace(/^[^\wáéíóúñÁÉÍÓÚÑ]+/,'').trim();nom=r}
-const m2=c.match(/📍\s*([^<]+)/);if(m2)dir=m2[1].trim()}}
-its.push({lat:ll.lat,lng:ll.lng,dist:d,nombre:nom,dir,marcador:m})});
-its.sort((a,b)=>a.dist-b.dist);const top=its.slice(0,5);
+const m2=c.match(/📍\s*([^<]+)/);
+if(m2)dir=m2[1].trim();
+}
+}
+its.push({lat:ll.lat,lng:ll.lng,dist:d,nombre:nom,dir,marcador:m});
+});
+its.sort((a,b)=>a.dist-b.dist);
+const top=its.slice(0,5);
 const ul2=document.getElementById('cercaItems');ul2.innerHTML='';
 document.getElementById('cercaCategoriaActual').textContent=`${EMOJIS[cat]} ${NOMBRES[cat]}`;
 if(!top.length)ul2.innerHTML='<li class="cerca-vacio-msg">No hay lugares de esta categoría</li>';
-else top.forEach((it,i)=>{const li=document.createElement('li');
+else top.forEach((it,i)=>{
+const li=document.createElement('li');
 const dt=it.dist<1000?`${Math.round(it.dist)} m`:`${(it.dist/1000).toFixed(2)} km`;
 const md=i===0?'🥇':i===1?'🥈':i===2?'🥉':'📍';
 li.innerHTML=`<span class="cerca-item-emoji">${md}</span><div class="cerca-item-info"><div class="cerca-item-nombre">${it.nombre||NOMBRES[cat]}</div>${it.dir?'<div class="cerca-item-dir">📍 '+it.dir+'</div>':'<div class="cerca-item-dir">📍 '+it.lat.toFixed(5)+', '+it.lng.toFixed(5)+'</div>'}</div><span class="cerca-item-dist">${dt}</span>`;
-li.addEventListener('click',()=>{cerrarModalCerca();
-if(!capasActivas[cat]){map.addLayer(capas[cat]);capasActivas[cat]=true;document.getElementById('btn-'+cat)?.classList.add('activo');actualizarBadgeFiltros()}
-map.setView([it.lat,it.lng],18);setTimeout(()=>it.marcador.openPopup(),300)});
-ul2.appendChild(li)});
-document.getElementById('cercaLista').style.display='none';document.getElementById('cercaResultados').style.display='block'}
+li.addEventListener('click',()=>{
+cerrarModalCerca();
+if(!capasActivas[cat]){
+map.addLayer(capas[cat]);capasActivas[cat]=true;
+document.getElementById('btn-'+cat)?.classList.add('activo');actualizarBadgeFiltros();
+}
+map.setView([it.lat,it.lng],18);
+setTimeout(()=>it.marcador.openPopup(),300);
+});
+ul2.appendChild(li);
+});
+document.getElementById('cercaLista').style.display='none';
+document.getElementById('cercaResultados').style.display='block';
+}
 document.getElementById('btnCerca').addEventListener('click',abrirModalCerca);
 
-// SW
-if('serviceWorker'in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').then(r=>console.log('✅ SW:',r.scope)).catch(e=>console.error('❌ SW:',e))})}
+/* ==========================================
+   SERVICE WORKER
+   ========================================== */
+if('serviceWorker'in navigator){
+window.addEventListener('load',()=>{
+navigator.serviceWorker.register('sw.js')
+.then(r=>console.log('✅ SW:',r.scope))
+.catch(e=>console.error('❌ SW:',e));
+});
+}
 </script>
 </body>
 </html>
