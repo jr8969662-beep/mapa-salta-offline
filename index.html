@@ -22,14 +22,19 @@
 --sh-sm:0 1px 2px rgba(0,0,0,.05);--sh-md:0 4px 6px -1px rgba(0,0,0,.1);--sh-lg:0 10px 15px -3px rgba(0,0,0,.1);--sh-xl:0 20px 25px -5px rgba(0,0,0,.15);
 --r:14px;--r-sm:10px;--r-lg:20px;--t:.2s cubic-bezier(.4,0,.2,1)}
 [data-theme=dark]{
---bg:#111827;--bg-soft:#1f2937;--text:#f9fafb;--text-muted:#9ca3af;--border:#374151;
---g-50:#1f2937;--g-100:#374151;--g-200:#4b5563;--g-300:#6b7280;--g-400:#9ca3af;--g-500:#d1d5db;--g-600:#e5e7eb;--g-700:#f3f4f6;--g-800:#f9fafb;--g-900:#fff;
---primary:#3b82f6;--primary-dark:#1e40af}
+--bg:#0f172a;--bg-soft:#1e293b;--text:#f1f5f9;--text-muted:#94a3b8;--border:#334155;
+--g-50:#1e293b;--g-100:#334155;--g-200:#475569;--g-300:#64748b;--g-400:#94a3b8;--g-500:#cbd5e1;--g-600:#e2e8f0;--g-700:#f1f5f9;--g-800:#f8fafc;--g-900:#fff;
+--primary:#60a5fa;--primary-dark:#1e40af;--primary-light:#3b82f6;--accent:#fbbf24;--success:#34d399;--danger:#f87171;--warning:#fbbf24;
+--sh-sm:0 1px 3px rgba(0,0,0,.4);--sh-md:0 4px 12px rgba(0,0,0,.5);--sh-lg:0 10px 24px rgba(0,0,0,.55);--sh-xl:0 20px 40px rgba(0,0,0,.6)}
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;-webkit-tap-highlight-color:transparent}
 body,html{height:100%;overflow:hidden}
 body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
-#map{width:100%;height:100vh;background:var(--g-100)}
-.leaflet-tile-pane.mapa-oscuro{filter:invert(1) hue-rotate(180deg) brightness(.9) contrast(.9)}
+#map{width:100%;height:100vh;background:var(--g-100);position:relative}
+
+/* MODO OSCURO DEL MAPA - ELEGANTE */
+.leaflet-tile-pane.mapa-oscuro{filter:invert(1) hue-rotate(180deg) brightness(.88) contrast(1.25) saturate(.6)}
+#map.mapa-oscuro::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(30,64,175,.18) 0%,rgba(88,28,135,.12) 50%,rgba(15,23,42,.25) 100%);pointer-events:none;z-index:400;mix-blend-mode:multiply}
+#map.mapa-oscuro::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 0%,rgba(0,0,0,.35) 100%);pointer-events:none;z-index:401;mix-blend-mode:multiply}
 
 /* BUSCADOR */
 .buscador{position:absolute;top:12px;left:12px;right:64px;z-index:1000;max-width:520px}
@@ -250,13 +255,66 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 .leaflet-popup-tip{background:var(--bg)}
 .leaflet-popup-close-button{color:var(--text-muted)!important}
 .leaflet-control-attribution{background:rgba(255,255,255,.8)!important;font-size:10px!important}
-[data-theme=dark] .leaflet-control-attribution{background:rgba(17,24,39,.8)!important;color:#9ca3af!important}
+[data-theme=dark] .leaflet-control-attribution{background:rgba(15,23,42,.85)!important;color:#94a3b8!important}
 
 ::-webkit-scrollbar{width:8px;height:8px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--g-300);border-radius:4px}
 ::-webkit-scrollbar-thumb:hover{background:var(--g-400)}
 [data-theme=dark] ::-webkit-scrollbar-thumb{background:var(--g-600)}
+
+/* ============================================ */
+/* MEJORAS VISUALES PARA MODO OSCURO            */
+/* ============================================ */
+[data-theme=dark] .buscador-contenedor{background:rgba(30,41,59,.95);border-color:var(--border);backdrop-filter:blur(20px)}
+[data-theme=dark] .buscador-contenedor:focus-within{box-shadow:0 0 0 3px rgba(96,165,250,.3),var(--sh-lg);border-color:var(--primary)}
+[data-theme=dark] .buscador input{color:var(--text)}
+[data-theme=dark] .buscador input::placeholder{color:var(--text-muted)}
+[data-theme=dark] .sugerencias{background:rgba(15,23,42,.98);border-color:var(--border);backdrop-filter:blur(20px)}
+[data-theme=dark] .sug-chip{background:rgba(51,65,85,.6);border-color:rgba(96,165,250,.3);color:var(--text)}
+[data-theme=dark] .sug-chip:hover,[data-theme=dark] .sug-chip:active{background:var(--primary);border-color:var(--primary);color:#0f172a;font-weight:700}
+[data-theme=dark] .sug-item:hover,[data-theme=dark] .sug-item:active{background:rgba(51,65,85,.4)}
+[data-theme=dark] .btn-flotante{background:rgba(30,41,59,.95);border-color:var(--border);backdrop-filter:blur(12px);color:var(--text)}
+[data-theme=dark] .btn-flotante:hover{background:var(--primary);color:#0f172a;box-shadow:0 0 20px rgba(96,165,250,.5),var(--sh-lg)}
+[data-theme=dark] .btn-flotante.azul{background:var(--primary);color:#0f172a;box-shadow:0 0 16px rgba(96,165,250,.4)}
+[data-theme=dark] .btn-flotante.verde{background:var(--success);color:#0f172a;box-shadow:0 0 16px rgba(52,211,153,.4)}
+[data-theme=dark] .btn-flotante.rojo{background:var(--danger);color:#0f172a;box-shadow:0 0 16px rgba(248,113,113,.4)}
+[data-theme=dark] .btn-flotante.activo{background:var(--primary);color:#0f172a;box-shadow:0 0 20px rgba(96,165,250,.6)}
+[data-theme=dark] .marcador-sitio{background:#1e293b;border-color:#60a5fa;box-shadow:0 0 12px rgba(96,165,250,.4),0 2px 6px rgba(0,0,0,.5)}
+[data-theme=dark] .marcador-sitio.marcador-saeta{background:var(--danger);border-color:#fca5a5;box-shadow:0 0 16px rgba(248,113,113,.7),0 2px 6px rgba(0,0,0,.5)}
+[data-theme=dark] .marcador-sitio.marcador-semaforo{background:var(--accent);border-color:#fde68a;box-shadow:0 0 16px rgba(251,191,36,.7),0 2px 6px rgba(0,0,0,.5)}
+[data-theme=dark] .marcador-sitio.marcador-lomada{background:#fb923c;border-color:#fed7aa;box-shadow:0 0 16px rgba(251,146,60,.6),0 2px 6px rgba(0,0,0,.5)}
+[data-theme=dark] .marcador-sitio.marcador-plaza{background:var(--success);border-color:#6ee7b7;box-shadow:0 0 16px rgba(52,211,153,.6),0 2px 6px rgba(0,0,0,.5)}
+[data-theme=dark] .punto-usuario .circulo{background:var(--primary);box-shadow:0 0 0 3px rgba(96,165,250,.4),0 0 20px rgba(96,165,250,.8),0 4px 12px rgba(0,0,0,.5)}
+[data-theme=dark] .punto-usuario .flecha{border-bottom-color:var(--primary);filter:drop-shadow(0 0 6px rgba(96,165,250,.8))}
+[data-theme=dark] .circulo-precision{background:rgba(96,165,250,.08);border-color:rgba(96,165,250,.25)}
+[data-theme=dark] .cluster-icon{background:var(--primary);color:#0f172a;box-shadow:0 0 24px rgba(96,165,250,.6),0 0 0 8px rgba(96,165,250,.2);border-color:#f8fafc}
+[data-theme=dark] .cluster-icon.medium{background:var(--accent);color:#0f172a;box-shadow:0 0 24px rgba(251,191,36,.6),0 0 0 10px rgba(251,191,36,.2)}
+[data-theme=dark] .cluster-icon.large{background:var(--danger);color:#fff;box-shadow:0 0 28px rgba(248,113,113,.7),0 0 0 12px rgba(248,113,113,.2)}
+[data-theme=dark] .panel-filtros{background:#0f172a;box-shadow:-8px 0 40px rgba(0,0,0,.7)}
+[data-theme=dark] .pf-header{background:linear-gradient(135deg,#1e40af,#1e3a8a);border-bottom:1px solid rgba(96,165,250,.2)}
+[data-theme=dark] .pf-acciones{background:#1e293b;border-bottom-color:var(--border)}
+[data-theme=dark] .pf-buscar{background:#1e293b;border-color:#334155}
+[data-theme=dark] .pf-buscar:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(96,165,250,.2)}
+[data-theme=dark] .pf-cat{background:#1e293b;border-color:#334155;color:var(--text)}
+[data-theme=dark] .pf-cat:hover{border-color:var(--primary);background:rgba(96,165,250,.1)}
+[data-theme=dark] .pf-cat.activo{background:linear-gradient(135deg,#2563eb,#1e40af);border-color:var(--primary);color:#fff;box-shadow:0 0 16px rgba(96,165,250,.3)}
+[data-theme=dark] .pf-cat.activo .pf-contador{background:rgba(255,255,255,.2);color:#fff}
+[data-theme=dark] .leaflet-popup-content-wrapper{background:#1e293b;color:var(--text);border:1px solid #334155}
+[data-theme=dark] .leaflet-popup-tip{background:#1e293b;border:1px solid #334155}
+[data-theme=dark] .leaflet-popup-content strong{color:var(--primary)}
+[data-theme=dark] .modal{background:#0f172a;border:1px solid #334155}
+[data-theme=dark] .modal input[type=text]{background:#1e293b;border-color:#334155;color:var(--text)}
+[data-theme=dark] .modal input[type=text]:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(96,165,250,.2)}
+[data-theme=dark] .linea-chip{background:var(--danger);box-shadow:0 0 8px rgba(248,113,113,.5);color:#fff}
+[data-theme=dark] .panel-ruta{background:#0f172a;border-top:1px solid #334155}
+[data-theme=dark] .panel-ruta .stat{background:#1e293b}
+[data-theme=dark] .panel-ruta .modo button{background:#1e293b;border-color:#334155;color:var(--text)}
+[data-theme=dark] .panel-ruta .modo button.activo{background:rgba(96,165,250,.15);border-color:var(--primary);color:var(--primary)}
+[data-theme=dark] .panel-ruta .btn-auto{background:#1e293b;color:var(--text)}
+[data-theme=dark] .aviso-ubicacion{background:rgba(15,23,42,.95);border:1px solid #334155;backdrop-filter:blur(12px)}
+[data-theme=dark] .calidad-gps{background:#1e293b;border-color:#334155;color:var(--text)}
+[data-theme=dark] .velocimetro{background:rgba(15,23,42,.95);border:1px solid #334155}
 </style>
 </head>
 <body>
@@ -379,12 +437,25 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script>
 /* ==========================================
-   TEMA
+   TEMA + MAPA OSCURO
    ========================================== */
 const TEMA_KEY='salta_tema';
 function aplicarTema(t){document.documentElement.setAttribute('data-theme',t);document.getElementById('btnTema').textContent=t==='dark'?'☀️':'🌙';try{localStorage.setItem(TEMA_KEY,t)}catch(e){}}
+function actualizarMapaOscuro(){
+const tema=document.documentElement.getAttribute('data-theme');
+const mapEl=document.getElementById('map');
+const tiles=document.querySelector('.leaflet-tile-pane');
+if(tema==='dark'){
+mapEl.classList.add('mapa-oscuro');
+tiles?.classList.add('mapa-oscuro');
+}else{
+mapEl.classList.remove('mapa-oscuro');
+tiles?.classList.remove('mapa-oscuro');
+}
+}
+function aplicarTemaYMapa(t){aplicarTema(t);actualizarMapaOscuro()}
 (function(){let t=null;try{t=localStorage.getItem(TEMA_KEY)}catch(e){};if(!t){const h=new Date().getHours();t=(h>=20||h<7)?'dark':'light'}aplicarTema(t)})();
-document.getElementById('btnTema').addEventListener('click',()=>{const a=document.documentElement.getAttribute('data-theme');aplicarTema(a==='dark'?'light':'dark')});
+document.getElementById('btnTema').addEventListener('click',()=>{const a=document.documentElement.getAttribute('data-theme');aplicarTemaYMapa(a==='dark'?'light':'dark')});
 
 /* ==========================================
    MAPA
@@ -393,6 +464,7 @@ const CENTRO_SALTA=[-24.789,-65.411];
 const map=L.map('map',{rotate:true,rotateControl:false,bearing:0,touchRotate:false,shiftKeyRotate:false,compassBearing:false,preferCanvas:true}).setView(CENTRO_SALTA,14);
 const capaBase=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap',updateWhenIdle:true,keepBuffer:4});
 capaBase.addTo(map);
+setTimeout(actualizarMapaOscuro,100);
 
 /* ==========================================
    UTILIDADES
@@ -405,7 +477,7 @@ function mostrarNotificacion(t,tipo='info',dur=3000){const n=document.getElement
 function debounce(fn,ms=150){let t;return function(...a){clearTimeout(t);t=setTimeout(()=>fn.apply(this,a),ms)}}
 
 /* ==========================================
-   UBICACIÓN + PRECISIÓN GPS
+   UBICACIÓN + GPS
    ========================================== */
 let posicionUsuario=null,headingUsuario=null,posicionAnterior=null,timestampAnterior=null;
 let ultimaVelocidad=0,marcadorUsuario=null,circuloPrecision=null,primerUbicacion=false,usarBrujulaDispositivo=false;
@@ -447,13 +519,13 @@ else{e.target.classList.remove('activo');if(map.setBearing)map.setBearing(0);mos
 function actualizarVelocimetro(){const v=document.getElementById('velocimetro'),n=document.getElementById('velocidadNum');if(ultimaVelocidad>2){v.classList.add('activo');n.textContent=ultimaVelocidad.toFixed(0)}else v.classList.remove('activo')}
 
 /* ==========================================
-   CALLES - CON ÍNDICE RÁPIDO
+   CALLES - ÍNDICE RÁPIDO
    ========================================== */
-let callesIndex=[];             // Array completo
-let callesMap=new Map();        // Nombre normalizado -> calle (exacto)
-let callesPalabras=new Map();   // palabra -> Set de índices (para búsqueda rápida)
+let callesIndex=[];
+let callesMap=new Map();
+let callesPalabras=new Map();
 let direccionesIndex=[];
-let direccionesMap=new Map();   // calle normalizada -> array de direcciones ordenadas
+let direccionesMap=new Map();
 let marcadorCalle=null,trazoCalle=null,ultimaBusqueda=null,destinoActual=null;
 
 async function cargarCalles(){
@@ -472,9 +544,7 @@ if(!agrupadas[norm])agrupadas[norm]={nombre:norm,nombreOriginal:n,lat,lng,tramos
 else agrupadas[norm].tramos.push(c.map(p=>[p[1],p[0]]));
 });
 callesIndex=Object.values(agrupadas);
-// Índice por nombre exacto
 callesIndex.forEach(c=>callesMap.set(c.nombre,c));
-// Índice por palabras (para búsqueda rápida sin recorrer todo)
 callesIndex.forEach((c,i)=>{
 const palabras=c.nombre.split(' ').filter(p=>p.length>2);
 palabras.forEach(p=>{if(!callesPalabras.has(p))callesPalabras.set(p,[]);callesPalabras.get(p).push(i)});
@@ -482,7 +552,6 @@ palabras.forEach(p=>{if(!callesPalabras.has(p))callesPalabras.set(p,[]);callesPa
 console.log(`✅ ${callesIndex.length} calles indexadas`);
 }catch(e){console.error('Error calles:',e)}
 }
-
 async function cargarDirecciones(){
 try{
 const r=await fetch('data/direcciones.geojson');if(!r.ok)return;
@@ -499,16 +568,11 @@ const cn=normalizar(c);
 if(!direccionesMap.has(cn))direccionesMap.set(cn,[]);
 direccionesMap.get(cn).push({calle:cn,calleOriginal:c,numero:num,lat,lng,exacto,interpolacion:p['addr:interpolation']||null});
 });
-// Ordenar por número para búsqueda binaria
 for(const[_,arr]of direccionesMap)arr.sort((a,b)=>a.numero-b.numero);
 let total=0;for(const[_,arr]of direccionesMap)total+=arr.length;
-console.log(`✅ ${total} direcciones indexadas en ${direccionesMap.size} calles`);
+console.log(`✅ ${total} direcciones en ${direccionesMap.size} calles`);
 }catch(e){}
 }
-
-/* ==========================================
-   RUTAS SAETA
-   ========================================== */
 let mapaLineasPorNodo={},lineasPorCoordenada=[];
 async function cargarRutasSaeta(){
 try{
@@ -527,58 +591,39 @@ Object.values(mapaLineasPorNodo).forEach(i=>lineasPorCoordenada.push({lat:i.lat,
 console.log(`✅ ${cnt} rutas SAETA`);
 }catch(e){}
 }
-
 function buscarLineasParaParada(lat,lng){
 if(lineasPorCoordenada.length===0)return[];
 let me=null,md=Infinity;
 for(const p of lineasPorCoordenada){const d=haversine(lat,lng,p.lat,p.lng);if(d<md){md=d;me=p}}
 if(me&&md<50)return me.refs;return[];
 }
-
-/* ==========================================
-   BÚSQUEDA RÁPIDA CON ÍNDICE
-   ========================================== */
 function buscarCalleRapido(termino){
 const n=normalizar(termino);
 if(n.length<2)return[];
 const palabras=n.split(' ').filter(p=>p.length>1);
 const candidatos=new Set();
-// Usar índice de palabras
 palabras.forEach(p=>{
-// Coincidencia por palabra completa o prefijo
 for(const[k,idxs]of callesPalabras){
 if(k.startsWith(p)){idxs.forEach(i=>candidatos.add(i))}
 }
 });
 let resultados=Array.from(candidatos).map(i=>callesIndex[i]);
-// Filtrar los que realmente incluyen el término completo
 resultados=resultados.filter(c=>c.nombre.includes(n));
-// Si no hay, fallback a búsqueda lineal
 if(resultados.length===0)resultados=callesIndex.filter(c=>c.nombre.includes(n));
 return resultados.slice(0,10);
 }
-
 function buscarCalleExacta(nombre){
 const k=normalizar(nombre);
 let e=callesMap.get(k);if(e)return e;
-// Búsqueda parcial
 const cand=callesIndex.filter(x=>x.nombre.includes(k)||k.includes(x.nombre))
 .sort((a,b)=>Math.abs(a.nombre.length-k.length)-Math.abs(b.nombre.length-k.length));
 return cand[0]||null;
 }
-
 function buscarDireccionRapido(calle,num){
 const c=normalizar(calle);
-// Probar coincidencia exacta primero
 let arr=direccionesMap.get(c);
-// Si no, buscar por inclusión
-if(!arr){
-for(const[k,v]of direccionesMap){
-if(k.includes(c)||c.includes(k)){arr=v;break}
-}
-}
+if(!arr){for(const[k,v]of direccionesMap){if(k.includes(c)||c.includes(k)){arr=v;break}}}
 if(!arr||!arr.length)return null;
-// Búsqueda binaria del número más cercano
 let lo=0,hi=arr.length-1,mejor=arr[0],mejorDist=Math.abs(arr[0].numero-num);
 while(lo<=hi){
 const mid=Math.floor((lo+hi)/2);
@@ -588,7 +633,6 @@ if(arr[mid].numero<num)lo=mid+1;else if(arr[mid].numero>num)hi=mid-1;else return
 }
 return mejor;
 }
-
 function parsearQuery(q){
 q=q.trim();
 const m1=q.match(/^(.+?)\s+y\s+(.+?)(?:\s+(\d+))?$/i);
@@ -599,7 +643,7 @@ return{tipo:'calle',calle:q};
 }
 
 /* ==========================================
-   GEOMETRÍA CON CACHÉ DE INTERSECCIONES
+   GEOMETRÍA CON CACHÉ
    ========================================== */
 const cacheIntersecciones=new Map();
 function interseccionSegmentos(p1,p2,p3,p4){
@@ -664,7 +708,7 @@ mostrarBotonIr(uni[0][0],uni[0][1],`${cA.nombreOriginal} y ${cB.nombreOriginal}`
 }
 
 /* ==========================================
-   BUSCADOR CON DEBOUNCE
+   BUSCADOR
    ========================================== */
 const HIST_KEY='salta_historial_busquedas';
 const input=document.getElementById('inputBusqueda');
@@ -679,7 +723,6 @@ h=h.slice(0,8);
 try{localStorage.setItem(HIST_KEY,JSON.stringify(h))}catch(e){}}
 function borrarHistorial(){try{localStorage.removeItem(HIST_KEY)}catch(e){};mostrarSugerenciasIniciales()}
 const CHIPS=[{e:'🏥',t:'Hospital',c:'hospital'},{e:'💊',t:'Farmacia',c:'pharmacy'},{e:'🚓',t:'Comisaría',c:'police'},{e:'⛽',t:'Nafta',c:'fuel'},{e:'🚌',t:'Parada SAETA',c:'bus_stop'},{e:'🏦',t:'Banco',c:'bank'},{e:'🍽️',t:'Restaurante',c:'restaurant'},{e:'🛒',t:'Super',c:'supermarket'}];
-
 function mostrarSugerenciasIniciales(){
 const h=[];
 h.push('<div class="sug-titulo">⚡ Búsquedas rápidas</div><div class="sug-chips">');
@@ -702,7 +745,6 @@ L.marker([x.lat,x.lng],{icon:L.divIcon({className:'punto-direccion',iconSize:[26
 else if(x.tipo==='esquina'&&x.lat&&x.lng)map.setView([x.lat,x.lng],17);
 ocultarSugerencias();input.value=x.texto}));
 }
-
 function activarCategoria(cat){
 if(capas[cat]&&!capasActivas[cat]){
 map.addLayer(capas[cat]);capasActivas[cat]=true;
@@ -716,9 +758,7 @@ ocultarSugerencias();
 input.value=(NOMBRES[cat]||cat);
 mostrarNotificacion(`✅ Mostrando ${NOMBRES[cat]||cat}`,'exito',2000);
 }
-
 function ocultarSugerencias(){sugerencias.classList.remove('activo')}
-
 function renderizarSugerencias(q){
 const p=parsearQuery(q),h=[];
 if(p.tipo==='esquina'){
@@ -765,8 +805,6 @@ input.value=c.nombreOriginal;ocultarSugerencias();input.blur()}
 }
 }));
 }
-
-// Debounce para input
 const renderDebounced=debounce(q=>renderizarSugerencias(q),120);
 input.addEventListener('focus',()=>{if(input.value.trim().length<2)mostrarSugerenciasIniciales();else renderizarSugerencias(input.value)});
 input.addEventListener('input',e=>{
@@ -778,7 +816,6 @@ else renderDebounced(q);
 input.addEventListener('keydown',e=>{if(e.key==='Enter'){const p=sugerencias.querySelector('.sug-item[data-tipo]');if(p)p.click()}});
 btnLimpiar.addEventListener('click',()=>{input.value='';btnLimpiar.style.display='none';input.focus();mostrarSugerenciasIniciales()});
 document.addEventListener('click',e=>{if(!e.target.closest('.buscador'))ocultarSugerencias()});
-
 btnVoz.addEventListener('click',()=>{
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
 if(!SR){alert('Tu navegador no soporta búsqueda por voz.');return}
@@ -819,7 +856,6 @@ return L.divIcon({html:'<div class="'+cls+'">'+count+'</div>',className:'marker-
 
 async function cargarSitios(){
 const archivos=['data/hospitales.geojson','data/sitios.geojson','data/saeta.geojson','data/lugares_extra.geojson'];
-// Cargar todos en paralelo
 const resultados=await Promise.all(archivos.map(async a=>{
 try{const r=await fetch(a);if(!r.ok)return{archivo:a,data:null};const d=await r.json();return{archivo:a,data:d}}catch(e){return{archivo:a,data:null}}
 }));
@@ -882,18 +918,15 @@ const t=document.createElement('div');t.className='pf-seccion-titulo';t.textCont
 sin.forEach(c=>sec.appendChild(crearBotonCat(c,disp[c])));l.appendChild(sec)}
 actualizarBadgeFiltros();
 }
-
 function crearBotonCat(cat,n){
 const b=document.createElement('button');b.className='pf-cat';b.id='btn-'+cat;
 b.dataset.categoria=cat;b.dataset.nombre=(NOMBRES[cat]||cat).toLowerCase();
 b.innerHTML=`<span class="pf-emoji">${EMOJIS[cat]||'📍'}</span><span class="pf-nombre">${NOMBRES[cat]||cat}</span><span class="pf-contador">${n}</span><span class="pf-check">✓</span>`;
 b.onclick=()=>toggleCapa(cat);return b;
 }
-
 function abrirPanelFiltros(){document.getElementById('panelFiltros').classList.add('activo');document.getElementById('panelFiltrosOverlay').classList.add('activo')}
 function cerrarPanelFiltros(){document.getElementById('panelFiltros').classList.remove('activo');document.getElementById('panelFiltrosOverlay').classList.remove('activo')}
 document.getElementById('btnFiltros').addEventListener('click',abrirPanelFiltros);
-
 function toggleCapa(c){
 if(!capas[c])return;
 const b=document.getElementById('btn-'+c);
@@ -926,7 +959,7 @@ function filtrarCategorias(){filtrarCatDebounced()}
 function actualizarBadgeFiltros(){const a=Object.values(capasActivas).filter(v=>v).length,b=document.getElementById('badgeFiltros');if(a>0){b.textContent=a;b.classList.add('activo')}else b.classList.remove('activo')}
 
 /* ==========================================
-   AUTO-GUARDADO DE ESTADO
+   AUTO-GUARDADO
    ========================================== */
 const ESTADO_KEY='salta_estado_v1';
 const guardarEstadoDebounced=debounce(()=>{
@@ -939,7 +972,6 @@ filtros:Object.keys(capasActivas).filter(k=>capasActivas[k])
 localStorage.setItem(ESTADO_KEY,JSON.stringify(estado));
 }catch(e){}
 },500);
-
 async function restaurarEstado(){
 try{
 const s=JSON.parse(localStorage.getItem(ESTADO_KEY));
@@ -950,7 +982,6 @@ primerUbicacion=true;
 document.getElementById('aviso').style.display='none';
 }
 if(s.filtros&&s.filtros.length){
-// Esperar a que las capas se generen
 setTimeout(()=>{
 s.filtros.forEach(c=>{
 if(capas[c]&&!capasActivas[c]){
@@ -963,15 +994,14 @@ actualizarBadgeFiltros();
 }
 }catch(e){}
 }
-
 map.on('moveend',guardarEstadoDebounced);
 map.on('zoomend',guardarEstadoDebounced);
 
 /* ==========================================
-   CARGA INICIAL PARALELA
+   CARGA INICIAL
    ========================================== */
 (async()=>{
-console.time('carga total');
+console.time('carga');
 await Promise.all([
 cargarCalles(),
 cargarDirecciones(),
@@ -981,12 +1011,12 @@ cargarSitios()
 input.placeholder='Buscá una calle, esquina o dirección...';
 cargarLugaresGuardados();
 restaurarEstado();
-console.timeEnd('carga total');
+console.timeEnd('carga');
 console.log('✅ App lista');
 })();
 
 /* ==========================================
-   BOTONES FLOTANTES
+   BOTONES
    ========================================== */
 document.getElementById('btnCentrar').addEventListener('click',()=>{if(posicionUsuario)map.setView(posicionUsuario,17);else alert('Todavía no se detectó tu ubicación.')});
 document.getElementById('btnCompartir').addEventListener('click',()=>{
