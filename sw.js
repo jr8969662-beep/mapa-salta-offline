@@ -1,9 +1,9 @@
 // ============================================
 // SERVICE WORKER - Mapa Salta Offline
-// Versión: v11 (con leaflet-rotate)
+// Versión: v12 (con Cerca de Mí)
 // ============================================
 
-const VERSION = 'v11';
+const VERSION = 'v12';
 const CACHE_APP = 'salta-app-' + VERSION;
 const CACHE_TILES = 'salta-tiles-' + VERSION;
 
@@ -28,7 +28,7 @@ function esTesela(url) {
 }
 
 self.addEventListener('install', (event) => {
-    console.log('🔧 Instalando Service Worker v11...');
+    console.log('🔧 Instalando Service Worker v12...');
     event.waitUntil(
         caches.open(CACHE_APP)
             .then((cache) => cache.addAll(APP_URLS))
@@ -37,7 +37,7 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('activate', (event) => {
-    console.log('✅ Service Worker v11 activado');
+    console.log('✅ Service Worker v12 activado');
     event.waitUntil(
         caches.keys().then((nombres) => {
             return Promise.all(
