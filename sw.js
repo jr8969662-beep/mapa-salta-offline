@@ -1,6 +1,6 @@
 // ============================================
 // SERVICE WORKER - Mapa Salta Offline
-// Versión: v13 (tema oscuro)
+// Versión: v13 (motor optimizado)
 // ============================================
 
 const VERSION = 'v13';
@@ -21,13 +21,18 @@ const APP_URLS = [
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
     'https://unpkg.com/leaflet-rotate@0.2.8/dist/leaflet-rotate.js',
-    'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'
+    'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css',
+    'https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css',
+    'https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js'
 ];
 
 function esTesela(url) {
-    return url.hostname.endsWith('tile.openstreetmap.org') ||
-           url.hostname.includes('gstatic.com') ||
-           url.hostname.includes('googleapis.com');
+    return url.hostname.endsWith('tile.openstreetmap.org');
+}
+function esRecursoEstatico(url) {
+    return url.hostname.includes('unpkg.com') ||
+           url.hostname.includes('googleapis.com') ||
+           url.hostname.includes('gstatic.com');
 }
 
 self.addEventListener('install', (event) => {
@@ -58,6 +63,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
+    // TESELAS: cache-first
     if (esTesela(url)) {
         event.respondWith(
             caches.open(CACHE_TILES).then((cache) => {
@@ -73,9 +79,25 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    // HTML: network-first (para que siempre esté actualizado)
+    if (url.pathname.endsWith('/') || url.pathname.endsWith('.html')) {
+        event.respondWith(
+            fetch(event.request).then((respuestaRed) => {
+                if (respuestaRed.ok) {
+                    const copia = respuestaRed.clone();
+                    caches.open(CACHE_APP).then((cache) => cache.put(event.request, copia));
+                }
+                return respuestaRed;
+            }).catch(() => caches.match(event.request).then(r => r || caches.match('./index.html')))
+        );
+        return;
+    }
+
+    // RESTO: cache-first con fallback a red
     event.respondWith(
         caches.match(event.request).then((respuestaCache) => {
-            return respuestaCache || fetch(event.request).then((respuestaRed) => {
+            if (respuestaCache) return respuestaCache;
+            return fetch(event.request).then((respuestaRed) => {
                 if (respuestaRed.ok && event.request.method === 'GET') {
                     const copia = respuestaRed.clone();
                     caches.open(CACHE_APP).then((cache) => cache.put(event.request, copia));
