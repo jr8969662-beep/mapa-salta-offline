@@ -3,7 +3,7 @@
 // Versión: v13 (motor optimizado)
 // ============================================
 
-const VERSION = 'v13';
+const VERSION = 'v14';
 const CACHE_APP = 'salta-app-' + VERSION;
 const CACHE_TILES = 'salta-tiles-' + VERSION;
 
