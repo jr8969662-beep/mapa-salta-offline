@@ -31,13 +31,50 @@ body,html{height:100%;overflow:hidden}
 body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 #map{width:100%;height:100vh;background:var(--g-100);position:relative}
 
-/* MODO OSCURO DEL MAPA - ELEGANTE */
+/* ============================================
+   SPLASH SCREEN (PANTALLA DE CARGA)
+   ============================================ */
+#splash-screen{
+    position:fixed;inset:0;background:var(--bg);z-index:99999;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    transition:opacity .6s ease,visibility .6s ease;
+}
+#splash-screen.oculto{opacity:0;visibility:hidden;pointer-events:none}
+.splash-logo{font-size:80px;animation:splash-pulse 1.5s infinite;margin-bottom:20px}
+.splash-titulo{font-size:26px;font-weight:700;color:var(--text);margin-bottom:8px;letter-spacing:-0.5px}
+.splash-subtitulo{font-size:14px;color:var(--text-muted);margin-bottom:32px;font-weight:500}
+.splash-spinner{
+    width:40px;height:40px;border:4px solid var(--border);
+    border-top-color:var(--primary);border-radius:50%;
+    animation:spin 1s linear infinite;
+}
+@keyframes splash-pulse{
+    0%,100%{transform:scale(1);filter:drop-shadow(0 0 0 rgba(59,130,246,0))}
+    50%{transform:scale(1.1);filter:drop-shadow(0 0 20px rgba(59,130,246,.5))}
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ============================================
+   AVISO DE CONEXIÓN (ONLINE / OFFLINE)
+   ============================================ */
+.conexion-aviso{
+    position:fixed;top:0;left:0;right:0;z-index:10000;
+    text-align:center;padding:10px;font-size:13px;font-weight:700;
+    transform:translateY(-100%);transition:transform .4s cubic-bezier(.4,0,.2,1);
+    box-shadow:0 4px 12px rgba(0,0,0,.2);
+}
+.conexion-aviso.activo{transform:translateY(0)}
+.conexion-aviso.offline{background:var(--warning);color:#000}
+.conexion-aviso.online{background:var(--success);color:#fff}
+
+/* MODO OSCURO DEL MAPA */
 .leaflet-tile-pane.mapa-oscuro{filter:invert(1) hue-rotate(180deg) brightness(.88) contrast(1.25) saturate(.6)}
 #map.mapa-oscuro::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(30,64,175,.18) 0%,rgba(88,28,135,.12) 50%,rgba(15,23,42,.25) 100%);pointer-events:none;z-index:400;mix-blend-mode:multiply}
 #map.mapa-oscuro::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 0%,rgba(0,0,0,.35) 100%);pointer-events:none;z-index:401;mix-blend-mode:multiply}
 
 /* BUSCADOR */
-.buscador{position:absolute;top:12px;left:12px;right:64px;z-index:1000;max-width:520px}
+.buscador{position:absolute;top:12px;left:12px;right:64px;z-index:1000;max-width:520px;transition:top .4s}
+.buscador.ajustado{top:52px}
 .buscador-contenedor{display:flex;align-items:center;background:var(--bg);border-radius:var(--r);box-shadow:var(--sh-lg);padding:6px 10px;gap:6px;transition:all var(--t);border:1px solid var(--border)}
 .buscador-contenedor:focus-within{box-shadow:0 0 0 3px rgba(59,130,246,.2),var(--sh-lg);border-color:var(--primary-light)}
 .buscador-icono{font-size:18px;flex-shrink:0;opacity:.7}
@@ -67,7 +104,8 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 .sug-item.historial{border-left:4px solid var(--g-400)}
 
 /* BOTONES FLOTANTES */
-.botones-flotantes{position:absolute;top:12px;right:12px;z-index:1000;display:flex;flex-direction:column;gap:10px}
+.botones-flotantes{position:absolute;top:12px;right:12px;z-index:1000;display:flex;flex-direction:column;gap:10px;transition:top .4s}
+.botones-flotantes.ajustado{top:52px}
 .btn-flotante{width:46px;height:46px;border:none;border-radius:50%;background:var(--bg);box-shadow:var(--sh-md);cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;transition:all var(--t);position:relative;border:1px solid var(--border)}
 .btn-flotante:hover{transform:scale(1.1);box-shadow:var(--sh-lg);background:var(--primary);color:#fff}
 .btn-flotante:active{transform:scale(.95)}
@@ -263,9 +301,7 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 ::-webkit-scrollbar-thumb:hover{background:var(--g-400)}
 [data-theme=dark] ::-webkit-scrollbar-thumb{background:var(--g-600)}
 
-/* ============================================ */
-/* MEJORAS VISUALES PARA MODO OSCURO            */
-/* ============================================ */
+/* MEJORAS VISUALES MODO OSCURO */
 [data-theme=dark] .buscador-contenedor{background:rgba(30,41,59,.95);border-color:var(--border);backdrop-filter:blur(20px)}
 [data-theme=dark] .buscador-contenedor:focus-within{box-shadow:0 0 0 3px rgba(96,165,250,.3),var(--sh-lg);border-color:var(--primary)}
 [data-theme=dark] .buscador input{color:var(--text)}
@@ -318,6 +354,17 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 </style>
 </head>
 <body>
+
+<!-- SPLASH SCREEN -->
+<div id="splash-screen">
+    <div class="splash-logo">📍</div>
+    <div class="splash-titulo">Mapa Salta</div>
+    <div class="splash-subtitulo">Preparando tu mapa...</div>
+    <div class="splash-spinner"></div>
+</div>
+
+<!-- AVISO DE CONEXIÓN -->
+<div class="conexion-aviso" id="estado-conexion"></div>
 
 <div class="buscador" id="buscador">
 <div class="buscador-contenedor">
@@ -437,6 +484,49 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 <script>
 /* ==========================================
+   SPLASH SCREEN
+   ========================================== */
+function cerrarSplash(){
+    const splash=document.getElementById('splash-screen');
+    if(splash&&!splash.classList.contains('oculto')){
+        splash.classList.add('oculto');
+        setTimeout(()=>{splash.style.display='none'},700);
+    }
+}
+// Fallback por si algo falla en la carga (máximo 5 segundos de espera)
+setTimeout(cerrarSplash,5000);
+
+/* ==========================================
+   AVISO DE CONEXIÓN (ONLINE/OFFLINE)
+   ========================================== */
+function actualizarEstadoConexion(){
+    const aviso=document.getElementById('estado-conexion');
+    const buscador=document.getElementById('buscador');
+    const botones=document.querySelector('.botones-flotantes');
+    
+    if(navigator.onLine){
+        if(aviso.classList.contains('offline')){
+            aviso.textContent='✅ Conexión recuperada. Datos actualizados.';
+            aviso.classList.remove('offline');
+            aviso.classList.add('online','activo');
+            buscador.classList.remove('ajustado');
+            botones.classList.remove('ajustado');
+            setTimeout(()=>aviso.classList.remove('activo'),3000);
+        }
+    }else{
+        aviso.textContent='⚠️ Sin conexión. Usando mapa offline.';
+        aviso.classList.remove('online');
+        aviso.classList.add('offline','activo');
+        buscador.classList.add('ajustado');
+        botones.classList.add('ajustado');
+    }
+}
+window.addEventListener('online',actualizarEstadoConexion);
+window.addEventListener('offline',actualizarEstadoConexion);
+// Verificar al inicio por si arranca offline
+setTimeout(actualizarEstadoConexion,1000);
+
+/* ==========================================
    TEMA + MAPA OSCURO
    ========================================== */
 const TEMA_KEY='salta_tema';
@@ -445,13 +535,8 @@ function actualizarMapaOscuro(){
 const tema=document.documentElement.getAttribute('data-theme');
 const mapEl=document.getElementById('map');
 const tiles=document.querySelector('.leaflet-tile-pane');
-if(tema==='dark'){
-mapEl.classList.add('mapa-oscuro');
-tiles?.classList.add('mapa-oscuro');
-}else{
-mapEl.classList.remove('mapa-oscuro');
-tiles?.classList.remove('mapa-oscuro');
-}
+if(tema==='dark'){mapEl.classList.add('mapa-oscuro');tiles?.classList.add('mapa-oscuro');}
+else{mapEl.classList.remove('mapa-oscuro');tiles?.classList.remove('mapa-oscuro');}
 }
 function aplicarTemaYMapa(t){aplicarTema(t);actualizarMapaOscuro()}
 (function(){let t=null;try{t=localStorage.getItem(TEMA_KEY)}catch(e){};if(!t){const h=new Date().getHours();t=(h>=20||h<7)?'dark':'light'}aplicarTema(t)})();
@@ -1002,6 +1087,7 @@ map.on('zoomend',guardarEstadoDebounced);
    ========================================== */
 (async()=>{
 console.time('carga');
+try{
 await Promise.all([
 cargarCalles(),
 cargarDirecciones(),
@@ -1013,6 +1099,11 @@ cargarLugaresGuardados();
 restaurarEstado();
 console.timeEnd('carga');
 console.log('✅ App lista');
+}catch(e){
+console.error('Error carga inicial:',e);
+}
+// Cerrar splash cuando termine todo
+cerrarSplash();
 })();
 
 /* ==========================================
