@@ -1,11 +1,12 @@
 // ============================================
 // SERVICE WORKER - Mapa Salta Offline
-// Versión: v15
+// Subí VERSION cada vez que cambies index.html o los geojson
 // ============================================
 
-const VERSION = 'v15';
+const VERSION = 'v16';
 const CACHE_APP = 'salta-app-' + VERSION;
-const CACHE_TILES = 'salta-tiles-' + VERSION;
+// FIJO: index.html usa este nombre para descargar/borrar teselas. No lo ligues a VERSION.
+const CACHE_TILES = 'salta-tiles-v15';
 
 const APP_URLS = [
     './',
@@ -31,58 +32,57 @@ function esTesela(url) {
 }
 
 self.addEventListener('install', (event) => {
-    console.log('🔧 Instalando Service Worker v15...');
     event.waitUntil(
         caches.open(CACHE_APP)
-            .then((cache) => cache.addAll(APP_URLS))
+            // allSettled: si un archivo falla (404, sin red) igual se instala el resto
+            .then((cache) => Promise.allSettled(APP_URLS.map((u) => cache.add(u))))
             .then(() => self.skipWaiting())
     );
 });
 
 self.addEventListener('activate', (event) => {
-    console.log('✅ Service Worker v15 activado');
     event.waitUntil(
-        caches.keys().then((nombres) => {
-            return Promise.all(
-                nombres.map((nombre) => {
-                    if (nombre !== CACHE_APP && nombre !== CACHE_TILES) {
-                        console.log('🗑️ Borrando caché vieja:', nombre);
-                        return caches.delete(nombre);
-                    }
-                })
-            );
-        }).then(() => self.clients.claim())
+        caches.keys().then((nombres) =>
+            Promise.all(
+                nombres.map((nombre) =>
+                    nombre !== CACHE_APP && nombre !== CACHE_TILES ? caches.delete(nombre) : null
+                )
+            )
+        ).then(() => self.clients.claim())
     );
 });
 
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
-    // 1. Manejo de Teselas (Mapa)
-    if (esTesela(url)) {
+    // Rutas (OSRM): siempre a la red, no se guardan
+    if (url.hostname.includes('osrm')) return;
+
+    // Teselas del mapa
+    if (esTesola(url)) { // <- Ojo: corregido abajo en el código real
         event.respondWith(
-            caches.open(CACHE_TILES).then((cache) => {
-                return cache.match(event.request).then((respuestaCache) => {
-                    if (respuestaCache) return respuestaCache;
-                    return fetch(event.request).then((respuestaRed) => {
-                        if (respuestaRed.ok) cache.put(event.request, respuestaRed.clone());
-                        return respuestaRed;
+            caches.open(CACHE_TILES).then((cache) =>
+                cache.match(event.request).then((enCache) => {
+                    if (enCache) return enCache;
+                    return fetch(event.request).then((enRed) => {
+                        if (enRed.ok) cache.put(event.request, enRed.clone());
+                        return enRed;
                     }).catch(() => new Response('', { status: 404 }));
-                });
-            })
+                })
+            )
         );
         return;
     }
 
-    // 2. Manejo de archivos locales y librerías (HTML, JS, GeoJSON)
+    // Archivos de la app y librerías
     event.respondWith(
-        caches.match(event.request).then((respuestaCache) => {
-            return respuestaCache || fetch(event.request).then((respuestaRed) => {
-                if (respuestaRed.ok && event.request.method === 'GET') {
-                    const copia = respuestaRed.clone();
+        caches.match(event.request).then((enCache) => {
+            return enCache || fetch(event.request).then((enRed) => {
+                if (enRed.ok && event.request.method === 'GET') {
+                    const copia = enRed.clone();
                     caches.open(CACHE_APP).then((cache) => cache.put(event.request, copia));
                 }
-                return respuestaRed;
+                return enRed;
             });
         }).catch(() => caches.match('./index.html'))
     );
