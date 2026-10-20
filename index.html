@@ -899,7 +899,7 @@ if(cod)infS+=`<br><small>🏷️ Parada: ${cod}</small>`;
 if(op)infS+=`<br><small>🏢 ${op}</small>`;
 const lin=buscarLineasParaParada(lat,lng);
 if(lin.length){const ch=lin.map(l=>`<span class="linea-chip">${l}</span>`).join('');
-infS+=`<div class="lineas-container"><small style="color:var(--text-muted);font-weight:700;">🚌 Líneas que paran:</small><div class="lineas-lista">${ch}</div></div>`}
+infS+=`<div class="lineas-container"><small style="color:var(--text-muted);font-weight:700;">🚌 Líneas que paran:</small><div class="lineas-listas">${ch}</div></div>`}
 else infS+=`<br><small style="color:var(--text-muted);">🚌 Sin info de líneas</small>`;
 }
 capas[cat].addLayer(L.marker([lat,lng],{icon:icono})
@@ -912,20 +912,25 @@ generarBotonesFiltros();
 console.log('✅ Sitios:',Object.keys(capas).length,'categorías');
 }
 
-// FUNCIÓN MEJORADA: ENCUENTRA EL PUNTO MÁS CERCANO PARA EVITAR ERRORES DE INTERSECCIÓN
-function encontrarDistanciaMinima(puntosA, puntosB) {
+// FUNCIÓN PARA DIBUJAR LOS CORDONES VERDES
+function encontrarPuntoMasCercano(tramosA, tramosB) {
+    let mejorPunto = null;
     let minDist = Infinity;
-    let bestIdx = -1;
-    for(let i = 0; i < puntosA.length; i++) {
-        for(let j = 0; j < puntosB.length; j++) {
-            const d = haversine(puntosA[i][0], puntosA[i][1], puntosB[j][0], puntosB[j][1]);
-            if (d < minDist) {
-                minDist = d;
-                bestIdx = i;
+    let ptsB = [];
+    tramosB.forEach(t => ptsB = ptsB.concat(t));
+
+    tramosA.forEach(tramoA => {
+        tramoA.forEach(ptA => {
+            for (let ptB of ptsB) {
+                const d = haversine(ptA[0], ptA[1], ptB[0], ptB[1]);
+                if (d < minDist) {
+                    minDist = d;
+                    mejorPunto = ptA;
+                }
             }
-        }
-    }
-    return { idx: bestIdx, dist: minDist };
+        });
+    });
+    return { punto: mejorPunto, dist: minDist };
 }
 
 function dibujarEstacionamientosGratis() {
@@ -933,7 +938,6 @@ function dibujarEstacionamientosGratis() {
         capas['estacionamiento_gratis'] = L.layerGroup();
         capasActivas['estacionamiento_gratis'] = false;
     }
-    
     let dibujados = 0;
 
     CALLES_GRATIS.forEach(regla => {
@@ -947,36 +951,69 @@ function dibujarEstacionamientosGratis() {
             const hasta = buscarCalleExacta(regla.h) || buscarCalleRapido(regla.h)[0];
             if (!desde || !hasta) return;
 
-            let puntosPrincipales = [];
-            callePrincipal.tramos.forEach(tramo => { puntosPrincipales = puntosPrincipales.concat(tramo); });
+            const pt1 = encontrarPuntoMasCercano(callePrincipal.tramos, desde.tramos);
+            const pt2 = encontrarPuntoMasCercano(callePrincipal.tramos, hasta.tramos);
 
-            let puntosDesde = [];
-            desde.tramos.forEach(tramo => { puntosDesde = puntosDesde.concat(tramo); });
+            if (pt1.dist > 0.002 || pt2.dist > 0.002) return;
 
-            let puntosHasta = [];
-            hasta.tramos.forEach(tramo => { puntosHasta = puntosHasta.concat(tramo); });
+            let encontrado = false;
+            callePrincipal.tramos.forEach(tramo => {
+                let idx1 = -1, idx2 = -1;
+                let minD1 = Infinity, minD2 = Infinity;
 
-            const ptDesde = encontrarDistanciaMinima(puntosPrincipales, puntosDesde);
-            const ptHasta = encontrarDistanciaMinima(puntosPrincipales, puntosHasta);
+                tramo.forEach((pt, i) => {
+                    const d1 = haversine(pt[0], pt[1], pt1.punto[0], pt1.punto[1]);
+                    const d2 = haversine(pt[0], pt[1], pt2.punto[0], pt2.punto[1]);
+                    if (d1 < minD1) { minD1 = d1; idx1 = i; }
+                    if (d2 < minD2) { minD2 = d2; idx2 = i; }
+                });
 
-            // Tolerancia de ~50 metros. Si están más lejos, no se cruzan.
-            if (ptDesde.dist > 0.0005 || ptHasta.dist > 0.0005) return;
+                if (minD1 < 0.0005 && minD2 < 0.0005 && idx1 !== idx2) {
+                    const inicio = Math.min(idx1, idx2);
+                    const fin = Math.max(idx1, idx2);
+                    const subtramo = tramo.slice(inicio, fin + 1);
 
-            const minIdx = Math.min(ptDesde.idx, ptHasta.idx);
-            const maxIdx = Math.max(ptDesde.idx, ptHasta.idx);
+                    if (subtramo.length > 1) {
+                        const bgLine = L.polyline(subtramo, {
+                            color: '#ffffff',
+                            weight: 12,
+                            opacity: 0.6,
+                            lineCap: 'round',
+                            lineJoin: 'round'
+                        });
+                        const polyline = L.polyline(subtramo, {
+                            color: '#10b981',
+                            weight: 6,
+                            opacity: 1,
+                            lineCap: 'round',
+                            lineJoin: 'round',
+                            dashArray: '10, 6'
+                        }).bindPopup(`<strong>🟢 Estacionamiento Gratis</strong><br><small>${callePrincipal.nombreOriginal} entre ${regla.d} y ${regla.h}</small>`);
+                        capas['estacionamiento_gratis'].addLayer(bgLine);
+                        capas['estacionamiento_gratis'].addLayer(polyline);
+                        dibujados++;
+                        encontrado = true;
+                    }
+                }
+            });
 
-            if (maxIdx - minIdx > 1) {
-                const subtramo = puntosPrincipales.slice(minIdx, maxIdx + 1);
-                
-                const polyline = L.polyline(subtramo, {
+            if (!encontrado) {
+                const bgLine = L.polyline([pt1.punto, pt2.punto], {
+                    color: '#ffffff',
+                    weight: 12,
+                    opacity: 0.6,
+                    lineCap: 'round',
+                    lineJoin: 'round'
+                });
+                const polyline = L.polyline([pt1.punto, pt2.punto], {
                     color: '#10b981',
-                    weight: 8,
-                    opacity: 0.9,
+                    weight: 6,
+                    opacity: 1,
                     lineCap: 'round',
                     lineJoin: 'round',
-                    dashArray: '12, 6'
+                    dashArray: '10, 6'
                 }).bindPopup(`<strong>🟢 Estacionamiento Gratis</strong><br><small>${callePrincipal.nombreOriginal} entre ${regla.d} y ${regla.h}</small>`);
-                
+                capas['estacionamiento_gratis'].addLayer(bgLine);
                 capas['estacionamiento_gratis'].addLayer(polyline);
                 dibujados++;
             }
@@ -1295,7 +1332,7 @@ document.getElementById('btnIniciarOffline').textContent='📥 Descargar';
 document.getElementById('infoProgreso').textContent='';
 const t=generarTeselas(),tot=t.length;let ya=0;
 if('caches'in window){
-try{const c=await caches.open('salta-tiles-v14');const k=await c.keys();const s=new Set(k.map(x=>x.url));ya=t.filter(u=>s.has(u)).length}catch(e){}
+try{const c=await caches.open('salta-tiles-v15');const k=await c.keys();const s=new Set(k.map(x=>x.url));ya=t.filter(u=>s.has(u)).length}catch(e){}
 }
 const f=tot-ya,mb=Math.round(tot*20/1024);
 document.getElementById('estadoOffline').innerHTML=`<strong>📊 Estado actual:</strong><br>• Teselas totales: <strong>${tot}</strong><br>• Ya descargadas: <strong>${ya}</strong><br>• Faltan: <strong>${f}</strong><br>• Tamaño aprox: <strong>~${mb} MB</strong>`;
@@ -1313,14 +1350,14 @@ const inf=document.getElementById('infoProgreso'),bf2=document.getElementById('b
 b.disabled=true;b.textContent='⏳ Descargando...';bb.style.display='none';
 ba.style.display='block';bf.style.width='0%';bf2.textContent='⏳';
 const t=generarTeselas();let ya=new Set();
-try{const c=await caches.open('salta-tiles-v14');const k=await c.keys();ya=new Set(k.map(x=>x.url))}catch(e){}
+try{const c=await caches.open('salta-tiles-v15');const k=await c.keys();ya=new Set(k.map(x=>x.url))}catch(e){}
 const p=t.filter(u=>!ya.has(u)),tp=p.length;
 let desc=0,err=0;const T=8;
 for(let i=0;i<p.length;i+=T){
 const td=p.slice(i,i+T);
 const rs=await Promise.all(td.map(async u=>{
 try{const r=await fetch(u,{mode:'cors'});
-if(r.ok){const c=await caches.open('salta-tiles-v14');await c.put(u,r.clone());return true}
+if(r.ok){const c=await caches.open('salta-tiles-v15');await c.put(u,r.clone());return true}
 }catch(e){}
 return false;
 }));
@@ -1345,7 +1382,7 @@ descargaEnCurso=false;
 async function borrarTeselas(){
 if(!confirm('¿Borrar todas las teselas descargadas?'))return;
 try{
-await caches.delete('salta-tiles-v14');
+await caches.delete('salta-tiles-v15');
 mostrarNotificacion('🗑️ Teselas borradas','exito',3000);
 document.getElementById('btnOffline').textContent='📥';
 document.getElementById('btnOffline').classList.remove('completo');
