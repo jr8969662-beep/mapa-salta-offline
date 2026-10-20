@@ -831,7 +831,7 @@ const NOMBRES={hospital:'Hospitales',clinic:'Clínicas',pharmacy:'Farmacias',vet
 const GRUPOS={'Transporte':{emoji:'🚌',categorias:['bus_stop','fuel']},'Salud':{emoji:'🏥',categorias:['hospital','clinic','pharmacy','veterinary']},'Comida y bebida':{emoji:'🍽️',categorias:['restaurant','fast_food','bar','cafe']},'Compras':{emoji:'🛒',categorias:['supermarket','convenience','marketplace']},'Finanzas':{emoji:'🏦',categorias:['bank','atm']},'Seguridad':{emoji:'🚓',categorias:['police','fire_station']},'Educación y cultura':{emoji:'📚',categorias:['school','university','library','museum','cinema','theatre']},'Recreación':{emoji:'🌳',categorias:['park','playground','sports_centre','pitch','swimming_pool']},'Vialidad':{emoji:'🚦',categorias:['traffic_signals','traffic_calming']},'Gobierno':{emoji:'🏛️',categorias:['townhall','post_office']},'Alojamiento':{emoji:'🏨',categorias:['hotel','hostel']},'Religión':{emoji:'⛪',categorias:['place_of_worship']},'Servicios':{emoji:'🚻',categorias:['toilets','drinking_water','recycling','viewpoint']},'Estacionamiento':{emoji:'🟢',categorias:['estacionamiento_gratis']}};
 const capas={},capasActivas={};
 
-// NUEVA BASE DE DATOS ACTUALIZADA (LISTA OFICIAL)
+// BASE DE DATOS ACTUALIZADA (LISTA OFICIAL)
 const CALLES_GRATIS = [
     { c: "Mendoza", d: "Córdoba", h: "Lerma" },
     { c: "Mendoza", d: "Lerma", h: "Catamarca" },
@@ -855,8 +855,8 @@ const CALLES_GRATIS = [
     { c: "Paseo Güemes", d: "Uruguay", h: "Bicentenario" },
     { c: "General Güemes", d: "Bicentenario", h: "Gertrudis" },
     { c: "Belgrano", d: "Bolívar", h: "Brown" },
-    { c: "Alvear", d: "Caseros", h: "Belgrano" }, // NUEVA
-    { c: "Los Nogales", d: "Reyes Católicos", h: "Los Ceibos" } // NUEVA
+    { c: "Alvear", d: "Caseros", h: "Belgrano" },
+    { c: "Los Nogales", d: "Reyes Católicos", h: "Los Ceibos" }
 ];
 
 function crearClusterGroup(){
@@ -912,7 +912,22 @@ generarBotonesFiltros();
 console.log('✅ Sitios:',Object.keys(capas).length,'categorías');
 }
 
-// FUNCIÓN PARA DIBUJAR LOS CORDONES VERDES
+// FUNCIÓN MEJORADA: ENCUENTRA EL PUNTO MÁS CERCANO PARA EVITAR ERRORES DE INTERSECCIÓN
+function encontrarDistanciaMinima(puntosA, puntosB) {
+    let minDist = Infinity;
+    let bestIdx = -1;
+    for(let i = 0; i < puntosA.length; i++) {
+        for(let j = 0; j < puntosB.length; j++) {
+            const d = haversine(puntosA[i][0], puntosA[i][1], puntosB[j][0], puntosB[j][1]);
+            if (d < minDist) {
+                minDist = d;
+                bestIdx = i;
+            }
+        }
+    }
+    return { idx: bestIdx, dist: minDist };
+}
+
 function dibujarEstacionamientosGratis() {
     if (!capas['estacionamiento_gratis']) {
         capas['estacionamiento_gratis'] = L.layerGroup();
@@ -922,7 +937,6 @@ function dibujarEstacionamientosGratis() {
     let dibujados = 0;
 
     CALLES_GRATIS.forEach(regla => {
-        // Separar calles si hay varias (ej: "Chacabuco / Laprida")
         const callesPrincipales = regla.c.split('/').map(c => c.trim());
 
         callesPrincipales.forEach(nombreCalle => {
@@ -933,53 +947,38 @@ function dibujarEstacionamientosGratis() {
             const hasta = buscarCalleExacta(regla.h) || buscarCalleRapido(regla.h)[0];
             if (!desde || !hasta) return;
 
-            // Calcular intersecciones
-            const intersDesde = calcularIntersecciones(callePrincipal, desde);
-            const intersHasta = calcularIntersecciones(callePrincipal, hasta);
+            let puntosPrincipales = [];
+            callePrincipal.tramos.forEach(tramo => { puntosPrincipales = puntosPrincipales.concat(tramo); });
 
-            if (intersDesde.length > 0 && intersHasta.length > 0) {
-                const pDesde = intersDesde[0];
-                const pHasta = intersHasta[0];
+            let puntosDesde = [];
+            desde.tramos.forEach(tramo => { puntosDesde = puntosDesde.concat(tramo); });
 
-                // Unir todos los puntos de la calle principal
-                let todosLosPuntos = [];
-                callePrincipal.tramos.forEach(tramo => {
-                    todosLosPuntos = todosLosPuntos.concat(tramo);
-                });
+            let puntosHasta = [];
+            hasta.tramos.forEach(tramo => { puntosHasta = puntosHasta.concat(tramo); });
 
-                // Filtrar los puntos que caen en el bounding box de las intersecciones
-                const margen = 0.0002; // ~20 metros
-                const latMin = Math.min(pDesde[0], pHasta[0]) - margen;
-                const latMax = Math.max(pDesde[0], pHasta[0]) + margen;
-                const lngMin = Math.min(pDesde[1], pHasta[1]) - margen;
-                const lngMax = Math.max(pDesde[1], pHasta[1]) + margen;
+            const ptDesde = encontrarDistanciaMinima(puntosPrincipales, puntosDesde);
+            const ptHasta = encontrarDistanciaMinima(puntosPrincipales, puntosHasta);
 
-                let puntosFiltrados = todosLosPuntos.filter(pt => 
-                    pt[0] >= latMin && pt[0] <= latMax &&
-                    pt[1] >= lngMin && pt[1] <= lngMax
-                );
+            // Tolerancia de ~50 metros. Si están más lejos, no se cruzan.
+            if (ptDesde.dist > 0.0005 || ptHasta.dist > 0.0005) return;
 
-                // Si hay suficientes puntos para dibujar una línea
-                if (puntosFiltrados.length > 1) {
-                    // Ordenar los puntos para que la línea fluya desde el inicio hasta el fin
-                    puntosFiltrados.sort((a, b) => {
-                        const distA = haversine(a[0], a[1], pDesde[0], pDesde[1]);
-                        const distB = haversine(b[0], b[1], pDesde[0], pDesde[1]);
-                        return distA - distB;
-                    });
-                    
-                    const polyline = L.polyline(puntosFiltrados, {
-                        color: '#10b981',
-                        weight: 8,
-                        opacity: 0.9,
-                        lineCap: 'round',
-                        lineJoin: 'round',
-                        dashArray: '12, 6'
-                    }).bindPopup(`<strong>🟢 Estacionamiento Gratis</strong><br><small>${callePrincipal.nombreOriginal} entre ${regla.d} y ${regla.h}</small>`);
-                    
-                    capas['estacionamiento_gratis'].addLayer(polyline);
-                    dibujados++;
-                }
+            const minIdx = Math.min(ptDesde.idx, ptHasta.idx);
+            const maxIdx = Math.max(ptDesde.idx, ptHasta.idx);
+
+            if (maxIdx - minIdx > 1) {
+                const subtramo = puntosPrincipales.slice(minIdx, maxIdx + 1);
+                
+                const polyline = L.polyline(subtramo, {
+                    color: '#10b981',
+                    weight: 8,
+                    opacity: 0.9,
+                    lineCap: 'round',
+                    lineJoin: 'round',
+                    dashArray: '12, 6'
+                }).bindPopup(`<strong>🟢 Estacionamiento Gratis</strong><br><small>${callePrincipal.nombreOriginal} entre ${regla.d} y ${regla.h}</small>`);
+                
+                capas['estacionamiento_gratis'].addLayer(polyline);
+                dibujados++;
             }
         });
     });
