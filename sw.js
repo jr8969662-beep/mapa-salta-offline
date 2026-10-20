@@ -1,6 +1,6 @@
 // ============================================
 // SERVICE WORKER - Mapa Salta Offline
-// Versión: v13 (motor optimizado)
+// Versión: v15 (con estacionamiento gratis)
 // ============================================
 
 const VERSION = 'v15';
@@ -29,23 +29,18 @@ const APP_URLS = [
 function esTesela(url) {
     return url.hostname.endsWith('tile.openstreetmap.org');
 }
-function esRecursoEstatico(url) {
-    return url.hostname.includes('unpkg.com') ||
-           url.hostname.includes('googleapis.com') ||
-           url.hostname.includes('gstatic.com');
-}
 
 self.addEventListener('install', (event) => {
-    console.log('🔧 Instalando SW v13...');
+    console.log('🔧 Instalando Service Worker v15...');
     event.waitUntil(
         caches.open(CACHE_APP)
-            .then((cache) => cache.addAll(APP_URLS).catch(e => console.warn('Algunos archivos no se cachearon:', e)))
+            .then((cache) => cache.addAll(APP_URLS))
             .then(() => self.skipWaiting())
     );
 });
 
 self.addEventListener('activate', (event) => {
-    console.log('✅ SW v13 activado');
+    console.log('✅ Service Worker v15 activado');
     event.waitUntil(
         caches.keys().then((nombres) => {
             return Promise.all(
@@ -63,7 +58,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
-    // TESELAS: cache-first
+    // 1. Manejo de Teselas (Mapa)
     if (esTesela(url)) {
         event.respondWith(
             caches.open(CACHE_TILES).then((cache) => {
@@ -79,25 +74,10 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // HTML: network-first (para que siempre esté actualizado)
-    if (url.pathname.endsWith('/') || url.pathname.endsWith('.html')) {
-        event.respondWith(
-            fetch(event.request).then((respuestaRed) => {
-                if (respuestaRed.ok) {
-                    const copia = respuestaRed.clone();
-                    caches.open(CACHE_APP).then((cache) => cache.put(event.request, copia));
-                }
-                return respuestaRed;
-            }).catch(() => caches.match(event.request).then(r => r || caches.match('./index.html')))
-        );
-        return;
-    }
-
-    // RESTO: cache-first con fallback a red
+    // 2. Manejo de archivos locales y librerías (HTML, JS, GeoJSON)
     event.respondWith(
         caches.match(event.request).then((respuestaCache) => {
-            if (respuestaCache) return respuestaCache;
-            return fetch(event.request).then((respuestaRed) => {
+            return respuestaCache || fetch(event.request).then((respuestaRed) => {
                 if (respuestaRed.ok && event.request.method === 'GET') {
                     const copia = respuestaRed.clone();
                     caches.open(CACHE_APP).then((cache) => cache.put(event.request, copia));
