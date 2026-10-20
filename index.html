@@ -14,7 +14,6 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
 <style>
-/* [TODO EL CSS ES EXACTAMENTE IGUAL AL QUE YA TENÍAS] */
 :root{
 --primary:#1e40af;--primary-light:#3b82f6;--primary-dark:#1e3a8a;
 --accent:#f59e0b;--success:#10b981;--danger:#ef4444;--warning:#f59e0b;
@@ -832,13 +831,12 @@ const NOMBRES={hospital:'Hospitales',clinic:'Clínicas',pharmacy:'Farmacias',vet
 const GRUPOS={'Transporte':{emoji:'🚌',categorias:['bus_stop','fuel']},'Salud':{emoji:'🏥',categorias:['hospital','clinic','pharmacy','veterinary']},'Comida y bebida':{emoji:'🍽️',categorias:['restaurant','fast_food','bar','cafe']},'Compras':{emoji:'🛒',categorias:['supermarket','convenience','marketplace']},'Finanzas':{emoji:'🏦',categorias:['bank','atm']},'Seguridad':{emoji:'🚓',categorias:['police','fire_station']},'Educación y cultura':{emoji:'📚',categorias:['school','university','library','museum','cinema','theatre']},'Recreación':{emoji:'🌳',categorias:['park','playground','sports_centre','pitch','swimming_pool']},'Vialidad':{emoji:'🚦',categorias:['traffic_signals','traffic_calming']},'Gobierno':{emoji:'🏛️',categorias:['townhall','post_office']},'Alojamiento':{emoji:'🏨',categorias:['hotel','hostel']},'Religión':{emoji:'⛪',categorias:['place_of_worship']},'Servicios':{emoji:'🚻',categorias:['toilets','drinking_water','recycling','viewpoint']},'Estacionamiento':{emoji:'🟢',categorias:['estacionamiento_gratis']}};
 const capas={},capasActivas={};
 
-// BASE DE DATOS DE CALLES GRATIS (CORDÓN VERDE)
+// NUEVA BASE DE DATOS ACTUALIZADA (LISTA OFICIAL)
 const CALLES_GRATIS = [
     { c: "Mendoza", d: "Córdoba", h: "Lerma" },
     { c: "Mendoza", d: "Lerma", h: "Catamarca" },
     { c: "Alsina", d: "25 de Mayo", h: "Sarmiento" },
     { c: "Zuviría", d: "Ameghino", h: "Necochea" },
-    { c: "Leguizamón", d: "20 de Febrero", h: "25 de Mayo" },
     { c: "Lavalle", d: "San Juan", h: "Mendoza" },
     { c: "Mitre", d: "Güemes", h: "Belgrano" },
     { c: "General Güemes", d: "Castro", h: "20 de Febrero" },
@@ -856,7 +854,9 @@ const CALLES_GRATIS = [
     { c: "Güemes", d: "Leguizamón", h: "Entre Ríos" },
     { c: "Paseo Güemes", d: "Uruguay", h: "Bicentenario" },
     { c: "General Güemes", d: "Bicentenario", h: "Gertrudis" },
-    { c: "Belgrano", d: "Bolívar", h: "Brown" }
+    { c: "Belgrano", d: "Bolívar", h: "Brown" },
+    { c: "Alvear", d: "Caseros", h: "Belgrano" }, // NUEVA
+    { c: "Los Nogales", d: "Reyes Católicos", h: "Los Ceibos" } // NUEVA
 ];
 
 function crearClusterGroup(){
