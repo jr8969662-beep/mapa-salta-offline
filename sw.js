@@ -1,6 +1,6 @@
 // ============================================
 // SERVICE WORKER - Mapa Salta Offline
-// Versión: v15 (con estacionamiento gratis)
+// Versión: v15
 // ============================================
 
 const VERSION = 'v15';
