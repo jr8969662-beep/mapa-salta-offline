@@ -491,7 +491,21 @@ capaBase.addTo(map);
 setTimeout(actualizarMapaOscuro,100);
 
 /* UTILS */
-function normalizar(t){if(!t)return'';return t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\b(avenida|av\.?|calle|pasaje|pje\.?|ruta|rn|rp|general|gral\.?|a\.)\b/g,'').replace(/[.,]/g,'').replace(/\s+/g,' ').trim()}
+function normalizar(t){
+if(!t)return'';
+let str=t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+str=str.replace(/\b(avenida|av\.?|calle|pasaje|pje\.?|ruta|rn|rp|general|gral\.?|a\.)\b/g,'');
+str=str.replace(/[.,]/g,'').replace(/\s+/g,' ').trim();
+const numeros = {
+'veinticinco':'25','veinte':'20','veintiocho':'28','veintisiete':'27',
+'veintiseis':'26','veintinueve':'29','veinticuatro':'24','veintitres':'23',
+'veintidos':'22','veintiuno':'21'
+};
+for(const [palabra, num] of Object.entries(numeros)){
+str = str.replace(new RegExp('\\b' + palabra + '\\b', 'g'), num);
+}
+return str;
+}
 function haversine(lat1,lng1,lat2,lng2){const R=6371000,toRad=d=>d*Math.PI/180,dLat=toRad(lat2-lat1),dLng=toRad(lng2-lng1),a=Math.sin(dLat/2)**2+Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a))}
 function formatearDistancia(m){if(m<1000)return`${Math.round(m)} m`;return`${(m/1000).toFixed(2)} km`}
 function formatearTiempo(s){const min=Math.round(s/60);if(min<60)return`${min} min`;const h=Math.floor(min/60);return`${h}h ${min%60}m`}
@@ -942,23 +956,6 @@ function encontrarPuntoMasCercano(tramosA, tramosB) {
     return { punto: mejorPunto, dist: minDist };
 }
 
-function candidatosCruce(calle, cruce) {
-    const ints = calcularIntersecciones(calle, cruce);
-    if (ints.length) return ints;
-    const r = encontrarPuntoMasCercano(calle.tramos, cruce.tramos);
-    // Cambiamos 40 por 150. Así es más tolerante si el mapa está dibujado con pequeños errores.
-    return r.punto && r.dist <= 150 ? [r.punto] : [];
-}
-
-function mejorPar(ca, cb) {
-    let mejor = null, md = Infinity;
-    for (const a of ca) for (const b of cb) {
-        const d = haversine(a[0], a[1], b[0], b[1]);
-        if (d > 5 && d < md) { md = d; mejor = [a, b]; }
-    }
-    return mejor;
-}
-
 function tramoGratis(pts, calle, regla) {
     const lado = regla.l ? ` · ${regla.l}` : '';
     return L.featureGroup([
@@ -975,36 +972,53 @@ function dibujarEstacionamientosGratis() {
     const omitidos = [];
 
     CALLES_GRATIS.forEach(regla => {
-        const omitir = (m) => omitidos.push(`${regla.c} (${regla.d} - ${regla.h}): ${m}`);
         const calle = buscarCalleExacta(regla.c);
         const desde = buscarCalleExacta(regla.d) || buscarCalleRapido(regla.d)[0];
         const hasta = buscarCalleExacta(regla.h) || buscarCalleRapido(regla.h)[0];
-        if (!calle) return omitir('no se encontró la calle');
-        if (!desde || !hasta) return omitir('no se encontró una calle de cruce');
+        
+        if (!calle) { omitidos.push(`${regla.c}: no se encontró la calle principal`); return; }
+        if (!desde || !hasta) { omitidos.push(`${regla.c}: no se encontró calle de cruce`); return; }
 
-                const par = mejorPar(candidatosCruce(calle, desde), candidatosCruce(calle, hasta));
-        if (!par) return omitir('no hay cruces');
-        const [pA, pB] = par;
-        // Cambiamos 450 por 600 para que no descarte tramos largos
-        if (haversine(pA[0], pA[1], pB[0], pB[1]) > 600) return omitir('cruces muy lejanos: revisar nombres');
+        let interDesde = calcularIntersecciones(calle, desde);
+        let interHasta = calcularIntersecciones(calle, hasta);
+        let pA, pB;
 
-        let sub = null;
-        for (const tramo of calle.tramos) {
-            const a = segmentoMasCercano(tramo, pA), b = segmentoMasCercano(tramo, pB);
-            if (a.d > GRATIS_TOL || b.d > GRATIS_TOL) continue;
-            const [i, j, p, q] = a.i <= b.i ? [a.i, b.i, pA, pB] : [b.i, a.i, pB, pA];
-            sub = [p, ...tramo.slice(i + 1, j + 1), q];
-            break;
+        if (interDesde.length > 0) {
+            pA = interDesde[0];
+        } else {
+            const r = encontrarPuntoMasCercano(calle.tramos, desde.tramos);
+            pA = r.punto;
         }
-        if (!sub) sub = [pA, pB];
-        capas[K].addLayer(tramoGratis(sub, calle, regla));
-        dibujados++;
+        
+        if (interHasta.length > 0) {
+            pB = interHasta[0];
+        } else {
+            const r = encontrarPuntoMasCercano(calle.tramos, hasta.tramos);
+            pB = r.punto;
+        }
+
+        if (pA && pB) {
+            if (haversine(pA[0], pA[1], pB[0], pB[1]) > 1000) { omitidos.push(`${regla.c}: puntos muy lejanos`); return; }
+
+            let sub = null;
+            for (const tramo of calle.tramos) {
+                const a = segmentoMasCercano(tramo, pA), b = segmentoMasCercano(tramo, pB);
+                if (a.d < 0.005 && b.d < 0.005) { 
+                    const [i, j, p, q] = a.i <= b.i ? [a.i, b.i, pA, pB] : [b.i, a.i, pB, pA];
+                    sub = [p, ...tramo.slice(i + 1, j + 1), q];
+                    break;
+                }
+            }
+            if (!sub) sub = [pA, pB]; 
+
+            capas[K].addLayer(tramoGratis(sub, calle, regla));
+            dibujados++;
+        }
     });
 
-    console.log(`✅ ${dibujados}/${CALLES_GRATIS.length} tramos de cordón verde dibujados`);
-    if (omitidos.length) console.warn('🟢 Cordón verde omitido:\n' + omitidos.join('\n'));
-    generarBotonesFiltros();
-
+    console.log(`✅ ${dibujados}/${CALLES_GRATIS.length} tramos dibujados`);
+    if (omitidos.length) console.warn('🟢 Omitidos:\n' + omitidos.join('\n'));
+    
     let pref = null;
     try { pref = localStorage.getItem('salta_gratis'); } catch (e) {}
     if (pref !== '0' && dibujados > 0 && !capasActivas[K]) {
@@ -1255,9 +1269,6 @@ if(!esRecalc){document.getElementById('statDistancia').textContent='...';documen
 if(rutaLineas)map.removeLayer(rutaLineas);if(marcadorDestino)map.removeLayer(marcadorDestino);
 marcadorDestino=L.marker([lat2,lng2],{icon:iconoDest,zIndexOffset:3000}).addTo(map);
 
-/* ⬇️ ACÁ EMPIEZA LO QUE FALTABA Y RECONSTRUÍ ⬇️ */
-
-// OSRM usa perfiles: driving, walking, cycling. Mapeamos los nuestros.
 const perfil = modoTransporte === 'auto' ? 'driving' : (modoTransporte === 'bici' ? 'cycling' : 'walking');
 const url = `https://router.project-osrm.org/route/v1/${perfil}/${lng1},${lat1};${lng2},${lat2}?overview=full&geometries=geojson&steps=true`;
 
@@ -1271,15 +1282,12 @@ try {
     const coordenadas = ruta.geometry.coordinates.map(c => [c[1], c[0]]);
     coordsRuta = coordenadas;
 
-    // Dibujar la ruta en el mapa
     rutaLineas = L.polyline(coordenadas, { color: '#3b82f6', weight: 6, opacity: 0.85, lineCap: 'round' }).addTo(map);
     map.fitBounds(rutaLineas.getBounds(), { padding: [50, 50] });
 
-    // Actualizar estadísticas
     document.getElementById('statDistancia').textContent = formatearDistancia(ruta.distance);
     document.getElementById('statTiempo').textContent = formatearTiempo(ruta.duration);
 
-    // Dibujar pasos (indicaciones)
     const pasos = ruta.legs[0].steps;
     const listaPasos = document.getElementById('listaPasos');
     listaPasos.innerHTML = '';
@@ -1322,7 +1330,6 @@ function actualizarProgresoRuta() {
         const d = haversine(posicionUsuario[0], posicionUsuario[1], c[0], c[1]);
         if (d < minDist) { minDist = d; idx = i; }
     });
-    // Si está muy cerca del final (llegada)
     if (idx === coordsRuta.length - 1 && minDist < 30) {
         mostrarNotificacion('🏁 ¡Llegaste a destino!', 'exito', 5000);
         cerrarPanelRuta();
@@ -1374,7 +1381,6 @@ async function iniciarDescargaOffline() {
     btn.disabled = true;
     barra.style.display = 'block';
     
-    // Bounding box aproximado de Salta Capital
     const bounds = L.latLngBounds([-24.85, -65.48], [-24.72, -65.35]);
     const zoomLevels = [13, 14, 15, 16];
     let tiles = [];
@@ -1392,7 +1398,6 @@ async function iniciarDescargaOffline() {
     let descargados = 0;
     const total = tiles.length;
     
-    // Descargamos de a 1 con un mini delay para no saturar
     for (const url of tiles) {
         try {
             await fetch(url);
