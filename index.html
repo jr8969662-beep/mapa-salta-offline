@@ -733,8 +733,7 @@ const hist=cargarHistorial();
 if(hist.length){
 h.push('<div class="sug-titulo" style="display:flex;justify-content:space-between;align-items:center;">🕐 Recientes <button onclick="borrarHistorial()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:11px;padding:0;text-transform:none;letter-spacing:0;font-weight:700;">Borrar</button></div>');
 hist.forEach(x=>{const e=x.tipo==='esquina'?'🚦':x.tipo==='direccion'?'🏠':'🛣️';
-h.push(`<div class="sug-item historial" data-hidx="${hist.indexOf(x)}"><div class="sug-emoji">${e}</div><div class="sug-texto"><strong>${x.nombreOriginal}</strong><small>${new Date(x.fecha).toLocaleDateString('es-AR')}</small></div></div>`)})
-}
+h.push(`<div class="sug-item historial" data-hidx="${hist.indexOf(x)}"><div class="sug-emoji">${e}</div><div class="sug-texto"><strong>${x.nombreOriginal}</strong><small>${new Date(x.fecha).toLocaleDateString('es-AR')}</small></div></div>`)})}
 sugerencias.innerHTML=h.join('');
 sugerencias.classList.add('activo');
 sugerencias.querySelectorAll('.sug-chip').forEach(b=>b.addEventListener('click',()=>activarCategoria(b.dataset.cat)));
@@ -901,7 +900,7 @@ if(cod)infS+=`<br><small>🏷️ Parada: ${cod}</small>`;
 if(op)infS+=`<br><small>🏢 ${op}</small>`;
 const lin=buscarLineasParaParada(lat,lng);
 if(lin.length){const ch=lin.map(l=>`<span class="linea-chip">${l}</span>`).join('');
-infS+=`<div class="lineas-container"><small style="color:var(--text-muted);font-weight:700;">🚌 Líneas que paran:</small><div class="lineas-lista">${ch}</div></div>`}
+infS+=`<div class="lineas-container"><small style="color:var(--text-muted);font-weight:700;">🚌 Líneas que paran:</small><div class="lineas-listas">${ch}</div></div>`}
 else infS+=`<br><small style="color:var(--text-muted);">🚌 Sin info de líneas</small>`;
 }
 capas[cat].addLayer(L.marker([lat,lng],{icon:icono})
@@ -929,6 +928,18 @@ function segmentoMasCercano(tramo, p) {
         if (dk < d) { d = dk; i = k; }
     }
     return { i, d };
+}
+
+function encontrarPuntoMasCercano(tramosA, tramosB) {
+    let mejorPunto = null, minDist = Infinity;
+    const ptsB = [].concat(...tramosB);
+    tramosA.forEach(t => t.forEach(ptA => {
+        for (const ptB of ptsB) {
+            const d = haversine(ptA[0], ptA[1], ptB[0], ptB[1]);
+            if (d < minDist) { minDist = d; mejorPunto = ptA; }
+        }
+    }));
+    return { punto: mejorPunto, dist: minDist };
 }
 
 function candidatosCruce(calle, cruce) {
@@ -1240,4 +1251,292 @@ document.getElementById('panelRuta').classList.add('activo');
 document.getElementById('tituloRuta').textContent=`🛣️ Hacia: ${nombre}`;
 if(!esRecalc){document.getElementById('statDistancia').textContent='...';document.getElementById('statTiempo').textContent='...';document.getElementById('listaPasos').innerHTML='<li>Cargando ruta...</li>'}
 if(rutaLineas)map.removeLayer(rutaLineas);if(marcadorDestino)map.removeLayer(marcadorDestino);
-marcadorDestino=L.marker([lat2,lng2],{icon:iconoDest,zIndexOffset:3000}).addTo(map).
+marcadorDestino=L.marker([lat2,lng2],{icon:iconoDest,zIndexOffset:3000}).addTo(map);
+
+/* ⬇️ ACÁ EMPIEZA LO QUE FALTABA Y RECONSTRUÍ ⬇️ */
+
+// OSRM usa perfiles: driving, walking, cycling. Mapeamos los nuestros.
+const perfil = modoTransporte === 'auto' ? 'driving' : (modoTransporte === 'bici' ? 'cycling' : 'walking');
+const url = `https://router.project-osrm.org/route/v1/${perfil}/${lng1},${lat1};${lng2},${lat2}?overview=full&geometries=geojson&steps=true`;
+
+try {
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if (data.code !== 'Ok') throw new Error('No se pudo calcular la ruta');
+
+    const ruta = data.routes[0];
+    const coordenadas = ruta.geometry.coordinates.map(c => [c[1], c[0]]);
+    coordsRuta = coordenadas;
+
+    // Dibujar la ruta en el mapa
+    rutaLineas = L.polyline(coordenadas, { color: '#3b82f6', weight: 6, opacity: 0.85, lineCap: 'round' }).addTo(map);
+    map.fitBounds(rutaLineas.getBounds(), { padding: [50, 50] });
+
+    // Actualizar estadísticas
+    document.getElementById('statDistancia').textContent = formatearDistancia(ruta.distance);
+    document.getElementById('statTiempo').textContent = formatearTiempo(ruta.duration);
+
+    // Dibujar pasos (indicaciones)
+    const pasos = ruta.legs[0].steps;
+    const listaPasos = document.getElementById('listaPasos');
+    listaPasos.innerHTML = '';
+    pasos.forEach(p => {
+        const li = document.createElement('li');
+        let icono = '⬆️';
+        if (p.maneuver.type === 'turn') icono = p.maneuver.modifier === 'left' ? '⬅️' : '➡️';
+        else if (p.maneuver.type === 'roundabout') icono = '🔄';
+        else if (p.maneuver.type === 'arrive') icono = '🏁';
+        li.innerHTML = `<span class="icono">${icono}</span><span>${p.name || 'Continuar'} (${formatearDistancia(p.distance)})</span>`;
+        listaPasos.appendChild(li);
+    });
+
+    ultimaPosRecalc = [lat1, lng1];
+} catch (e) {
+    console.error('Error ruta:', e);
+    document.getElementById('statDistancia').textContent = '--';
+    document.getElementById('statTiempo').textContent = '--';
+    document.getElementById('listaPasos').innerHTML = '<li>❌ Error al calcular la ruta. Revisá tu conexión.</li>';
+    mostrarNotificacion('Error al calcular ruta', 'aviso');
+} finally {
+    recalculoEnProgreso = false;
+}
+}
+
+function verificarRecalculo() {
+    if (!autoRecalcActivo || !destinoActual || !posicionUsuario || recalculoEnProgreso) return;
+    if (!ultimaPosRecalc) { ultimaPosRecalc = posicionUsuario; return; }
+    const dist = haversine(ultimaPosRecalc[0], ultimaPosRecalc[1], posicionUsuario[0], posicionUsuario[1]);
+    if (dist > distanciaMinRecalc) {
+        ultimaPosRecalc = posicionUsuario;
+        calcularRuta(posicionUsuario[0], posicionUsuario[1], destinoActual.lat, destinoActual.lng, destinoActual.nombre, true);
+    }
+}
+
+function actualizarProgresoRuta() {
+    if (!coordsRuta.length || !posicionUsuario) return;
+    let minDist = Infinity, idx = -1;
+    coordsRuta.forEach((c, i) => {
+        const d = haversine(posicionUsuario[0], posicionUsuario[1], c[0], c[1]);
+        if (d < minDist) { minDist = d; idx = i; }
+    });
+    // Si está muy cerca del final (llegada)
+    if (idx === coordsRuta.length - 1 && minDist < 30) {
+        mostrarNotificacion('🏁 ¡Llegaste a destino!', 'exito', 5000);
+        cerrarPanelRuta();
+        return;
+    }
+}
+
+/* DESCARGA OFFLINE */
+function abrirModalOffline(){document.getElementById('modalOffline').classList.add('activo');actualizarEstadoOffline()}
+function cerrarModalOffline(){document.getElementById('modalOffline').classList.remove('activo')}
+document.getElementById('btnOffline').addEventListener('click', abrirModalOffline);
+
+async function actualizarEstadoOffline() {
+    const estadoEl = document.getElementById('estadoOffline');
+    const textoEl = document.getElementById('textoOffline');
+    const btnBorrar = document.getElementById('btnBorrarTeselas');
+    const btnIniciar = document.getElementById('btnIniciarOffline');
+    
+    try {
+        if (!('caches' in window)) {
+            estadoEl.textContent = '❌ Tu navegador no soporta mapa offline.';
+            btnIniciar.style.display = 'none';
+            return;
+        }
+        const cache = await caches.open('salta-tiles-v15');
+        const keys = await cache.keys();
+        if (keys.length > 0) {
+            estadoEl.innerHTML = `✅ Mapa offline listo. <strong>${keys.length}</strong> teselas guardadas en el teléfono.`;
+            textoEl.textContent = 'Podés borrarlas si necesitás liberar espacio.';
+            btnBorrar.style.display = 'block';
+            btnIniciar.textContent = '📥 Actualizar';
+        } else {
+            estadoEl.textContent = '⚠️ Todavía no descargaste el mapa offline.';
+            textoEl.textContent = 'Descargá la zona de Salta Capital para usarla sin internet (tarda unos minutos).';
+            btnBorrar.style.display = 'none';
+            btnIniciar.textContent = '📥 Descargar';
+        }
+    } catch(e) {
+        estadoEl.textContent = '❌ Error al leer el estado.';
+    }
+}
+
+async function iniciarDescargaOffline() {
+    const btn = document.getElementById('btnIniciarOffline');
+    const barra = document.getElementById('barraOffline');
+    const fill = document.getElementById('barraOfflineFill');
+    const info = document.getElementById('infoProgreso');
+    
+    btn.disabled = true;
+    barra.style.display = 'block';
+    
+    // Bounding box aproximado de Salta Capital
+    const bounds = L.latLngBounds([-24.85, -65.48], [-24.72, -65.35]);
+    const zoomLevels = [13, 14, 15, 16];
+    let tiles = [];
+    
+    zoomLevels.forEach(z => {
+        const min = map.project(bounds.getNorthWest(), z).divideBy(256).floor();
+        const max = map.project(bounds.getSouthEast(), z).divideBy(256).floor();
+        for (let x = min.x; x <= max.x; x++) {
+            for (let y = min.y; y <= max.y; y++) {
+                tiles.push(`https://tile.openstreetmap.org/${z}/${x}/${y}.png`);
+            }
+        }
+    });
+
+    let descargados = 0;
+    const total = tiles.length;
+    
+    // Descargamos de a 1 con un mini delay para no saturar
+    for (const url of tiles) {
+        try {
+            await fetch(url);
+        } catch(e) {}
+        descargados++;
+        if (descargados % 5 === 0 || descargados === total) {
+            const pct = Math.round((descargados / total) * 100);
+            fill.style.width = pct + '%';
+            info.textContent = `${descargados} / ${total} teselas (${pct}%)`;
+        }
+    }
+    
+    mostrarNotificacion('✅ Descarga offline completa', 'exito', 4000);
+    btn.disabled = false;
+    actualizarEstadoOffline();
+}
+
+async function borrarTeselas() {
+    if (!confirm('¿Borrar todas las teselas descargadas? El mapa offline dejará de funcionar.')) return;
+    try {
+        await caches.delete('salta-tiles-v15');
+        mostrarNotificacion('🗑️ Teselas borradas', 'exito');
+        document.getElementById('barraOffline').style.display = 'none';
+        document.getElementById('infoProgreso').textContent = '';
+        actualizarEstadoOffline();
+    } catch(e) {
+        alert('Error al borrar teselas');
+    }
+}
+
+/* MODAL CERCA DE MÍ */
+function abrirModalCerca() {
+    document.getElementById('modalCerca').classList.add('activo');
+    if (!posicionUsuario) {
+        mostrarNotificacion('⏳ Esperando señal GPS...', 'aviso');
+        return;
+    }
+    renderizarCategoriasCerca();
+}
+function cerrarModalCerca() {
+    document.getElementById('modalCerca').classList.remove('activo');
+    document.getElementById('cercaResultados').style.display = 'none';
+    document.getElementById('cercaLista').style.display = 'flex';
+}
+document.getElementById('btnCerca').addEventListener('click', abrirModalCerca);
+
+function renderizarCategoriasCerca() {
+    const lista = document.getElementById('cercaLista');
+    lista.innerHTML = '';
+    const cats = Object.keys(capas).filter(c => {
+        let n = 0;
+        capas[c].eachLayer(() => n++);
+        return n > 0;
+    });
+    
+    cats.forEach(c => {
+        const div = document.createElement('button');
+        div.className = 'cerca-cat';
+        let n = 0;
+        capas[c].eachLayer(() => n++);
+        div.innerHTML = `<span class="cerca-emoji">${EMOJIS[c] || '📍'}</span><span class="cerca-nombre">${NOMBRES[c] || c}</span><span class="cerca-count">${n}</span>`;
+        div.onclick = () => mostrarCercaDe(c);
+        lista.appendChild(div);
+    });
+}
+
+function mostrarCercaDe(cat) {
+    if (!posicionUsuario) return;
+    const [lat, lng] = posicionUsuario;
+    const items = [];
+    
+    capas[cat].eachLayer(layer => {
+        if (layer.getLatLng) {
+            const ll = layer.getLatLng();
+            const d = haversine(lat, lng, ll.lat, ll.lng);
+            items.push({ layer, d, lat: ll.lat, lng: ll.lng });
+        }
+    });
+    
+    items.sort((a, b) => a.d - b.d);
+    const top5 = items.slice(0, 5);
+    
+    document.getElementById('cercaLista').style.display = 'none';
+    const resDiv = document.getElementById('cercaResultados');
+    resDiv.style.display = 'block';
+    document.getElementById('cercaCategoriaActual').textContent = NOMBRES[cat] || cat;
+    
+    const ul = document.getElementById('cercaItems');
+    ul.innerHTML = '';
+    
+    if (!top5.length) {
+        ul.innerHTML = '<li class="cerca-vacio-msg">No se encontraron lugares cerca.</li>';
+        return;
+    }
+    
+    top5.forEach(it => {
+        const li = document.createElement('li');
+        let nombre = 'Lugar';
+        let dir = '';
+        if (it.layer.getPopup()) {
+            const html = it.layer.getPopup().getContent();
+            const match = html.match(/<strong>(.*?)<\/strong>/);
+            if (match) nombre = match[1].replace(/[^\w\sáéíóúñ,.-]/gi, '').trim();
+        }
+        li.innerHTML = `
+            <span class="cerca-item-emoji">${EMOJIS[cat] || '📍'}</span>
+            <div class="cerca-item-info">
+                <div class="cerca-item-nombre">${nombre}</div>
+                <div class="cerca-item-dir">${dir}</div>
+            </div>
+            <span class="cerca-item-dist">${formatearDistancia(it.d)}</span>
+        `;
+        li.onclick = () => {
+            map.setView([it.lat, it.lng], 18);
+            it.layer.openPopup();
+            cerrarModalCerca();
+        };
+        ul.appendChild(li);
+    });
+}
+
+function volverCategoriasCerca() {
+    document.getElementById('cercaLista').style.display = 'flex';
+    document.getElementById('cercaResultados').style.display = 'none';
+}
+
+function filtrarCategoriasCerca() {
+    const t = document.getElementById('cercaBuscar').value.toLowerCase().trim();
+    const btns = document.querySelectorAll('#cercaLista .cerca-cat');
+    btns.forEach(b => {
+        const n = b.querySelector('.cerca-nombre').textContent.toLowerCase();
+        b.style.display = n.includes(t) ? 'flex' : 'none';
+    });
+}
+
+/* SERVICE WORKER - Registro para modo OFFLINE */
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').then(reg => {
+            console.log('✅ Service Worker registrado', reg);
+        }).catch(err => {
+            console.error('❌ Error registrando SW:', err);
+        });
+    });
+}
+
+</script>
+</body>
+</html>
