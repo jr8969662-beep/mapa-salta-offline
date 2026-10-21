@@ -946,7 +946,8 @@ function candidatosCruce(calle, cruce) {
     const ints = calcularIntersecciones(calle, cruce);
     if (ints.length) return ints;
     const r = encontrarPuntoMasCercano(calle.tramos, cruce.tramos);
-    return r.punto && r.dist <= 40 ? [r.punto] : [];
+    // Cambiamos 40 por 150. Así es más tolerante si el mapa está dibujado con pequeños errores.
+    return r.punto && r.dist <= 150 ? [r.punto] : [];
 }
 
 function mejorPar(ca, cb) {
@@ -981,10 +982,11 @@ function dibujarEstacionamientosGratis() {
         if (!calle) return omitir('no se encontró la calle');
         if (!desde || !hasta) return omitir('no se encontró una calle de cruce');
 
-        const par = mejorPar(candidatosCruce(calle, desde), candidatosCruce(calle, hasta));
+                const par = mejorPar(candidatosCruce(calle, desde), candidatosCruce(calle, hasta));
         if (!par) return omitir('no hay cruces');
         const [pA, pB] = par;
-        if (haversine(pA[0], pA[1], pB[0], pB[1]) > 450) return omitir('cruces muy lejanos: revisar nombres');
+        // Cambiamos 450 por 600 para que no descarte tramos largos
+        if (haversine(pA[0], pA[1], pB[0], pB[1]) > 600) return omitir('cruces muy lejanos: revisar nombres');
 
         let sub = null;
         for (const tramo of calle.tramos) {
