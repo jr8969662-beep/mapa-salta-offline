@@ -1,12 +1,15 @@
 // ============================================
 // SERVICE WORKER - Mapa Salta Offline
+// v17 - fix typo esTesela + cache de fuentes Inter
 // Subí VERSION cada vez que cambies index.html o los geojson
 // ============================================
 
-const VERSION = 'v16';
+const VERSION = 'v17';
 const CACHE_APP = 'salta-app-' + VERSION;
 // FIJO: index.html usa este nombre para descargar/borrar teselas. No lo ligues a VERSION.
 const CACHE_TILES = 'salta-tiles-v15';
+// Fuentes: cache separado y persistente, no se borra al subir VERSION
+const CACHE_FONTS = 'salta-fonts-v1';
 
 const APP_URLS = [
     './',
@@ -31,6 +34,10 @@ function esTesela(url) {
     return url.hostname.endsWith('tile.openstreetmap.org');
 }
 
+function esFuente(url) {
+    return url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com';
+}
+
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_APP)
@@ -45,7 +52,9 @@ self.addEventListener('activate', (event) => {
         caches.keys().then((nombres) =>
             Promise.all(
                 nombres.map((nombre) =>
-                    nombre !== CACHE_APP && nombre !== CACHE_TILES ? caches.delete(nombre) : null
+                    nombre !== CACHE_APP && nombre !== CACHE_TILES && nombre !== CACHE_FONTS
+                        ? caches.delete(nombre)
+                        : null
                 )
             )
         ).then(() => self.clients.claim())
@@ -58,8 +67,24 @@ self.addEventListener('fetch', (event) => {
     // Rutas (OSRM): siempre a la red, no se guardan
     if (url.hostname.includes('osrm')) return;
 
+    // Fuentes de Google (Inter) - cache-first persistente
+    if (esFuente(url)) {
+        event.respondWith(
+            caches.open(CACHE_FONTS).then((cache) =>
+                cache.match(event.request).then((enCache) => {
+                    if (enCache) return enCache;
+                    return fetch(event.request).then((enRed) => {
+                        if (enRed.ok) cache.put(event.request, enRed.clone());
+                        return enRed;
+                    }).catch(() => new Response('', { status: 404 }));
+                })
+            )
+        );
+        return;
+    }
+
     // Teselas del mapa
-    if (esTesola(url)) { // <- Ojo: corregido abajo en el código real
+    if (esTesela(url)) {
         event.respondWith(
             caches.open(CACHE_TILES).then((cache) =>
                 cache.match(event.request).then((enCache) => {
