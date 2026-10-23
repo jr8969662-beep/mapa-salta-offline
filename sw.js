@@ -1,10 +1,10 @@
 // ============================================
 // SERVICE WORKER - Mapa Salta Offline
-// v18 - teselas con una sola URL (sin a./b./c.), íconos en cache, fallback offline
+// v19 - cordón verde: 23 tramos de estacionamiento gratis bien ubicados
 // Subí VERSION cada vez que cambies index.html o los geojson
 // ============================================
 
-const VERSION = 'v18';
+const VERSION = 'v19';
 const CACHE_APP = 'salta-app-' + VERSION;
 // FIJO: index.html usa este nombre para descargar/borrar teselas. No lo ligues a VERSION.
 const CACHE_TILES = 'salta-tiles-v15';
