@@ -1,10 +1,10 @@
 // ============================================
 // SERVICE WORKER - Mapa Salta Offline
-// v19 - cordón verde: 23 tramos de estacionamiento gratis bien ubicados
+// v20 - barra inferior de navegación
 // Subí VERSION cada vez que cambies index.html o los geojson
 // ============================================
 
-const VERSION = 'v19';
+const VERSION = 'v20';
 const CACHE_APP = 'salta-app-' + VERSION;
 // FIJO: index.html usa este nombre para descargar/borrar teselas. No lo ligues a VERSION.
 const CACHE_TILES = 'salta-tiles-v15';

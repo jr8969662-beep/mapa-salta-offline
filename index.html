@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Mapa Salta</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📍</text></svg>">
 <link rel="manifest" href="manifest.json">
@@ -79,8 +79,46 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 .sug-item.direccion{border-left:4px solid var(--success)}
 .sug-item.historial{border-left:4px solid var(--g-400)}
 
-.botones-flotantes{position:absolute;top:12px;right:12px;z-index:1000;display:flex;flex-direction:column;gap:10px;transition:top .4s}
-.botones-flotantes.ajustado{top:52px}
+/* BARRA INFERIOR */
+:root{--barra-alto:calc(64px + env(safe-area-inset-bottom,0px))}
+.barra-inferior{position:fixed;left:0;right:0;bottom:0;z-index:1500;display:flex;justify-content:space-around;align-items:stretch;background:var(--bg);border-top:1px solid var(--border);box-shadow:0 -4px 20px rgba(0,0,0,.08);padding:0 4px env(safe-area-inset-bottom,0px);height:var(--barra-alto)}
+.tab{flex:1;max-width:110px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;cursor:pointer;color:var(--text-muted);font-family:inherit;font-size:11px;font-weight:600;position:relative;padding:6px 0;transition:color var(--t)}
+.tab .tab-ico{font-size:22px;line-height:1;width:52px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:16px;transition:background var(--t),transform var(--t)}
+.tab:active .tab-ico{transform:scale(.9)}
+.tab.activo{color:var(--primary)}
+.tab.activo .tab-ico{background:rgba(59,130,246,.15)}
+#btnGratis.activo{color:var(--success)}
+#btnGratis.activo .tab-ico{background:rgba(16,185,129,.18)}
+.tab .badge{position:absolute;top:2px;left:calc(50% + 8px);background:var(--danger);color:#fff;font-size:10px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:none;align-items:center;justify-content:center;padding:0 5px;border:2px solid var(--bg)}
+.tab .badge.activo{display:flex}
+
+/* ACCIONES DEL DESTINO (aparecen al buscar algo) */
+.acciones-destino{position:fixed;left:12px;right:12px;bottom:calc(var(--barra-alto) + 12px);z-index:1400;display:flex;gap:10px;justify-content:center;pointer-events:none}
+.acciones-destino button{pointer-events:auto;align-items:center;gap:8px;padding:13px 20px;border-radius:28px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;box-shadow:var(--sh-lg)}
+.acciones-destino #btnIr{background:var(--primary-light);border-color:var(--primary-light);color:#fff;flex:1;max-width:260px;justify-content:center}
+.acciones-destino button:active{transform:scale(.96)}
+
+/* MENÚ "MÁS" */
+.hoja-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2400;opacity:0;pointer-events:none;transition:opacity .25s}
+.hoja-overlay.activo{opacity:1;pointer-events:auto}
+.hoja{position:fixed;left:0;right:0;bottom:0;z-index:2500;background:var(--bg);border-radius:var(--r-lg) var(--r-lg) 0 0;padding:10px 16px calc(18px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:0 -10px 32px rgba(0,0,0,.2);max-width:560px;margin:0 auto}
+.hoja.activo{transform:translateY(0)}
+.hoja-asa{width:40px;height:5px;border-radius:3px;background:var(--g-300);margin:0 auto 14px}
+.hoja h3{font-size:16px;font-weight:700;margin:0 4px 12px;color:var(--text)}
+.hoja-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hoja-item{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r);border:1px solid var(--border);background:var(--bg-soft);color:var(--text);font-family:inherit;text-align:left;cursor:pointer;position:relative}
+.hoja-item:active{transform:scale(.97)}
+.hoja-item .mi-ico{font-size:24px;flex-shrink:0}
+.hoja-item .mi-txt{display:flex;flex-direction:column;min-width:0}
+.hoja-item .mi-txt strong{font-size:14px;font-weight:700}
+.hoja-item .mi-txt small{font-size:12px;color:var(--text-muted);margin-top:2px}
+.hoja-item.activo{border-color:var(--primary-light);background:rgba(59,130,246,.12)}
+.hoja-item .badge{position:absolute;top:8px;right:8px;background:var(--danger);color:#fff;font-size:10px;font-weight:700;min-width:20px;height:20px;border-radius:10px;display:none;align-items:center;justify-content:center;padding:0 6px}
+.hoja-item .badge.activo{display:flex}
+
+/* Controles de Leaflet: zoom arriba a la derecha, créditos arriba de la barra */
+.leaflet-top.leaflet-right{top:4px}
+.leaflet-bottom{bottom:var(--barra-alto)}
 .btn-flotante{width:46px;height:46px;border:none;border-radius:50%;background:var(--bg);box-shadow:var(--sh-md);cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;transition:all var(--t);position:relative;border:1px solid var(--border)}
 .btn-flotante:hover{transform:scale(1.1);box-shadow:var(--sh-lg);background:var(--primary);color:#fff}
 .btn-flotante:active{transform:scale(.95)}
@@ -129,10 +167,10 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 .lineas-lista{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
 .linea-chip{display:inline-block;background:var(--danger);color:#fff;padding:4px 10px;border-radius:14px;font-size:11px;font-weight:700;box-shadow:var(--sh-sm)}
 
-.aviso-ubicacion{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);z-index:1000;background:rgba(17,24,39,.92);color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;font-weight:500;backdrop-filter:blur(10px);box-shadow:var(--sh-lg)}
-.aviso-medir{position:absolute;top:100px;left:50%;transform:translateX(-50%);z-index:1000;background:var(--warning);color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;font-weight:600;display:none;box-shadow:var(--sh-lg)}
+.aviso-ubicacion{position:absolute;bottom:calc(var(--barra-alto) + 16px);left:50%;transform:translateX(-50%);z-index:1000;background:rgba(17,24,39,.92);color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;font-weight:500;backdrop-filter:blur(10px);box-shadow:var(--sh-lg)}
+.aviso-medir{position:absolute;top:100px;left:50%;transform:translateX(-50%);z-index:1000;cursor:pointer;background:var(--warning);color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;font-weight:600;display:none;box-shadow:var(--sh-lg)}
 .aviso-medir.activo{display:block;animation:slideDown .3s}
-.velocimetro{position:absolute;bottom:100px;left:50%;transform:translateX(-50%);z-index:1000;background:rgba(17,24,39,.92);color:#fff;padding:10px 20px;border-radius:30px;font-size:14px;display:none;box-shadow:var(--sh-lg);font-weight:700;backdrop-filter:blur(10px)}
+.velocimetro{position:absolute;bottom:calc(var(--barra-alto) + 76px);left:50%;transform:translateX(-50%);z-index:1000;background:rgba(17,24,39,.92);color:#fff;padding:10px 20px;border-radius:30px;font-size:14px;display:none;box-shadow:var(--sh-lg);font-weight:700;backdrop-filter:blur(10px)}
 .velocimetro.activo{display:block}
 .velocimetro .num{font-size:22px}
 .notificacion{position:absolute;top:100px;left:50%;transform:translateX(-50%);z-index:3000;background:var(--primary);color:#fff;padding:14px 26px;border-radius:28px;font-size:14px;font-weight:600;display:none;box-shadow:var(--sh-xl)}
@@ -140,7 +178,7 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 .notificacion.aviso{background:var(--warning)}
 .notificacion.exito{background:var(--success)}
 
-.calidad-gps{position:absolute;bottom:24px;left:24px;z-index:1000;background:var(--bg);border:1px solid var(--border);padding:8px 14px;border-radius:24px;font-size:12px;font-weight:600;display:none;align-items:center;gap:6px;box-shadow:var(--sh-md);color:var(--text)}
+.calidad-gps{position:absolute;bottom:calc(var(--barra-alto) + 16px);left:12px;z-index:1000;background:var(--bg);border:1px solid var(--border);padding:8px 14px;border-radius:24px;font-size:12px;font-weight:600;display:none;align-items:center;gap:6px;box-shadow:var(--sh-md);color:var(--text)}
 .calidad-gps.activo{display:flex}
 .calidad-gps .dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
 .calidad-gps.excelente .dot{background:var(--success);box-shadow:0 0 8px var(--success)}
@@ -343,18 +381,29 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 <div class="sugerencias" id="sugerencias"></div>
 </div>
 
-<div class="botones-flotantes">
-<button class="btn-flotante" id="btnTema" title="Cambiar tema">🌙</button>
-<button class="btn-flotante" id="btnCentrar" title="Centrar en mi ubicación">🎯</button>
-<button class="btn-flotante azul" id="btnCerca" title="Cerca de mí">📡</button>
-<button class="btn-flotante" id="btnGratis" title="Estacionamiento gratis (cordón verde)">🟢</button>
-<button class="btn-flotante" id="btnRotarMapa" title="Rotar mapa">🧭</button>
-<button class="btn-flotante" id="btnMedir" title="Medir distancia">📏</button>
-<button class="btn-flotante" id="btnLugares" title="Mis lugares">⭐</button>
-<button class="btn-flotante" id="btnFiltros" title="Filtros" style="position:relative;">🎛️<span class="badge" id="badgeFiltros">0</span></button>
-<button class="btn-flotante verde" id="btnOffline" title="Mapa offline">📥</button>
-<button class="btn-flotante" id="btnCompartir" title="Compartir" style="display:none;">📤</button>
-<button class="btn-flotante rojo" id="btnIr" title="Ir hasta ahí" style="display:none;">🛣️</button>
+<div class="acciones-destino">
+<button id="btnIr" title="Cómo llegar" style="display:none;">🛣️ Cómo llegar</button>
+<button id="btnCompartir" title="Compartir por WhatsApp" style="display:none;">📤 Compartir</button>
+</div>
+
+<nav class="barra-inferior" aria-label="Menú principal">
+<button class="tab" id="btnCentrar"><span class="tab-ico">🎯</span>Mi ubicación</button>
+<button class="tab" id="btnCerca"><span class="tab-ico">📡</span>Cerca</button>
+<button class="tab" id="btnGratis"><span class="tab-ico">🟢</span>Gratis</button>
+<button class="tab" id="btnLugares"><span class="tab-ico">⭐</span>Lugares</button>
+<button class="tab" id="btnMas"><span class="tab-ico">☰</span>Más<span class="badge" id="badgeMas"></span></button>
+</nav>
+
+<div class="hoja-overlay" id="hojaOverlay"></div>
+<div class="hoja" id="hojaMas" role="dialog" aria-label="Más opciones">
+<div class="hoja-asa"></div>
+<h3>Más opciones</h3>
+<div class="hoja-grid">
+<button class="hoja-item" id="btnFiltros"><span class="mi-ico">🎛️</span><span class="mi-txt"><strong>Filtros</strong><small>Farmacias, SAETA…</small></span><span class="badge" id="badgeFiltros">0</span></button>
+<button class="hoja-item" id="btnMedir"><span class="mi-ico">📏</span><span class="mi-txt"><strong>Medir</strong><small>Distancia en el mapa</small></span></button>
+<button class="hoja-item" id="btnOffline"><span class="mi-ico">📥</span><span class="mi-txt"><strong>Mapa offline</strong><small>Usar sin internet</small></span></button>
+<button class="hoja-item" id="btnTema"><span class="mi-ico">🌙</span><span class="mi-txt"><strong>Modo oscuro</strong><small>Cambiar colores</small></span></button>
+</div>
 </div>
 
 <div id="map"></div>
@@ -457,18 +506,18 @@ setTimeout(cerrarSplash,5000);
 
 /* CONEXIÓN */
 function actualizarEstadoConexion(){
-const aviso=document.getElementById('estado-conexion'),buscador=document.getElementById('buscador'),botones=document.querySelector('.botones-flotantes');
+const aviso=document.getElementById('estado-conexion'),buscador=document.getElementById('buscador'),botones=null;
 if(navigator.onLine){
 if(aviso.classList.contains('offline')){
 aviso.textContent='✅ Conexión recuperada. Datos actualizados.';
 aviso.classList.remove('offline');aviso.classList.add('online','activo');
-buscador.classList.remove('ajustado');botones.classList.remove('ajustado');
+buscador.classList.remove('ajustado');
 setTimeout(()=>aviso.classList.remove('activo'),3000);
 }
 }else{
 aviso.textContent='⚠️ Sin conexión. Usando mapa offline.';
 aviso.classList.remove('online');aviso.classList.add('offline','activo');
-buscador.classList.add('ajustado');botones.classList.add('ajustado');
+buscador.classList.add('ajustado');
 }
 }
 /* Offline: los zoom 17-19 no se descargan, así que Leaflet agranda las de zoom 16 */
@@ -481,7 +530,7 @@ setTimeout(actualizarEstadoConexion,1000);
 
 /* TEMA */
 const TEMA_KEY='salta_tema';
-function aplicarTema(t){document.documentElement.setAttribute('data-theme',t);document.getElementById('btnTema').textContent=t==='dark'?'☀️':'🌙';try{localStorage.setItem(TEMA_KEY,t)}catch(e){}}
+function aplicarTema(t){document.documentElement.setAttribute('data-theme',t);const bt=document.getElementById('btnTema');bt.querySelector('.mi-ico').textContent=t==='dark'?'☀️':'🌙';bt.querySelector('strong').textContent=t==='dark'?'Modo claro':'Modo oscuro';try{localStorage.setItem(TEMA_KEY,t)}catch(e){}}
 function actualizarMapaOscuro(){const t=document.documentElement.getAttribute('data-theme'),m=document.getElementById('map'),ti=document.querySelector('.leaflet-tile-pane');if(t==='dark'){m.classList.add('mapa-oscuro');ti?.classList.add('mapa-oscuro')}else{m.classList.remove('mapa-oscuro');ti?.classList.remove('mapa-oscuro')}}
 function aplicarTemaYMapa(t){aplicarTema(t);actualizarMapaOscuro()}
 (function(){let t=null;try{t=localStorage.getItem(TEMA_KEY)}catch(e){};if(!t){const h=new Date().getHours();t=(h>=20||h<7)?'dark':'light'}aplicarTema(t)})();
@@ -492,6 +541,7 @@ const CENTRO_SALTA=[-24.789,-65.411];
 const map=L.map('map',{rotate:true,rotateControl:false,bearing:0,touchRotate:false,shiftKeyRotate:false,compassBearing:false,preferCanvas:true}).setView(CENTRO_SALTA,14);
 const capaBase=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,maxNativeZoom:navigator.onLine?19:16,attribution:'© OpenStreetMap',updateWhenIdle:true,keepBuffer:4});
 capaBase.addTo(map);
+map.zoomControl.setPosition('topright');
 setTimeout(actualizarMapaOscuro,100);
 
 /* UTILS */
@@ -547,9 +597,7 @@ if(rotacionAutomatica&&map.setBearing){try{const a=map.getBearing(),t=-h,diff=((
 function activarBrujula(){if(typeof DeviceOrientationEvent!=='undefined'){if(typeof DeviceOrientationEvent.requestPermission==='function'){DeviceOrientationEvent.requestPermission().then(p=>{if(p==='granted')window.addEventListener('deviceorientation',manejarOrientacion,true)}).catch(()=>{})}else{window.addEventListener('deviceorientationabsolute',manejarOrientacion,true);window.addEventListener('deviceorientation',manejarOrientacion,true)}}}
 document.addEventListener('touchstart',activarBrujula,{once:true});
 document.addEventListener('click',activarBrujula,{once:true});
-document.getElementById('btnRotarMapa').addEventListener('click',e=>{rotacionAutomatica=!rotacionAutomatica;
-if(rotacionAutomatica){e.target.classList.add('activo');activarBrujula();mostrarNotificacion('🧭 Mapa rotando con el celular','exito',2500)}
-else{e.target.classList.remove('activo');if(map.setBearing)map.setBearing(0);mostrarNotificacion('🧭 Norte arriba','info',2000)}});
+
 function actualizarVelocimetro(){const v=document.getElementById('velocimetro'),n=document.getElementById('velocidadNum');if(ultimaVelocidad>2){v.classList.add('activo');n.textContent=ultimaVelocidad.toFixed(0)}else v.classList.remove('activo')}
 
 /* CALLES */
@@ -1186,6 +1234,7 @@ else if(v)v.remove();
 function filtrarCategorias(){filtrarCatDebounced()}
 function actualizarBadgeFiltros() {
     const a = Object.values(capasActivas).filter(v => v).length, b = document.getElementById('badgeFiltros');
+    const bm = document.getElementById('badgeMas'); if (bm) { bm.textContent = a; bm.classList.toggle('activo', a > 0); }
     if (a > 0) { b.textContent = a; b.classList.add('activo'); } else b.classList.remove('activo');
     document.getElementById('btnGratis')?.classList.toggle('activo', !!capasActivas['estacionamiento_gratis']);
 }
@@ -1272,27 +1321,35 @@ document.getElementById('btnGratis').addEventListener('click', () => {
     mostrarNotificacion(`🟢 ${n} cuadras de estacionamiento gratis (lista de 2024)`, 'exito', 3500);
 });
 
+/* MENÚ MÁS */
+function abrirHojaMas(){document.getElementById('hojaMas').classList.add('activo');document.getElementById('hojaOverlay').classList.add('activo');document.getElementById('btnMas').classList.add('activo')}
+function cerrarHojaMas(){document.getElementById('hojaMas').classList.remove('activo');document.getElementById('hojaOverlay').classList.remove('activo');document.getElementById('btnMas').classList.remove('activo')}
+document.getElementById('btnMas').addEventListener('click',()=>document.getElementById('hojaMas').classList.contains('activo')?cerrarHojaMas():abrirHojaMas());
+document.getElementById('hojaOverlay').addEventListener('click',cerrarHojaMas);
+document.querySelectorAll('#hojaMas .hoja-item').forEach(b=>b.addEventListener('click',cerrarHojaMas));
+document.getElementById('avisoMedir').addEventListener('click',()=>{if(modoMedir)document.getElementById('btnMedir').click()});
+
 /* MEDIR */
 let modoMedir=false,puntoA=null,puntoB=null,lineaMedir=null,marcadorA=null,marcadorB=null;
 const iconoPM=L.divIcon({className:'',html:'<div style="width:14px;height:14px;background:#f59e0b;border:3px solid #fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.3);"></div>',iconSize:[14,14],iconAnchor:[7,7]});
 document.getElementById('btnMedir').addEventListener('click',()=>{
 modoMedir=!modoMedir;
 const b=document.getElementById('btnMedir'),a=document.getElementById('avisoMedir');
-if(modoMedir){b.classList.add('activo');a.classList.add('activo');a.textContent='📏 Tocá dos puntos';map.getContainer().style.cursor='crosshair';resetearMedicion()}
+if(modoMedir){b.classList.add('activo');a.classList.add('activo');a.textContent='📏 Tocá dos puntos  ·  ✕ salir';map.getContainer().style.cursor='crosshair';resetearMedicion()}
 else{b.classList.remove('activo');a.classList.remove('activo');map.getContainer().style.cursor='';resetearMedicion()}
 });
 function resetearMedicion(){if(lineaMedir)map.removeLayer(lineaMedir);if(marcadorA)map.removeLayer(marcadorA);if(marcadorB)map.removeLayer(marcadorB);lineaMedir=marcadorA=marcadorB=null;puntoA=puntoB=null}
 map.on('click',e=>{
 if(!modoMedir)return;
 const ll=e.latlng;
-if(!puntoA){puntoA=ll;marcadorA=L.marker(ll,{icon:iconoPM}).addTo(map).bindPopup('Punto A');document.getElementById('avisoMedir').textContent='📏 Ahora tocá el segundo punto'}
+if(!puntoA){puntoA=ll;marcadorA=L.marker(ll,{icon:iconoPM}).addTo(map).bindPopup('Punto A');document.getElementById('avisoMedir').textContent='📏 Ahora el segundo punto  ·  ✕ salir'}
 else if(!puntoB){puntoB=ll;marcadorB=L.marker(ll,{icon:iconoPM}).addTo(map).bindPopup('Punto B');
 lineaMedir=L.polyline([puntoA,puntoB],{color:'#f59e0b',weight:4,dashArray:'8, 6'}).addTo(map);
 const d=haversine(puntoA.lat,puntoA.lng,puntoB.lat,puntoB.lng);
-document.getElementById('avisoMedir').textContent=`📏 Distancia: ${formatearDistancia(d)}`;
+document.getElementById('avisoMedir').textContent=`📏 ${formatearDistancia(d)}  ·  ✕ salir`;
 const m=L.latLng((puntoA.lat+puntoB.lat)/2,(puntoA.lng+puntoB.lng)/2);
 L.popup().setLatLng(m).setContent(`<strong>📏 ${formatearDistancia(d)}</strong>`).openOn(map)}
-else{resetearMedicion();puntoA=ll;marcadorA=L.marker(ll,{icon:iconoPM}).addTo(map).bindPopup('Punto A');document.getElementById('avisoMedir').textContent='📏 Ahora tocá el segundo punto'}
+else{resetearMedicion();puntoA=ll;marcadorA=L.marker(ll,{icon:iconoPM}).addTo(map).bindPopup('Punto A');document.getElementById('avisoMedir').textContent='📏 Ahora el segundo punto  ·  ✕ salir'}
 });
 
 /* MIS LUGARES */
