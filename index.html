@@ -156,6 +156,7 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 .tl li::after{content:'';position:absolute;left:9px;top:calc(50% + 6px);bottom:calc(-50% + 6px);width:2px;background:var(--lc,var(--primary-light));opacity:.45}
 .tl li:last-child::after{display:none}
 .tl li.ini{font-weight:700}
+.lin-links{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.lin-links a{padding:8px 12px;border-radius:999px;background:var(--card,#f1f5f9);color:inherit;text-decoration:none;font-size:13px;border:1px solid rgba(128,128,128,.3)}
 .nota-lin{font-size:12px;color:var(--text-muted);background:var(--bg-soft);border-radius:var(--r-sm);padding:10px 12px;margin:14px 0 6px;line-height:1.45}
 .par-fila{padding:11px 4px;border-bottom:1px solid var(--border);cursor:pointer}
 .par-fila strong{display:block;font-size:14px}
@@ -1427,14 +1428,15 @@ const of=l.oficial||[],o=of[recorridoIdx]||of[0];
 let html=`<div class="lin-cab"><button class="lin-cerrar" onclick="volverLista()" title="Volver">←</button><h3>Línea ${escHtml(l.ref)}</h3><button class="lin-cerrar" onclick="cerrarHojaLineas()">✕</button></div>
 <div class="lin-scroll" id="linDet">
 <div class="lin-det-top">${badgeLinea(l)}<div class="info"><strong>${escHtml(l.grupo)}</strong><small>${l.km} km · ${l.paradas.length} paradas en el mapa</small></div></div>
-<button class="lin-btn-mapa" onclick="verEnMapa()">🗺️ Ver en el mapa</button>
+${l.trazos&&l.trazos.length?'<button class="lin-btn-mapa" onclick="verEnMapa()">🗺️ Ver en el mapa</button>':`<div class="nota-lin">${escHtml(l.aviso||'Sin dibujo en el mapa.')}</div>`}${l.terminal?`<div class="nota-lin">📍 Terminal: ${escHtml(l.terminal)}</div>`:''}
 <div class="lin-tabs"><button class="lin-tab${tabLinea==='recorrido'?' activo':''}" data-t="recorrido">Recorrido</button><button class="lin-tab${tabLinea==='paradas'?' activo':''}" data-t="paradas">Paradas (${l.paradas.length})</button></div>`;
 if(tabLinea==='recorrido'){
 if(of.length>1)html+=`<div class="lin-pills">${of.map((x,i)=>`<button class="lin-f${i===recorridoIdx?' activo':''}" data-r="${i}">${escHtml(x.nombre)}</button>`).join('')}</div>`;
 if(o){
 html+=listaTL(o.ida,l.color,o.vuelta.length?'Ida':'Recorrido completo (circuito)');
 if(o.vuelta.length)html+=listaTL(o.vuelta,l.color,'Vuelta');
-html+=`<div class="nota-lin">Calles según la guía de ómnibus de Salta. Tocá una calle para verla en el mapa. SAETA puede haber cambiado el recorrido: confirmalo en saetasalta.com.ar.</div>`;
+html+=`<div class="nota-lin">Recorrido escrito publicado por SAETA. El dibujo en el mapa sale de OpenStreetMap y puede diferir en algún tramo. Tocá una calle para verla en el mapa.</div>`;
+if(l.links){const k=l.links;html+=`<div class="lin-links"><a target="_blank" rel="noopener" href="${k.paradas}">🚏 PDF de paradas</a>${k.mapa?`<a target="_blank" rel="noopener" href="${k.mapa}">🗺️ Mapa oficial</a>`:''}<a target="_blank" rel="noopener" href="${k.hab}">🕒 Horarios hábiles</a><a target="_blank" rel="noopener" href="${k.sab}">🕒 Sábados</a><a target="_blank" rel="noopener" href="${k.dom}">🕒 Domingos y feriados</a></div>`}
 }else{
 html+=listaTL(l.calles,l.color,'Calles por donde pasa el trazado')+`<div class="nota-lin">No tengo el recorrido oficial escrito de esta línea. Estas calles salen del trazado dibujado en OpenStreetMap, en orden aproximado. Confirmá en saetasalta.com.ar.</div>`;
 }
