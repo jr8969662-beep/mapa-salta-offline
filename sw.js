@@ -1,10 +1,10 @@
 // ============================================
 // SERVICE WORKER - Mapa Salta Offline
-// v17 - fix typo esTesela + cache de fuentes Inter
+// v18 - teselas con una sola URL (sin a./b./c.), íconos en cache, fallback offline
 // Subí VERSION cada vez que cambies index.html o los geojson
 // ============================================
 
-const VERSION = 'v17';
+const VERSION = 'v18';
 const CACHE_APP = 'salta-app-' + VERSION;
 // FIJO: index.html usa este nombre para descargar/borrar teselas. No lo ligues a VERSION.
 const CACHE_TILES = 'salta-tiles-v15';
@@ -15,6 +15,10 @@ const APP_URLS = [
     './',
     './index.html',
     './manifest.json',
+    './icons/icon.svg',
+    './icons/icon-192.png',
+    './icons/icon-512.png',
+    './icons/icon-maskable-512.png',
     './data/calles.geojson',
     './data/hospitales.geojson',
     './data/sitios.geojson',
@@ -32,6 +36,11 @@ const APP_URLS = [
 
 function esTesela(url) {
     return url.hostname.endsWith('tile.openstreetmap.org');
+}
+
+// a.tile / b.tile / c.tile / tile -> siempre la misma clave de cache
+function claveTesela(url) {
+    return 'https://tile.openstreetmap.org' + url.pathname;
 }
 
 function esFuente(url) {
@@ -87,10 +96,10 @@ self.addEventListener('fetch', (event) => {
     if (esTesela(url)) {
         event.respondWith(
             caches.open(CACHE_TILES).then((cache) =>
-                cache.match(event.request).then((enCache) => {
+                cache.match(claveTesela(url)).then((enCache) => {
                     if (enCache) return enCache;
                     return fetch(event.request).then((enRed) => {
-                        if (enRed.ok) cache.put(event.request, enRed.clone());
+                        if (enRed.ok) cache.put(claveTesela(url), enRed.clone());
                         return enRed;
                     }).catch(() => new Response('', { status: 404 }));
                 })
@@ -99,16 +108,27 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    if (event.request.method !== 'GET') return;
+
+    // Abrir la app (cache primero, así abre al instante y sin internet, aunque la URL traiga ?algo)
+    if (event.request.mode === 'navigate') {
+        event.respondWith(
+            caches.match('./index.html', { ignoreSearch: true })
+                .then((enCache) => enCache || fetch(event.request))
+        );
+        return;
+    }
+
     // Archivos de la app y librerías
     event.respondWith(
         caches.match(event.request).then((enCache) => {
             return enCache || fetch(event.request).then((enRed) => {
-                if (enRed.ok && event.request.method === 'GET') {
+                if (enRed.ok) {
                     const copia = enRed.clone();
                     caches.open(CACHE_APP).then((cache) => cache.put(event.request, copia));
                 }
                 return enRed;
             });
-        }).catch(() => caches.match('./index.html'))
+        }).catch(() => new Response('', { status: 504 }))
     );
 });

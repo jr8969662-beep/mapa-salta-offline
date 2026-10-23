@@ -471,6 +471,10 @@ aviso.classList.remove('online');aviso.classList.add('offline','activo');
 buscador.classList.add('ajustado');botones.classList.add('ajustado');
 }
 }
+/* Offline: los zoom 17-19 no se descargan, así que Leaflet agranda las de zoom 16 */
+function ajustarZoomTeselas(){if(typeof capaBase==='undefined')return;const z=navigator.onLine?19:16;if(capaBase.options.maxNativeZoom!==z){capaBase.options.maxNativeZoom=z;capaBase.redraw()}}
+window.addEventListener('online',()=>ajustarZoomTeselas());
+window.addEventListener('offline',()=>ajustarZoomTeselas());
 window.addEventListener('online',actualizarEstadoConexion);
 window.addEventListener('offline',actualizarEstadoConexion);
 setTimeout(actualizarEstadoConexion,1000);
@@ -486,7 +490,7 @@ document.getElementById('btnTema').addEventListener('click',()=>{const a=documen
 /* MAPA */
 const CENTRO_SALTA=[-24.789,-65.411];
 const map=L.map('map',{rotate:true,rotateControl:false,bearing:0,touchRotate:false,shiftKeyRotate:false,compassBearing:false,preferCanvas:true}).setView(CENTRO_SALTA,14);
-const capaBase=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap',updateWhenIdle:true,keepBuffer:4});
+const capaBase=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,maxNativeZoom:navigator.onLine?19:16,attribution:'© OpenStreetMap',updateWhenIdle:true,keepBuffer:4});
 capaBase.addTo(map);
 setTimeout(actualizarMapaOscuro,100);
 
@@ -1269,6 +1273,13 @@ if(!esRecalc){document.getElementById('statDistancia').textContent='...';documen
 if(rutaLineas)map.removeLayer(rutaLineas);if(marcadorDestino)map.removeLayer(marcadorDestino);
 marcadorDestino=L.marker([lat2,lng2],{icon:iconoDest,zIndexOffset:3000}).addTo(map);
 
+if (!navigator.onLine) {
+    document.getElementById('statDistancia').textContent = '--';
+    document.getElementById('statTiempo').textContent = '--';
+    document.getElementById('listaPasos').innerHTML = '<li>📵 Las rutas necesitan internet. El destino quedó marcado en el mapa.</li>';
+    recalculoEnProgreso = false;
+    return;
+}
 const perfil = modoTransporte === 'auto' ? 'driving' : (modoTransporte === 'bici' ? 'cycling' : 'walking');
 const url = `https://router.project-osrm.org/route/v1/${perfil}/${lng1},${lat1};${lng2},${lat2}?overview=full&geometries=geojson&steps=true`;
 
@@ -1395,21 +1406,45 @@ async function iniciarDescargaOffline() {
         }
     });
 
-    let descargados = 0;
-    const total = tiles.length;
-    
-    for (const url of tiles) {
-        try {
-            await fetch(url);
-        } catch(e) {}
-        descargados++;
-        if (descargados % 5 === 0 || descargados === total) {
-            const pct = Math.round((descargados / total) * 100);
-            fill.style.width = pct + '%';
-            info.textContent = `${descargados} / ${total} teselas (${pct}%)`;
-        }
+    if (!navigator.onLine) {
+        mostrarNotificacion('Necesitás internet para descargar el mapa', 'aviso');
+        btn.disabled = false;
+        return;
     }
-    
+
+    const cache = await caches.open('salta-tiles-v15');
+    let descargados = 0, fallidas = 0;
+    const total = tiles.length;
+    const pintar = () => {
+        const pct = Math.round((descargados / total) * 100);
+        fill.style.width = pct + '%';
+        info.textContent = `${descargados} / ${total} teselas (${pct}%)`;
+    };
+
+    async function bajarUna(url) {
+        try {
+            if (!(await cache.match(url))) {
+                const res = await fetch(url, { mode: 'cors' });
+                if (res.ok) await cache.put(url, res);
+                else fallidas++;
+            }
+        } catch (e) { fallidas++; }
+        descargados++;
+        if (descargados % 5 === 0 || descargados === total) pintar();
+    }
+
+    // 4 descargas a la vez (más rápido, sin saturar el servidor de OSM)
+    let i = 0;
+    await Promise.all(Array.from({ length: 4 }, async () => {
+        while (i < tiles.length) await bajarUna(tiles[i++]);
+    }));
+
+    if (fallidas > 0) {
+        mostrarNotificacion(`⚠️ Faltaron ${fallidas} teselas. Tocá "Actualizar" para reintentar.`, 'aviso', 5000);
+        btn.disabled = false;
+        actualizarEstadoOffline();
+        return;
+    }
     mostrarNotificacion('✅ Descarga offline completa', 'exito', 4000);
     btn.disabled = false;
     actualizarEstadoOffline();
