@@ -116,6 +116,58 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 .hoja-item .badge{position:absolute;top:8px;right:8px;background:var(--danger);color:#fff;font-size:10px;font-weight:700;min-width:20px;height:20px;border-radius:10px;display:none;align-items:center;justify-content:center;padding:0 6px}
 .hoja-item .badge.activo{display:flex}
 
+/* COLECTIVOS */
+.hoja-alta{height:86vh;max-height:86vh;display:flex;flex-direction:column;padding-bottom:0;z-index:2600}
+.hoja-overlay#lineasOverlay{z-index:2550}
+.lin-cab{display:flex;align-items:center;gap:10px;margin:0 2px 10px}
+.lin-cab h3{margin:0;flex:1;font-size:17px}
+.lin-cerrar{background:var(--bg-soft);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px;color:var(--text)}
+.lin-buscar{width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:var(--r);background:var(--bg-soft);color:var(--text);font-size:16px;font-family:inherit;outline:none}
+.lin-buscar:focus{border-color:var(--primary-light)}
+.lin-filtros{display:flex;gap:8px;overflow-x:auto;padding:10px 0 8px;scrollbar-width:none}
+.lin-filtros::-webkit-scrollbar{display:none}
+.lin-f{flex-shrink:0;padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer}
+.lin-f.activo{background:var(--primary-light);border-color:var(--primary-light);color:#fff}
+.lin-scroll{overflow-y:auto;flex:1;margin:0 -16px;padding:0 16px calc(18px + env(safe-area-inset-bottom,0px));-webkit-overflow-scrolling:touch}
+.lin-fila{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--border);cursor:pointer}
+.lin-fila:active{background:var(--bg-soft)}
+.lin-badge{min-width:54px;text-align:center;padding:8px 10px;border-radius:12px;color:#fff;font-weight:800;font-size:15px;flex-shrink:0;text-shadow:0 1px 2px rgba(0,0,0,.25)}
+.lin-txt{flex:1;min-width:0}
+.lin-txt strong{display:block;font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lin-txt small{display:block;color:var(--text-muted);font-size:12px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lin-txt small.pasa{color:var(--success);font-weight:600}
+.lin-flecha{color:var(--text-muted);font-size:18px}
+.lin-vacio{padding:30px 10px;text-align:center;color:var(--text-muted);font-size:14px}
+.lin-det-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.lin-det-top .lin-badge{font-size:20px;padding:10px 14px}
+.lin-det-top .info{flex:1;min-width:0}
+.lin-det-top .info strong{display:block;font-size:15px}
+.lin-det-top .info small{color:var(--text-muted);font-size:12px}
+.lin-btn-mapa{width:100%;padding:14px;border:none;border-radius:var(--r);background:var(--primary-light);color:#fff;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:12px}
+.lin-tabs{display:flex;gap:6px;background:var(--bg-soft);border-radius:var(--r);padding:4px;margin-bottom:10px}
+.lin-tab{flex:1;padding:10px;border:none;background:transparent;border-radius:10px;font-weight:700;font-size:14px;color:var(--text-muted);font-family:inherit;cursor:pointer}
+.lin-tab.activo{background:var(--bg);color:var(--text);box-shadow:var(--sh-sm)}
+.lin-pills{display:flex;gap:8px;overflow-x:auto;margin-bottom:10px}
+.tl-tit{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);margin:14px 2px 6px}
+.tl{list-style:none;margin:0;padding:0 0 0 6px}
+.tl li{position:relative;padding:7px 8px 7px 24px;font-size:14px;color:var(--text);cursor:pointer;border-radius:8px}
+.tl li:active{background:var(--bg-soft)}
+.tl li::before{content:'';position:absolute;left:5px;top:50%;width:10px;height:10px;margin-top:-5px;border-radius:50%;background:var(--lc,var(--primary-light));border:2px solid var(--bg);box-shadow:0 0 0 1px var(--lc,var(--primary-light))}
+.tl li::after{content:'';position:absolute;left:9px;top:calc(50% + 6px);bottom:calc(-50% + 6px);width:2px;background:var(--lc,var(--primary-light));opacity:.45}
+.tl li:last-child::after{display:none}
+.tl li.ini{font-weight:700}
+.nota-lin{font-size:12px;color:var(--text-muted);background:var(--bg-soft);border-radius:var(--r-sm);padding:10px 12px;margin:14px 0 6px;line-height:1.45}
+.par-fila{padding:11px 4px;border-bottom:1px solid var(--border);cursor:pointer}
+.par-fila strong{display:block;font-size:14px}
+.par-fila small{color:var(--text-muted);font-size:12px}
+.par-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.mini-chip{display:inline-block;padding:3px 9px;border-radius:12px;color:#fff;font-size:11px;font-weight:700;cursor:pointer}
+.chip-linea-mapa{position:fixed;top:76px;left:12px;z-index:1400;display:none;align-items:center;gap:8px;padding:8px 8px 8px 12px;border-radius:24px;background:var(--bg);border:1px solid var(--border);box-shadow:var(--sh-lg);font-size:14px;font-weight:700;color:var(--text);max-width:calc(100vw - 80px)}
+.chip-linea-mapa.activo{display:flex}
+.chip-linea-mapa .lin-badge{min-width:0;padding:4px 10px;font-size:13px;border-radius:10px}
+.chip-linea-mapa button{border:none;background:var(--bg-soft);width:30px;height:30px;border-radius:50%;font-size:14px;color:var(--text);cursor:pointer}
+.chip-linea-mapa .abrir{width:auto;padding:0 10px;border-radius:15px;font-size:12px;font-weight:700}
+
 /* Controles de Leaflet: zoom arriba a la derecha, créditos arriba de la barra */
 .leaflet-top.leaflet-right{top:4px}
 .leaflet-bottom{bottom:var(--barra-alto)}
@@ -164,8 +216,8 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 .marcador-sitio.marcador-plaza{background:var(--success);border-color:#047857;font-size:17px}
 
 .lineas-container{margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
-.lineas-lista{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
-.linea-chip{display:inline-block;background:var(--danger);color:#fff;padding:4px 10px;border-radius:14px;font-size:11px;font-weight:700;box-shadow:var(--sh-sm)}
+.lineas-lista,.lineas-listas{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.linea-chip{cursor:pointer;display:inline-block;background:var(--danger);color:#fff;padding:4px 10px;border-radius:14px;font-size:11px;font-weight:700;box-shadow:var(--sh-sm)}
 
 .aviso-ubicacion{position:absolute;bottom:calc(var(--barra-alto) + 16px);left:50%;transform:translateX(-50%);z-index:1000;background:rgba(17,24,39,.92);color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;font-weight:500;backdrop-filter:blur(10px);box-shadow:var(--sh-lg)}
 .aviso-medir{position:absolute;top:100px;left:50%;transform:translateX(-50%);z-index:1000;cursor:pointer;background:var(--warning);color:#fff;padding:12px 22px;border-radius:24px;font-size:14px;font-weight:600;display:none;box-shadow:var(--sh-lg)}
@@ -387,12 +439,20 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 </div>
 
 <nav class="barra-inferior" aria-label="Menú principal">
-<button class="tab" id="btnCentrar"><span class="tab-ico">🎯</span>Mi ubicación</button>
+<button class="tab" id="btnCentrar"><span class="tab-ico">🎯</span>Ubicación</button>
 <button class="tab" id="btnCerca"><span class="tab-ico">📡</span>Cerca</button>
+<button class="tab" id="btnColes"><span class="tab-ico">🚌</span>Colectivos</button>
 <button class="tab" id="btnGratis"><span class="tab-ico">🟢</span>Gratis</button>
-<button class="tab" id="btnLugares"><span class="tab-ico">⭐</span>Lugares</button>
 <button class="tab" id="btnMas"><span class="tab-ico">☰</span>Más<span class="badge" id="badgeMas"></span></button>
 </nav>
+
+<div class="chip-linea-mapa" id="chipLinea"><span class="lin-badge" id="chipLineaRef"></span><button class="abrir" id="chipLineaAbrir">Ver recorrido</button><button id="chipLineaX" title="Quitar">✕</button></div>
+
+<div class="hoja-overlay" id="lineasOverlay"></div>
+<div class="hoja hoja-alta" id="hojaLineas" role="dialog" aria-label="Colectivos SAETA">
+<div class="hoja-asa"></div>
+<div id="lineasContenido" style="display:flex;flex-direction:column;min-height:0;flex:1"></div>
+</div>
 
 <div class="hoja-overlay" id="hojaOverlay"></div>
 <div class="hoja" id="hojaMas" role="dialog" aria-label="Más opciones">
@@ -400,6 +460,7 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 <h3>Más opciones</h3>
 <div class="hoja-grid">
 <button class="hoja-item" id="btnFiltros"><span class="mi-ico">🎛️</span><span class="mi-txt"><strong>Filtros</strong><small>Farmacias, SAETA…</small></span><span class="badge" id="badgeFiltros">0</span></button>
+<button class="hoja-item" id="btnLugares"><span class="mi-ico">⭐</span><span class="mi-txt"><strong>Mis lugares</strong><small>Tus favoritos</small></span></button>
 <button class="hoja-item" id="btnMedir"><span class="mi-ico">📏</span><span class="mi-txt"><strong>Medir</strong><small>Distancia en el mapa</small></span></button>
 <button class="hoja-item" id="btnOffline"><span class="mi-ico">📥</span><span class="mi-txt"><strong>Mapa offline</strong><small>Usar sin internet</small></span></button>
 <button class="hoja-item" id="btnTema"><span class="mi-ico">🌙</span><span class="mi-txt"><strong>Modo oscuro</strong><small>Cambiar colores</small></span></button>
@@ -647,29 +708,28 @@ let total=0;for(const[_,arr]of direccionesMap)total+=arr.length;
 console.log(`✅ ${total} direcciones en ${direccionesMap.size} calles`);
 }catch(e){}
 }
-let mapaLineasPorNodo={},lineasPorCoordenada=[];
+/* COLECTIVOS SAETA: datos (data/saeta_lineas.json) */
+let SAETA=null;
 async function cargarRutasSaeta(){
 try{
-const r=await fetch('data/rutas_saeta.json');if(!r.ok)return;
-const d=await r.json();if(!d.elements)return;
-const rels=d.elements.filter(e=>e.type==='relation'),nodos={};
-d.elements.filter(e=>e.type==='node').forEach(n=>{nodos[n.id]=n});
-let cnt=0;
-rels.forEach(rel=>{
-const ref=(rel.tags&&(rel.tags.ref||rel.tags.name))||null;if(!ref)return;cnt++;
-(rel.members||[]).forEach(m=>{if(m.type==='node'){const nodo=nodos[m.ref];if(!nodo)return;
-if(!mapaLineasPorNodo[nodo.id])mapaLineasPorNodo[nodo.id]={refs:new Set(),lat:nodo.lat,lng:nodo.lon};
-mapaLineasPorNodo[nodo.id].refs.add(ref)}});
+const r=await fetch('data/saeta_lineas.json');if(!r.ok)return;
+const d=await r.json();if(!d.lineas)return;
+d.porRef={};
+d.lineas.forEach(l=>{
+d.porRef[l.ref]=l;
+const tx=[l.ref,l.grupo].concat(l.calles);
+(l.oficial||[]).forEach(o=>{tx.push(o.nombre);o.ida.forEach(x=>tx.push(x));o.vuelta.forEach(x=>tx.push(x))});
+l._busq=normalizar(tx.join(' | '));
 });
-Object.values(mapaLineasPorNodo).forEach(i=>lineasPorCoordenada.push({lat:i.lat,lng:i.lng,refs:Array.from(i.refs).sort()}));
-console.log(`✅ ${cnt} rutas SAETA`);
-}catch(e){}
+SAETA=d;
+console.log(`✅ ${d.lineas.length} líneas SAETA, ${d.paradas.length} paradas`);
+}catch(e){console.warn('SAETA:',e)}
 }
 function buscarLineasParaParada(lat,lng){
-if(lineasPorCoordenada.length===0)return[];
+if(!SAETA)return[];
 let me=null,md=Infinity;
-for(const p of lineasPorCoordenada){const d=haversine(lat,lng,p.lat,p.lng);if(d<md){md=d;me=p}}
-if(me&&md<50)return me.refs;return[];
+for(const p of SAETA.paradas){const d=haversine(lat,lng,p.lat,p.lng);if(d<md){md=d;me=p}}
+return(me&&md<30)?me.lineas:[];
 }
 function buscarCalleRapido(termino){
 const n=normalizar(termino);
@@ -965,7 +1025,7 @@ const cod=p.local_ref||p.ref,op=p.operator||p.network;
 if(cod)infS+=`<br><small>🏷️ Parada: ${cod}</small>`;
 if(op)infS+=`<br><small>🏢 ${op}</small>`;
 const lin=buscarLineasParaParada(lat,lng);
-if(lin.length){const ch=lin.map(l=>`<span class="linea-chip">${l}</span>`).join('');
+if(lin.length){const ch=lin.map(l=>`<span class="linea-chip" onclick="abrirLinea('${l}')">${l}</span>`).join('');
 infS+=`<div class="lineas-container"><small style="color:var(--text-muted);font-weight:700;">🚌 Líneas que paran:</small><div class="lineas-listas">${ch}</div></div>`}
 else infS+=`<br><small style="color:var(--text-muted);">🚌 Sin info de líneas</small>`;
 }
@@ -1283,8 +1343,7 @@ try{
 await Promise.all([
 cargarCalles(),
 cargarDirecciones(),
-cargarRutasSaeta(),
-cargarSitios()
+cargarRutasSaeta().then(()=>cargarSitios())
 ]);
 dibujarEstacionamientosGratis();
 
@@ -1320,6 +1379,124 @@ document.getElementById('btnGratis').addEventListener('click', () => {
     } catch (e) {}
     mostrarNotificacion(`🟢 ${n} cuadras de estacionamiento gratis (lista de 2024)`, 'exito', 3500);
 });
+
+/* COLECTIVOS SAETA: pantalla */
+const capaLinea=L.layerGroup().addTo(map);
+let lineaActiva=null,filtroGrupo='Todas',tabLinea='recorrido',recorridoIdx=0,textoBuscaLinea='';
+const $lin=id=>document.getElementById(id);
+function escHtml(t){return String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function badgeLinea(l,extra){return`<span class="lin-badge" style="background:${l.color}">${escHtml(l.ref)}</span>`}
+function abrirHojaLineas(){$lin('hojaLineas').classList.add('activo');$lin('lineasOverlay').classList.add('activo');$lin('btnColes').classList.add('activo')}
+function cerrarHojaLineas(){$lin('hojaLineas').classList.remove('activo');$lin('lineasOverlay').classList.remove('activo');$lin('btnColes').classList.remove('activo');const b=document.activeElement;if(b&&b.blur)b.blur()}
+function nombreParada(p){return p.nombre||(p.calle?(p.cruce?`${p.calle} y ${p.cruce}`:p.calle):'Parada')}
+function cabecera(l){const o=(l.oficial||[])[0];return o&&o.ida.length?o.ida[0]:(l.calles[0]||'')}
+function vistaLista(){
+if(!SAETA){$lin('lineasContenido').innerHTML='<div class="lin-cab"><h3>🚌 Colectivos</h3><button class="lin-cerrar" onclick="cerrarHojaLineas()">✕</button></div><div class="lin-vacio">Cargando líneas…</div>';return}
+const grupos=['Todas'];SAETA.lineas.forEach(l=>{if(!grupos.includes(l.grupo))grupos.push(l.grupo)});
+$lin('lineasContenido').innerHTML=`<div class="lin-cab"><h3>🚌 Colectivos SAETA</h3><button class="lin-cerrar" onclick="cerrarHojaLineas()">✕</button></div>
+<input class="lin-buscar" id="linBuscar" type="search" placeholder="Línea (5A) o calle (Belgrano)…" autocomplete="off" value="${escHtml(textoBuscaLinea)}">
+<div class="lin-filtros">${grupos.map(g=>`<button class="lin-f${g===filtroGrupo?' activo':''}" data-g="${escHtml(g)}">${escHtml(g)}</button>`).join('')}</div>
+<div class="lin-scroll" id="linLista"></div>`;
+$lin('linBuscar').addEventListener('input',e=>{textoBuscaLinea=e.target.value;pintarLista()});
+$lin('lineasContenido').querySelectorAll('.lin-f').forEach(b=>b.addEventListener('click',()=>{filtroGrupo=b.dataset.g;$lin('lineasContenido').querySelectorAll('.lin-f').forEach(x=>x.classList.toggle('activo',x===b));pintarLista()}));
+pintarLista();
+}
+function pintarLista(){
+const q=normalizar(textoBuscaLinea||'').trim(),qr=(textoBuscaLinea||'').trim().toUpperCase();
+let ls=SAETA.lineas.filter(l=>filtroGrupo==='Todas'||l.grupo===filtroGrupo);
+let pasaPor={};
+if(q.length>=2){
+const exact=ls.filter(l=>l.ref.toUpperCase()===qr);
+ls=ls.filter(l=>l.ref.toUpperCase().startsWith(qr)||l._busq.includes(q));
+ls.sort((a,b)=>(b.ref.toUpperCase()===qr)-(a.ref.toUpperCase()===qr)||(b.ref.toUpperCase().startsWith(qr))-(a.ref.toUpperCase().startsWith(qr)));
+ls.forEach(l=>{if(l.ref.toUpperCase().startsWith(qr))return;
+const todas=(l.oficial||[]).flatMap(o=>o.ida.concat(o.vuelta)).concat(l.calles);
+const m=todas.find(c=>normalizar(c).includes(q));if(m)pasaPor[l.ref]=m});
+}
+$lin('linLista').innerHTML=ls.length?ls.map(l=>{
+const par=l.paradas.length;
+return`<div class="lin-fila" onclick="abrirLinea('${l.ref}')">${badgeLinea(l)}<div class="lin-txt"><strong>${escHtml(l.grupo)}${(l.oficial&&l.oficial.length>1)?' · '+l.oficial.length+' ramales':''}</strong>${pasaPor[l.ref]?`<small class="pasa">Pasa por ${escHtml(pasaPor[l.ref])}</small>`:`<small>Sale de ${escHtml(cabecera(l))}</small>`}<small>${l.km} km · ${par} paradas</small></div><span class="lin-flecha">›</span></div>`}).join(''):'<div class="lin-vacio">No encontré ninguna línea ni calle con ese nombre.</div>';
+}
+function listaTL(arr,color,titulo){
+if(!arr||!arr.length)return'';
+return`${titulo?`<div class="tl-tit">${titulo}</div>`:''}<ol class="tl" style="--lc:${color}">${arr.map((c,i)=>`<li class="${i===0?'ini':''}" data-c="${escHtml(c)}">${escHtml(c)}</li>`).join('')}</ol>`;
+}
+function vistaLinea(ref){
+const l=SAETA.porRef[ref];if(!l)return;
+const of=l.oficial||[],o=of[recorridoIdx]||of[0];
+let html=`<div class="lin-cab"><button class="lin-cerrar" onclick="volverLista()" title="Volver">←</button><h3>Línea ${escHtml(l.ref)}</h3><button class="lin-cerrar" onclick="cerrarHojaLineas()">✕</button></div>
+<div class="lin-scroll" id="linDet">
+<div class="lin-det-top">${badgeLinea(l)}<div class="info"><strong>${escHtml(l.grupo)}</strong><small>${l.km} km · ${l.paradas.length} paradas en el mapa</small></div></div>
+<button class="lin-btn-mapa" onclick="verEnMapa()">🗺️ Ver en el mapa</button>
+<div class="lin-tabs"><button class="lin-tab${tabLinea==='recorrido'?' activo':''}" data-t="recorrido">Recorrido</button><button class="lin-tab${tabLinea==='paradas'?' activo':''}" data-t="paradas">Paradas (${l.paradas.length})</button></div>`;
+if(tabLinea==='recorrido'){
+if(of.length>1)html+=`<div class="lin-pills">${of.map((x,i)=>`<button class="lin-f${i===recorridoIdx?' activo':''}" data-r="${i}">${escHtml(x.nombre)}</button>`).join('')}</div>`;
+if(o){
+html+=listaTL(o.ida,l.color,o.vuelta.length?'Ida':'Recorrido completo (circuito)');
+if(o.vuelta.length)html+=listaTL(o.vuelta,l.color,'Vuelta');
+html+=`<div class="nota-lin">Calles según la guía de ómnibus de Salta. Tocá una calle para verla en el mapa. SAETA puede haber cambiado el recorrido: confirmalo en saetasalta.com.ar.</div>`;
+}else{
+html+=listaTL(l.calles,l.color,'Calles por donde pasa el trazado')+`<div class="nota-lin">No tengo el recorrido oficial escrito de esta línea. Estas calles salen del trazado dibujado en OpenStreetMap, en orden aproximado. Confirmá en saetasalta.com.ar.</div>`;
+}
+}else{
+html+=l.paradas.length?l.paradas.map(i=>{const p=SAETA.paradas[i];const otras=p.lineas.filter(x=>x!==l.ref);
+return`<div class="par-fila" data-p="${i}"><strong>🚏 ${escHtml(nombreParada(p))}</strong>${p.nombre&&p.calle?`<small>${escHtml(p.calle)}</small>`:''}${otras.length?`<div class="par-chips">${otras.slice(0,8).map(x=>`<span class="mini-chip" data-l="${escHtml(x)}" style="background:${(SAETA.porRef[x]||{}).color||'#6b7280'}">${escHtml(x)}</span>`).join('')}${otras.length>8?`<small>+${otras.length-8}</small>`:''}</div>`:''}</div>`}).join('')
+:'<div class="lin-vacio">No hay paradas cargadas para esta línea en el mapa.</div>';
+html+=`<div class="nota-lin">Solo aparecen las paradas cargadas en OpenStreetMap (a menos de 25 m del recorrido). Es probable que falten algunas.</div>`;
+}
+html+='</div>';
+$lin('lineasContenido').innerHTML=html;
+const box=$lin('linDet');
+box.querySelectorAll('.lin-tab').forEach(b=>b.addEventListener('click',()=>{tabLinea=b.dataset.t;vistaLinea(ref)}));
+box.querySelectorAll('[data-r]').forEach(b=>b.addEventListener('click',()=>{recorridoIdx=+b.dataset.r;vistaLinea(ref)}));
+box.querySelectorAll('.tl li').forEach(li=>li.addEventListener('click',()=>irACalle(li.dataset.c)));
+box.querySelectorAll('.par-fila').forEach(f=>f.addEventListener('click',e=>{if(e.target.dataset.l){abrirLinea(e.target.dataset.l);e.stopPropagation();return}irAParada(+f.dataset.p)}));
+}
+function volverLista(){vistaLista()}
+function irACalle(nombre){
+let c=null;try{c=buscarCalleExacta(nombre)}catch(e){}
+if(!c){mostrarNotificacion('No encontré esa calle en el mapa','aviso',2500);return}
+cerrarHojaLineas();mostrarCalle(c);
+}
+function irAParada(i){const p=SAETA.paradas[i];cerrarHojaLineas();map.setView([p.lat,p.lng],17);
+capaLinea.eachLayer(m=>{if(m.getLatLng&&Math.abs(m.getLatLng().lat-p.lat)<1e-6&&Math.abs(m.getLatLng().lng-p.lng)<1e-6)m.openPopup()})}
+function dibujarLinea(l){
+capaLinea.clearLayers();
+l.trazos.forEach(t=>{if(t.length<2)return;
+capaLinea.addLayer(L.polyline(t,{color:'#ffffff',weight:10,opacity:.9,lineCap:'round',lineJoin:'round',interactive:false}));
+capaLinea.addLayer(L.polyline(t,{color:l.color,weight:6,opacity:1,lineCap:'round',lineJoin:'round',interactive:false}));});
+l.paradas.forEach(i=>{const p=SAETA.paradas[i];
+const m=L.circleMarker([p.lat,p.lng],{radius:7,color:l.color,weight:3,fillColor:'#ffffff',fillOpacity:1});
+const ch=p.lineas.map(x=>`<span class="linea-chip" style="background:${(SAETA.porRef[x]||{}).color||'#6b7280'}" onclick="abrirLinea('${x}')">${escHtml(x)}</span>`).join('');
+m.bindPopup(`<strong>🚏 ${escHtml(nombreParada(p))}</strong>${p.nombre&&p.calle?`<br><small>📍 ${escHtml(p.calle)}</small>`:''}<div class="lineas-container"><small style="color:var(--text-muted);font-weight:700;">🚌 Líneas que paran:</small><div class="lineas-lista">${ch}</div></div>`);
+capaLinea.addLayer(m)});
+}
+function encuadrarLinea(l){
+if(l.grupo.startsWith('Interurbano')){map.setView(CENTRO_SALTA,12);return}
+let pts=[];l.trazos.forEach(t=>t.forEach(p=>pts.push(p)));
+if(pts.length)map.fitBounds(L.latLngBounds(pts),{padding:[40,40]});
+}
+function abrirLinea(ref){
+if(!SAETA||!SAETA.porRef[ref])return;
+const l=SAETA.porRef[ref];
+if(lineaActiva!==ref){recorridoIdx=0;tabLinea='recorrido'}
+lineaActiva=ref;
+dibujarLinea(l);
+$lin('chipLineaRef').textContent=l.ref;$lin('chipLineaRef').style.background=l.color;$lin('chipLinea').classList.add('activo');
+try{map.closePopup()}catch(e){}
+vistaLinea(ref);abrirHojaLineas();
+if(!$lin('hojaLineas').classList.contains('activo'))abrirHojaLineas();
+}
+function verEnMapa(){const l=SAETA.porRef[lineaActiva];cerrarHojaLineas();if(l)encuadrarLinea(l)}
+function limpiarLinea(){lineaActiva=null;capaLinea.clearLayers();$lin('chipLinea').classList.remove('activo')}
+$lin('btnColes').addEventListener('click',()=>{
+if($lin('hojaLineas').classList.contains('activo')){cerrarHojaLineas();return}
+if(lineaActiva&&SAETA)vistaLinea(lineaActiva);else vistaLista();
+abrirHojaLineas();
+});
+$lin('lineasOverlay').addEventListener('click',cerrarHojaLineas);
+$lin('chipLineaX').addEventListener('click',limpiarLinea);
+$lin('chipLineaAbrir').addEventListener('click',()=>{if(lineaActiva){vistaLinea(lineaActiva);abrirHojaLineas()}});
 
 /* MENÚ MÁS */
 function abrirHojaMas(){document.getElementById('hojaMas').classList.add('activo');document.getElementById('hojaOverlay').classList.add('activo');document.getElementById('btnMas').classList.add('activo')}

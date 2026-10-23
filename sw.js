@@ -1,10 +1,10 @@
 // ============================================
 // SERVICE WORKER - Mapa Salta Offline
-// v20 - barra inferior de navegación
+// v21 - colectivos SAETA: líneas, recorridos y paradas (data/saeta_lineas.json)
 // Subí VERSION cada vez que cambies index.html o los geojson
 // ============================================
 
-const VERSION = 'v20';
+const VERSION = 'v21';
 const CACHE_APP = 'salta-app-' + VERSION;
 // FIJO: index.html usa este nombre para descargar/borrar teselas. No lo ligues a VERSION.
 const CACHE_TILES = 'salta-tiles-v15';
@@ -24,7 +24,7 @@ const APP_URLS = [
     './data/sitios.geojson',
     './data/direcciones.geojson',
     './data/saeta.geojson',
-    './data/rutas_saeta.json',
+    './data/saeta_lineas.json',
     './data/lugares_extra.geojson',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
