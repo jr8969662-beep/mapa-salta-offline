@@ -1445,7 +1445,7 @@ html+=listaTL(l.calles,l.color,'Calles por donde pasa el trazado')+`<div class="
 html+=l.paradas.length?l.paradas.map(i=>{const p=SAETA.paradas[i];const otras=p.lineas.filter(x=>x!==l.ref);
 return`<div class="par-fila" data-p="${i}"><strong>🚏 ${escHtml(nombreParada(p))}</strong>${p.nombre&&p.calle?`<small>${escHtml(p.calle)}</small>`:''}${otras.length?`<div class="par-chips">${otras.slice(0,8).map(x=>`<span class="mini-chip" data-l="${escHtml(x)}" style="background:${(SAETA.porRef[x]||{}).color||'#6b7280'}">${escHtml(x)}</span>`).join('')}${otras.length>8?`<small>+${otras.length-8}</small>`:''}</div>`:''}</div>`}).join('')
 :'<div class="lin-vacio">No hay paradas cargadas para esta línea en el mapa.</div>';
-html+=`<div class="nota-lin">Solo aparecen las paradas cargadas en OpenStreetMap (a menos de 25 m del recorrido). Es probable que falten algunas.</div>`;
+html+=l.trazoOficial?`<div class="nota-lin">Trazado y paradas oficiales de SAETA.</div>`:`<div class="nota-lin">Solo aparecen las paradas cargadas en OpenStreetMap (a menos de 25 m del recorrido). Es probable que falten algunas.</div>`;
 }
 html+='</div>';
 $lin('lineasContenido').innerHTML=html;
