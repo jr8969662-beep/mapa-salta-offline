@@ -1203,7 +1203,7 @@ function tramoGratis(pts, calle, regla) {
     return L.featureGroup([
         L.polyline(pts, { color: '#ffffff', weight: 13, opacity: 0.8, lineCap: 'round', lineJoin: 'round', interactive: false }),
         L.polyline(pts, { color: '#16a34a', weight: 8, opacity: 1, lineCap: 'round', lineJoin: 'round' })
-    ]).bindPopup(`<strong>🟢 Estacionamiento Gratis</strong><br><small>📍 ${calle} entre ${regla.d} y ${regla.h}${lado}</small><br><small>Lista municipal: confirmá que el cordón siga pintado de verde.</small>`);
+    ]).bindPopup(`<strong>🟢 Estacionamiento Gratis</strong><br><small>📍 ${calle} entre ${regla.d} y ${regla.h}${lado}</small><br><small>Fuente: Municipalidad de Salta (lista oficial, 25/1/2024). Hoy la ciudad tiene unas 100 cuadras verdes y la lista completa no está publicada: guiate por el cordón pintado.</small>`);
 }
 
 function dibujarEstacionamientosGratis() {
