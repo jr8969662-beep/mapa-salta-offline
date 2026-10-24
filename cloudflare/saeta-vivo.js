@@ -4,6 +4,7 @@
 //
 // Uso:  https://TU-WORKER.workers.dev/?l=601            (una línea)
 //       https://TU-WORKER.workers.dev/?l=601,606        (varias, separadas por coma)
+// La app lo consulta en /vivo?l=601 (así también funciona si el Worker además sirve el mapa).
 // Solo reenvía las posiciones de buses; nada más.
 
 const ORIGEN = 'https://salta.miredbus.com.ar';

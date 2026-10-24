@@ -2187,7 +2187,7 @@ document.getElementById('btnEmerg').addEventListener('click',abrirEmergencias);
 
 
 /* ===== COLECTIVOS EN VIVO (posiciones de RedBus vía intermediario de Cloudflare) ===== */
-const VIVO_URL_DEFECTO='';
+const VIVO_URL_DEFECTO='https://saeta-vivo.jr8969662.workers.dev';
 let REDBUS=null,vivoRef=null,vivoTimer=null,vivoMarcas={},capaVivo=null,vivoCargando=false;
 function urlVivo(){try{return localStorage.getItem('salta_vivo_url')||VIVO_URL_DEFECTO}catch(e){return VIVO_URL_DEFECTO}}
 async function cargarRedbus(){try{const r=await fetch('data/redbus_lineas.json');if(r.ok)REDBUS=await r.json()}catch(e){}}
@@ -2210,7 +2210,7 @@ const ref=vivoRef;if(!ref||vivoCargando)return;const cods=codigosVivo(ref);if(!c
 vivoCargando=true;
 try{
 let base=urlVivo();base=base.replace(/\/+$/,'');
-const r=await fetch(`${base}/?l=${cods.join(',')}`,{cache:'no-store'});
+const r=await fetch(`${base}/vivo?l=${cods.join(',')}`,{cache:'no-store'});
 if(!r.ok)throw new Error('http '+r.status);
 const data=await r.json();if(vivoRef!==ref)return;
 const l=SAETA.porRef[ref],color=l?l.color:'#2563eb';const vistos=new Set();let n=0;
