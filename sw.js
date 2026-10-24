@@ -4,7 +4,7 @@
 // Subí VERSION cada vez que cambies index.html o los geojson
 // ============================================
 
-const VERSION = 'v31';
+const VERSION = 'v32';
 const CACHE_APP = 'salta-app-' + VERSION;
 // FIJO: index.html usa este nombre para descargar/borrar teselas. No lo ligues a VERSION.
 const CACHE_TILES = 'salta-tiles-v15';
@@ -25,6 +25,7 @@ const APP_URLS = [
     './data/direcciones.geojson',
     './data/saeta.geojson',
     './data/saeta_lineas.json',
+    './data/saeta_recarga.geojson',
     './data/lugares_extra.geojson',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
     'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
