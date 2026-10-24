@@ -506,7 +506,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 .vivo-estado{font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:10px;min-height:0}
 .vivo-estado:empty{display:none}
 .vivo-estado b{color:#dc2626}
-.leaflet-marker-icon.bus-vivo-icon{transition:transform 1.2s linear}
+.leaflet-marker-icon.bus-vivo-icon{transition:transform 5s linear}
 .bus-vivo{position:relative;width:38px;height:38px;border-radius:50%;background:var(--bc,#2563eb);color:#fff;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;letter-spacing:-.3px}
 .bus-vivo .bf{position:absolute;inset:-9px;pointer-events:none}
 .bus-vivo .bf::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:9px solid var(--bc,#2563eb)}
@@ -2202,7 +2202,7 @@ if(!u||!/^https:\/\/.+/.test(u.trim())){mostrarNotificacion('Hace falta la direc
 u=u.trim().replace(/\/+$/,'');try{localStorage.setItem('salta_vivo_url',u)}catch(e){}}
 iniciarVivo(ref);vistaLinea(ref)}
 function iniciarVivo(ref){detenerVivo();vivoRef=ref;if(!capaVivo)capaVivo=L.layerGroup().addTo(map);
-actualizarVivo();vivoTimer=setInterval(()=>{if(document.visibilityState==='visible')actualizarVivo()},15000)}
+actualizarVivo();vivoTimer=setInterval(()=>{if(document.visibilityState==='visible')actualizarVivo()},5000)}
 function detenerVivo(){clearInterval(vivoTimer);vivoTimer=null;vivoRef=null;if(capaVivo)capaVivo.clearLayers();vivoMarcas={}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&vivoRef)actualizarVivo()});
 async function actualizarVivo(){
@@ -2224,7 +2224,7 @@ else{const ic=L.divIcon({className:'bus-vivo-icon',html:`<div class="bus-vivo" s
 vivoMarcas[id]=L.marker(ll,{icon:ic,zIndexOffset:3500}).bindPopup(popup).addTo(capaVivo)}})});
 Object.keys(vivoMarcas).forEach(id=>{if(!vistos.has(id)){capaVivo.removeLayer(vivoMarcas[id]);delete vivoMarcas[id]}});
 const hora=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-estadoVivo(n?`<b>● EN VIVO</b> · ${n} colectivo${n>1?'s':''} circulando · actualizado ${hora}`:`<b>● EN VIVO</b> · No hay colectivos circulando ahora en esta línea · ${hora}`);
+estadoVivo(n?`<b>● EN VIVO</b> · ${n} colectivo${n>1?'s':''} circulando · actualizado ${hora} (cada 5 s)`:`<b>● EN VIVO</b> · No hay colectivos circulando ahora en esta línea · ${hora}`);
 }catch(e){estadoVivo('⚠️ No se pudo conectar con el servidor en vivo. Reintentando…');console.warn('vivo',e)}
 finally{vivoCargando=false}}
 cargarRedbus();

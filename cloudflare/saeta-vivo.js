@@ -29,13 +29,13 @@ export default {
       try {
         const r = await fetch(`${ORIGEN}/rest/posicionesBuses/${c}`, {
           headers: { 'Accept': 'application/json', 'User-Agent': 'Mozilla/5.0 (compatible; MapaSalta)' },
-          cf: { cacheTtl: 10, cacheEverything: true },
+          cf: { cacheTtl: 3, cacheEverything: true },
         });
         salida[c] = r.ok ? await r.json() : { error: r.status };
       } catch (e) { salida[c] = { error: 1 }; }
     }));
     return new Response(JSON.stringify(salida), {
-      headers: { ...CORS, 'content-type': 'application/json', 'Cache-Control': 'public, max-age=10' },
+      headers: { ...CORS, 'content-type': 'application/json', 'Cache-Control': 'public, max-age=3' },
     });
   },
 };
