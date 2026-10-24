@@ -458,6 +458,48 @@ body.navegando .buscador,body.navegando .buscador-contenedor,body.navegando .bar
 body.navegando .panel-ruta{transform:translateY(100%)!important}
 [data-theme=dark] .rt-alts button{background:#1e293b;border-color:#334155}
 [data-theme=dark] .nav-barra{background:#0f172a}
+
+/* FICHA DE LUGAR / EMERGENCIAS / CERCA */
+.ficha{position:fixed;left:0;right:0;bottom:0;z-index:2300;background:var(--bg);border-radius:var(--r-lg) var(--r-lg) 0 0;box-shadow:0 -10px 36px rgba(0,0,0,.22);padding:10px 16px calc(14px + env(safe-area-inset-bottom,0px));transform:translateY(105%);transition:transform .3s cubic-bezier(.4,0,.2,1);max-height:70vh;overflow-y:auto;color:var(--text)}
+.ficha.activo{transform:translateY(0)}
+.ficha .rt-grip{width:38px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 10px}
+.f-cab{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.f-emoji{font-size:30px;width:48px;height:48px;border-radius:14px;background:var(--bg-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.f-tit{flex:1;min-width:0}
+.f-tit h3{margin:0;font-size:18px;font-weight:800;line-height:1.2}
+.f-tit small{color:var(--text-muted);font-size:12px;font-weight:600}
+.ficha .cerrar{background:var(--bg-soft);border:none;width:36px;height:36px;border-radius:50%;cursor:pointer;font-size:16px;color:var(--text)}
+.f-meta{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.f-chip{display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:999px;background:var(--bg-soft);font-size:12px;font-weight:700;color:var(--text)}
+.f-chip.ok{background:rgba(16,185,129,.15);color:#0f9d58}
+.f-chip.no{background:rgba(239,68,68,.13);color:#dc2626}
+.f-info{display:flex;flex-direction:column;gap:7px;margin-bottom:12px;font-size:13px}
+.f-info div{display:flex;gap:10px;align-items:flex-start;color:var(--text)}
+.f-info span.i{flex:0 0 20px;text-align:center}
+.f-info a{color:var(--primary-light);word-break:break-all}
+.f-btns{display:flex;gap:8px;flex-wrap:wrap}
+.f-btns button,.f-btns a{border:none;border-radius:999px;padding:11px 14px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.f-ir{flex:1 1 100%;background:#1a73e8;color:#fff;font-size:15px!important;padding:13px!important}
+.f-sec{flex:1;background:var(--bg-soft);color:var(--text)}
+.f-sec.off{display:none}
+.sel-pulse{width:44px;height:44px;border-radius:50%;background:rgba(26,115,232,.22);border:3px solid #1a73e8;display:flex;align-items:center;justify-content:center;font-size:20px;animation:pulso 1.6s infinite}
+.cerca-filtros{display:flex;gap:8px;margin-bottom:8px}
+.cerca-filtros button{flex:1;border:1.5px solid var(--border);background:var(--bg);color:var(--text);border-radius:999px;padding:8px 10px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer}
+.cerca-filtros button.activo{background:rgba(16,185,129,.15);border-color:#10b981;color:#0f9d58}
+.cerca-item-sub{display:flex;gap:8px;align-items:center;margin-top:3px;font-size:11px;color:var(--text-muted)}
+.cerca-item-sub .ab{font-weight:800;color:#0f9d58}.cerca-item-sub .ce{font-weight:800;color:#dc2626}
+.cerca-item-dist small{display:block;font-size:10px;color:var(--text-muted);font-weight:600;text-align:right}
+.modal-emerg .em-llamar{display:flex;gap:8px;margin:12px 0}
+.modal-emerg .em-llamar a{flex:1;text-decoration:none;color:#fff;border-radius:14px;padding:12px 6px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.modal-emerg .em-llamar b{font-size:26px;font-weight:800}.modal-emerg .em-llamar span{font-size:11px;font-weight:600}
+.em-911{background:#1d4ed8}.em-107{background:#dc2626}.em-100{background:#ea580c}
+.em-tit{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px;margin:6px 0}
+.em-item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
+.em-item .e{font-size:24px;width:32px;text-align:center}.em-item .t{flex:1;min-width:0;font-size:14px;font-weight:700}.em-item .t small{display:block;font-weight:600;color:var(--text-muted);font-size:11px}
+.em-item button,.em-item a{border:none;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;background:var(--bg-soft);color:var(--text);text-decoration:none}
+.em-item .go{background:#1a73e8;color:#fff}
+.sug-chip.rojo{background:#dc2626;color:#fff;border-color:#dc2626}
+.sug-item.lugar{border-left:4px solid #1a73e8}.sug-item.cat{border-left:4px solid #f59e0b}
 [data-theme=dark] .panel-ruta{background:#0f172a;border-top:1px solid #334155}
 [data-theme=dark] .panel-ruta .stat{background:#1e293b}
 [data-theme=dark] .panel-ruta .modo button{background:#1e293b;border-color:#334155;color:var(--text)}
@@ -515,6 +557,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 <div class="hoja-asa"></div>
 <h3>Más opciones</h3>
 <div class="hoja-grid">
+<button class="hoja-item" id="btnEmerg"><span class="mi-ico">🚨</span><span class="mi-txt"><strong>Emergencias</strong><small>Comisaría y hospital cercanos</small></span></button>
 <button class="hoja-item" id="btnFiltros"><span class="mi-ico">🎛️</span><span class="mi-txt"><strong>Filtros</strong><small>Farmacias, SAETA…</small></span><span class="badge" id="badgeFiltros">0</span></button>
 <button class="hoja-item" id="btnLugares"><span class="mi-ico">⭐</span><span class="mi-txt"><strong>Mis lugares</strong><small>Tus favoritos</small></span></button>
 <button class="hoja-item" id="btnMedir"><span class="mi-ico">📏</span><span class="mi-txt"><strong>Medir</strong><small>Distancia en el mapa</small></span></button>
@@ -529,6 +572,25 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
 <div class="calidad-gps" id="calidadGps"><span class="dot"></span><span id="calidadTexto">Buscando señal...</span></div>
 <div class="notificacion" id="notificacion"></div>
+<div class="ficha" id="ficha" role="dialog" aria-label="Lugar">
+<div class="rt-grip"></div>
+<div class="f-cab"><span class="f-emoji" id="fEmoji"></span><div class="f-tit"><h3 id="fNombre"></h3><small id="fTipo"></small></div><button class="cerrar" onclick="cerrarFicha()" aria-label="Cerrar">✕</button></div>
+<div class="f-meta" id="fMeta"></div>
+<div class="f-info" id="fInfo"></div>
+<div class="f-btns">
+<button class="f-ir" id="fIr">🛣️ Cómo llegar</button>
+<a class="f-sec" id="fLlamar" href="#">📞 Llamar</a>
+<button class="f-sec" id="fCompartir">📤 Compartir</button>
+<button class="f-sec" id="fGuardar">⭐ Guardar</button>
+</div>
+</div>
+<div class="modal-overlay" id="modalEmerg"><div class="modal modal-emerg">
+<h3>🚨 Emergencias</h3>
+<div class="em-llamar"><a href="tel:911" class="em-911"><b>911</b><span>Policía</span></a><a href="tel:107" class="em-107"><b>107</b><span>Emergencias médicas</span></a><a href="tel:100" class="em-100"><b>100</b><span>Bomberos</span></a></div>
+<div class="em-tit">Lo más cercano a vos</div>
+<div id="emLista"></div>
+<div class="botones"><button class="btn-cancelar" onclick="cerrarEmergencias()">Cerrar</button></div>
+</div></div>
 
 <div class="panel-filtros-overlay" id="panelFiltrosOverlay" onclick="cerrarPanelFiltros()"></div>
 <div class="panel-filtros" id="panelFiltros">
@@ -593,11 +655,12 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 <div class="modal-overlay" id="modalCerca">
 <div class="modal modal-cerca">
 <h3>📡 ¿Qué buscás cerca?</h3>
-<p style="font-size:13px;margin-bottom:10px;">Los 5 lugares más cercanos a tu ubicación actual.</p>
+<p style="font-size:13px;margin-bottom:10px;" id="cercaSub">Ordenados por cercanía a tu ubicación.</p>
 <input type="text" id="cercaBuscar" placeholder="🔍 Filtrar categoría..." oninput="filtrarCategoriasCerca()">
 <div class="cerca-lista" id="cercaLista"></div>
 <div class="cerca-resultados" id="cercaResultados" style="display:none;">
 <div class="cerca-header"><button class="cerca-volver" onclick="volverCategoriasCerca()">← Volver</button><span id="cercaCategoriaActual"></span></div>
+<div class="cerca-filtros"><button id="cercaAbierto" onclick="toggleCercaAbierto()">🕒 Abierto ahora</button><button onclick="verCercaEnMapa()">🗺️ Ver en el mapa</button></div>
 <ul class="cerca-items" id="cercaItems"></ul>
 </div>
 <div class="botones"><button class="btn-cancelar" onclick="cerrarModalCerca()">Cerrar</button></div>
@@ -944,10 +1007,10 @@ h.unshift({texto,tipo,lat,lng,nombreOriginal:nombre||texto,fecha:Date.now()});
 h=h.slice(0,8);
 try{localStorage.setItem(HIST_KEY,JSON.stringify(h))}catch(e){}}
 function borrarHistorial(){try{localStorage.removeItem(HIST_KEY)}catch(e){};mostrarSugerenciasIniciales()}
-const CHIPS=[{e:'🏥',t:'Hospital',c:'hospital'},{e:'💊',t:'Farmacia',c:'pharmacy'},{e:'🚓',t:'Comisaría',c:'police'},{e:'⛽',t:'Nafta',c:'fuel'},{e:'🚌',t:'Parada SAETA',c:'bus_stop'},{e:'🏦',t:'Banco',c:'bank'},{e:'🍽️',t:'Restaurante',c:'restaurant'},{e:'🛒',t:'Super',c:'supermarket'}];
+const CHIPS=[{e:'🏥',t:'Hospital',c:'hospital'},{e:'🚓',t:'Comisaría',c:'police'},{e:'💊',t:'Farmacia',c:'pharmacy'},{e:'🏧',t:'Cajero',c:'atm'},{e:'☕',t:'Café',c:'cafe'},{e:'🍺',t:'Bar',c:'bar'},{e:'🍽️',t:'Restaurante',c:'restaurant'},{e:'📚',t:'Biblioteca',c:'library'},{e:'⛰️',t:'Cerro',c:'peak'},{e:'⛽',t:'Nafta',c:'fuel'},{e:'🏦',t:'Banco',c:'bank'},{e:'🛒',t:'Super',c:'supermarket'},{e:'🚌',t:'Parada SAETA',c:'bus_stop'}];
 function mostrarSugerenciasIniciales(){
 const h=[];
-h.push('<div class="sug-titulo">⚡ Búsquedas rápidas</div><div class="sug-chips">');
+h.push('<div class="sug-titulo">⚡ Búsquedas rápidas</div><div class="sug-chips"><button class="sug-chip rojo" id="chipEmerg">🚨 Emergencias</button>');
 CHIPS.forEach(c=>h.push(`<button class="sug-chip" data-cat="${c.c}">${c.e} ${c.t}</button>`));
 h.push('</div>');
 const hist=cargarHistorial();
@@ -957,7 +1020,8 @@ hist.forEach(x=>{const e=x.tipo==='esquina'?'🚦':x.tipo==='direccion'?'🏠':'
 h.push(`<div class="sug-item historial" data-hidx="${hist.indexOf(x)}"><div class="sug-emoji">${e}</div><div class="sug-texto"><strong>${x.nombreOriginal}</strong><small>${new Date(x.fecha).toLocaleDateString('es-AR')}</small></div></div>`)})}
 sugerencias.innerHTML=h.join('');
 sugerencias.classList.add('activo');
-sugerencias.querySelectorAll('.sug-chip').forEach(b=>b.addEventListener('click',()=>activarCategoria(b.dataset.cat)));
+sugerencias.querySelectorAll('.sug-chip[data-cat]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.cat==='bus_stop')activarCategoria(b.dataset.cat);else abrirCercaCategoria(b.dataset.cat)}));
+document.getElementById('chipEmerg')?.addEventListener('click',()=>{ocultarSugerencias();abrirEmergencias()});
 sugerencias.querySelectorAll('.sug-item.historial').forEach(it=>it.addEventListener('click',()=>{
 const i=parseInt(it.dataset.hidx),x=cargarHistorial()[i];if(!x)return;
 if(x.tipo==='calle'){const c=buscarCalleExacta(x.texto);if(c)mostrarCalle(c)}
@@ -992,15 +1056,18 @@ const prec=d?(d.exacto?'Numeración exacta':'Numeración aproximada'):'Número n
 h.push(`<div class="sug-item direccion" data-tipo="direccion"><div class="sug-emoji">🏠</div><div class="sug-texto"><strong>${c.nombreOriginal} ${p.numero}</strong><small>${prec}</small></div></div>`)}
 }
 else{
+const lug=htmlLugares(q);if(lug)h.push(lug);
 const res=buscarCalleRapido(q);
 res.forEach(c=>h.push(`<div class="sug-item" data-tipo="calle" data-nombre="${c.nombre}"><div class="sug-emoji">🛣️</div><div class="sug-texto"><strong>${c.nombreOriginal}</strong><small>Calle</small></div></div>`));
-if(!res.length&&q.length>=2)h.push(`<div class="sug-item"><div class="sug-emoji">😕</div><div class="sug-texto"><strong>Sin resultados</strong><small>Probá con otro nombre</small></div></div>`);
+if(!res.length&&!lug&&q.length>=2)h.push(`<div class="sug-item"><div class="sug-emoji">😕</div><div class="sug-texto"><strong>Sin resultados</strong><small>Probá con otro nombre</small></div></div>`);
 }
 if(!h.length){sugerencias.classList.remove('activo');return}
 sugerencias.innerHTML=h.join('');
 sugerencias.classList.add('activo');
 sugerencias.querySelectorAll('.sug-item[data-tipo]').forEach(it=>it.addEventListener('click',()=>{
 const t=it.dataset.tipo;
+if(t==='cat'){abrirCercaCategoria(it.dataset.cat);input.value='';btnLimpiar.style.display='none';input.blur();return}
+if(t==='lugar'){const l=LUGARES[+it.dataset.i];if(l){input.value=l.nombre;ocultarSugerencias();input.blur();abrirFicha(l)}return}
 if(t==='esquina'){
 const cA=buscarCalleExacta(p.calle1),cB=buscarCalleExacta(p.calle2);
 if(!cA){alert(`No se encontró "${p.calle1}"`);return}
@@ -1049,10 +1116,11 @@ try{r.start()}catch(e){}
 });
 
 /* CATEGORÍAS */
-const EMOJIS={hospital:'🏥',clinic:'🩺',pharmacy:'💊',veterinary:'🐾',bank:'🏦',atm:'🏧',restaurant:'🍽️',fast_food:'🍔',bar:'🍺',cafe:'☕',supermarket:'🛒',convenience:'🏪',marketplace:'🏬',police:'🚓',fire_station:'🚒',bus_stop:'🚌',parking:'🅿️',fuel:'⛽',school:'🏫',university:'🎓',library:'📚',museum:'🏛️',cinema:'🎬',theatre:'🎭',townhall:'🏛️',post_office:'📮',hotel:'🏨',hostel:'🛏️',park:'🌳',playground:'🎠',sports_centre:'🏟️',pitch:'⚽',swimming_pool:'🏊',place_of_worship:'⛪',traffic_signals:'🚦',traffic_calming:'🛑',toilets:'🚻',drinking_water:'💧',recycling:'♻️',viewpoint:'🔭',estacionamiento_gratis:'🟢',recarga_saeta:'💳',atm_saeta:'🏧'};
-const NOMBRES={hospital:'Hospitales',clinic:'Clínicas',pharmacy:'Farmacias',veterinary:'Veterinarias',bank:'Bancos',atm:'Cajeros',restaurant:'Restaurantes',fast_food:'Comida rápida',bar:'Bares',cafe:'Cafés',supermarket:'Supermercados',convenience:'Almacenes',marketplace:'Mercados',police:'Comisarías',fire_station:'Bomberos',bus_stop:'Paradas SAETA',parking:'Estacionamientos',fuel:'Estaciones de servicio',school:'Escuelas',university:'Universidades',library:'Bibliotecas',museum:'Museos',cinema:'Cines',theatre:'Teatros',townhall:'Oficinas públicas',post_office:'Correos',hotel:'Hoteles',hostel:'Hostales',park:'Plazas y parques',playground:'Juegos infantiles',sports_centre:'Centros deportivos',pitch:'Canchas',swimming_pool:'Piletas',place_of_worship:'Iglesias',traffic_signals:'Semáforos',traffic_calming:'Lomadas',toilets:'Baños públicos',drinking_water:'Bebederos',recycling:'Reciclaje',viewpoint:'Miradores',estacionamiento_gratis:'Estacionamiento Gratis (Cordón Verde)',recarga_saeta:'Puntos de recarga SAETA',atm_saeta:'Cajeros de recarga SAETA (ATM)'};
-const GRUPOS={'Transporte':{emoji:'🚌',categorias:['bus_stop','recarga_saeta','atm_saeta','fuel']},'Salud':{emoji:'🏥',categorias:['hospital','clinic','pharmacy','veterinary']},'Comida y bebida':{emoji:'🍽️',categorias:['restaurant','fast_food','bar','cafe']},'Compras':{emoji:'🛒',categorias:['supermarket','convenience','marketplace']},'Finanzas':{emoji:'🏦',categorias:['bank','atm']},'Seguridad':{emoji:'🚓',categorias:['police','fire_station']},'Educación y cultura':{emoji:'📚',categorias:['school','university','library','museum','cinema','theatre']},'Recreación':{emoji:'🌳',categorias:['park','playground','sports_centre','pitch','swimming_pool']},'Vialidad':{emoji:'🚦',categorias:['traffic_signals','traffic_calming']},'Gobierno':{emoji:'🏛️',categorias:['townhall','post_office']},'Alojamiento':{emoji:'🏨',categorias:['hotel','hostel']},'Religión':{emoji:'⛪',categorias:['place_of_worship']},'Servicios':{emoji:'🚻',categorias:['toilets','drinking_water','recycling','viewpoint']},'Estacionamiento':{emoji:'🟢',categorias:['estacionamiento_gratis']}};
+const EMOJIS={hospital:'🏥',clinic:'🩺',pharmacy:'💊',veterinary:'🐾',bank:'🏦',atm:'🏧',restaurant:'🍽️',fast_food:'🍔',bar:'🍺',cafe:'☕',supermarket:'🛒',convenience:'🏪',marketplace:'🏬',police:'🚓',fire_station:'🚒',bus_stop:'🚌',parking:'🅿️',fuel:'⛽',school:'🏫',university:'🎓',library:'📚',museum:'🏛️',cinema:'🎬',theatre:'🎭',townhall:'🏛️',post_office:'📮',hotel:'🏨',hostel:'🛏️',park:'🌳',playground:'🎠',sports_centre:'🏟️',pitch:'⚽',swimming_pool:'🏊',place_of_worship:'⛪',traffic_signals:'🚦',traffic_calming:'🛑',toilets:'🚻',drinking_water:'💧',recycling:'♻️',viewpoint:'🔭',estacionamiento_gratis:'🟢',recarga_saeta:'💳',atm_saeta:'🏧',peak:'⛰️'};
+const NOMBRES={hospital:'Hospitales',clinic:'Clínicas',pharmacy:'Farmacias',veterinary:'Veterinarias',bank:'Bancos',atm:'Cajeros',restaurant:'Restaurantes',fast_food:'Comida rápida',bar:'Bares',cafe:'Cafés',supermarket:'Supermercados',convenience:'Almacenes',marketplace:'Mercados',police:'Comisarías',fire_station:'Bomberos',bus_stop:'Paradas SAETA',parking:'Estacionamientos',fuel:'Estaciones de servicio',school:'Escuelas',university:'Universidades',library:'Bibliotecas',museum:'Museos',cinema:'Cines',theatre:'Teatros',townhall:'Oficinas públicas',post_office:'Correos',hotel:'Hoteles',hostel:'Hostales',park:'Plazas y parques',playground:'Juegos infantiles',sports_centre:'Centros deportivos',pitch:'Canchas',swimming_pool:'Piletas',place_of_worship:'Iglesias',traffic_signals:'Semáforos',traffic_calming:'Lomadas',toilets:'Baños públicos',drinking_water:'Bebederos',recycling:'Reciclaje',viewpoint:'Miradores',estacionamiento_gratis:'Estacionamiento Gratis (Cordón Verde)',recarga_saeta:'Puntos de recarga SAETA',atm_saeta:'Cajeros de recarga SAETA (ATM)',peak:'Cerros'};
+const GRUPOS={'Transporte':{emoji:'🚌',categorias:['bus_stop','recarga_saeta','atm_saeta','fuel']},'Salud':{emoji:'🏥',categorias:['hospital','clinic','pharmacy','veterinary']},'Comida y bebida':{emoji:'🍽️',categorias:['restaurant','fast_food','bar','cafe']},'Compras':{emoji:'🛒',categorias:['supermarket','convenience','marketplace']},'Finanzas':{emoji:'🏦',categorias:['bank','atm']},'Seguridad':{emoji:'🚓',categorias:['police','fire_station']},'Educación y cultura':{emoji:'📚',categorias:['school','university','library','museum','cinema','theatre']},'Recreación':{emoji:'🌳',categorias:['peak','park','playground','sports_centre','pitch','swimming_pool']},'Vialidad':{emoji:'🚦',categorias:['traffic_signals','traffic_calming']},'Gobierno':{emoji:'🏛️',categorias:['townhall','post_office']},'Alojamiento':{emoji:'🏨',categorias:['hotel','hostel']},'Religión':{emoji:'⛪',categorias:['place_of_worship']},'Servicios':{emoji:'🚻',categorias:['toilets','drinking_water','recycling','viewpoint']},'Estacionamiento':{emoji:'🟢',categorias:['estacionamiento_gratis']}};
 const capas={},capasActivas={};
+const LUGARES=[];
 
 const CALLES_GRATIS = [
     { c: "Mendoza", d: "Córdoba", h: "Lerma", l: "media cuadra, mano derecha" },
@@ -1088,7 +1156,7 @@ return L.divIcon({html:'<div class="'+cls+'">'+count+'</div>',className:'marker-
 }
 
 async function cargarSitios(){
-const archivos=['data/hospitales.geojson','data/sitios.geojson','data/saeta.geojson','data/lugares_extra.geojson','data/saeta_recarga.geojson'];
+const archivos=['data/hospitales.geojson','data/sitios.geojson','data/saeta.geojson','data/lugares_extra.geojson','data/saeta_recarga.geojson','data/cerros.geojson'];
 const resultados=await Promise.all(archivos.map(async a=>{
 try{const r=await fetch(a);if(!r.ok)return{archivo:a,data:null};const d=await r.json();return{archivo:a,data:d}}catch(e){return{archivo:a,data:null}}
 }));
@@ -1097,7 +1165,7 @@ if(!data)continue;
 let cnt=0;
 data.features.forEach(f=>{
 const p=f.properties;
-let cat=p.amenity||p.shop||p.tourism||p.highway||p.public_transport||p.leisure;
+let cat=p.amenity||p.shop||p.tourism||p.highway||p.public_transport||p.leisure||p.natural;
 if(cat==='platform')cat='bus_stop';
 if(p.highway==='traffic_signals')cat='traffic_signals';
 if(p.traffic_calming)cat='traffic_calming';
@@ -1124,8 +1192,12 @@ if(lin.length){const ch=lin.map(l=>`<span class="linea-chip" onclick="abrirLinea
 infS+=`<div class="lineas-container"><small style="color:var(--text-muted);font-weight:700;">🚌 Líneas que paran:</small><div class="lineas-listas">${ch}</div></div>`}
 else infS+=`<br><small style="color:var(--text-muted);">🚌 Sin info de líneas</small>`;
 }
-capas[cat].addLayer(L.marker([lat,lng],{icon:icono})
-.bindPopup(`<strong>${emoji} ${nombre}</strong><br><small>${NOMBRES[cat]||cat}</small>${infS}${dir?'<br><small>📍 '+dir+'</small>':''}${p.phone?'<br><small>📞 '+p.phone+'</small>':''}`));
+const mk=L.marker([lat,lng],{icon:icono});
+const lugar={cat,nombre:nombre||SING[cat]||NOMBRES[cat]||'Lugar',sinNombre:!nombre,lat,lng,dir:(dir||'').trim(),tel:p.phone||p['contact:phone']||'',oh:p.opening_hours||'',web:p.website||p['contact:website']||'',ele:p.ele||'',marker:mk};
+LUGARES.push(lugar);
+if(esS)mk.bindPopup(`<strong>${emoji} ${nombre}</strong><br><small>${NOMBRES[cat]||cat}</small>${infS}${dir?'<br><small>📍 '+dir+'</small>':''}${p.phone?'<br><small>📞 '+p.phone+'</small>':''}`);
+else mk.on('click',()=>abrirFicha(lugar));
+capas[cat].addLayer(mk);
 cnt++;
 });
 console.log(`✅ ${archivo}: ${cnt}`);
@@ -1965,11 +2037,6 @@ function abrirModalCerca() {
     }
     renderizarCategoriasCerca();
 }
-function cerrarModalCerca() {
-    document.getElementById('modalCerca').classList.remove('activo');
-    document.getElementById('cercaResultados').style.display = 'none';
-    document.getElementById('cercaLista').style.display = 'flex';
-}
 document.getElementById('btnCerca').addEventListener('click', abrirModalCerca);
 
 function renderizarCategoriasCerca() {
@@ -1992,66 +2059,6 @@ function renderizarCategoriasCerca() {
     });
 }
 
-function mostrarCercaDe(cat) {
-    if (!posicionUsuario) return;
-    const [lat, lng] = posicionUsuario;
-    const items = [];
-    
-    capas[cat].eachLayer(layer => {
-        if (layer.getLatLng) {
-            const ll = layer.getLatLng();
-            const d = haversine(lat, lng, ll.lat, ll.lng);
-            items.push({ layer, d, lat: ll.lat, lng: ll.lng });
-        }
-    });
-    
-    items.sort((a, b) => a.d - b.d);
-    const top5 = items.slice(0, 5);
-    
-    document.getElementById('cercaLista').style.display = 'none';
-    const resDiv = document.getElementById('cercaResultados');
-    resDiv.style.display = 'block';
-    document.getElementById('cercaCategoriaActual').textContent = NOMBRES[cat] || cat;
-    
-    const ul = document.getElementById('cercaItems');
-    ul.innerHTML = '';
-    
-    if (!top5.length) {
-        ul.innerHTML = '<li class="cerca-vacio-msg">No se encontraron lugares cerca.</li>';
-        return;
-    }
-    
-    top5.forEach(it => {
-        const li = document.createElement('li');
-        let nombre = 'Lugar';
-        let dir = '';
-        if (it.layer.getPopup()) {
-            const html = it.layer.getPopup().getContent();
-            const match = html.match(/<strong>(.*?)<\/strong>/);
-            if (match) nombre = match[1].replace(/[^\w\sáéíóúñ,.-]/gi, '').trim();
-        }
-        li.innerHTML = `
-            <span class="cerca-item-emoji">${EMOJIS[cat] || '📍'}</span>
-            <div class="cerca-item-info">
-                <div class="cerca-item-nombre">${nombre}</div>
-                <div class="cerca-item-dir">${dir}</div>
-            </div>
-            <span class="cerca-item-dist">${formatearDistancia(it.d)}</span>
-        `;
-        li.onclick = () => {
-            map.setView([it.lat, it.lng], 18);
-            it.layer.openPopup();
-            cerrarModalCerca();
-        };
-        ul.appendChild(li);
-    });
-}
-
-function volverCategoriasCerca() {
-    document.getElementById('cercaLista').style.display = 'flex';
-    document.getElementById('cercaResultados').style.display = 'none';
-}
-
 function filtrarCategoriasCerca() {
     const t = document.getElementById('cercaBuscar').value.toLowerCase().trim();
     const btns = document.querySelectorAll('#cercaLista .cerca-cat');
@@ -2060,6 +2067,111 @@ function filtrarCategoriasCerca() {
         b.style.display = n.includes(t) ? 'flex' : 'none';
     });
 }
+
+
+/* ===== LUGARES: ficha, búsqueda por categoría/nombre, cerca de mí, emergencias ===== */
+const SING={police:'Comisaría',hospital:'Hospital',clinic:'Clínica',pharmacy:'Farmacia',bank:'Banco',atm:'Cajero',restaurant:'Restaurante',fast_food:'Comida rápida',bar:'Bar',cafe:'Café',fire_station:'Bomberos',fuel:'Estación de servicio',school:'Escuela',university:'Universidad',library:'Biblioteca',museum:'Museo',cinema:'Cine',theatre:'Teatro',hotel:'Hotel',hostel:'Hostel',park:'Plaza / parque',place_of_worship:'Iglesia',toilets:'Baño público',post_office:'Correo',supermarket:'Supermercado',convenience:'Almacén',peak:'Cerro',parking:'Estacionamiento',veterinary:'Veterinaria',marketplace:'Mercado',townhall:'Oficina pública',recarga_saeta:'Punto de recarga SAETA',atm_saeta:'Cajero de recarga SAETA'};
+const FALLBACK_TEL={police:['911','Policía'],hospital:['107','Emergencias médicas'],clinic:['107','Emergencias médicas'],fire_station:['100','Bomberos']};
+const NO_BUSCAR=new Set(['bus_stop','traffic_signals','traffic_calming','pitch','playground']);
+const ALIAS_CAT={police:['comisaria','comisarias','policia','seccional'],hospital:['hospital','hospitales','guardia','urgencias'],clinic:['clinica','clinicas','sanatorio','centro medico'],pharmacy:['farmacia','farmacias','botica'],bar:['bar','bares','pub','cerveceria','boliche'],cafe:['cafe','cafes','cafeteria','cafeterias'],atm:['cajero','cajeros','atm','banelco','link'],bank:['banco','bancos'],restaurant:['restaurante','restaurantes','resto','comer','parrilla'],fast_food:['comida rapida','hamburguesa','hamburgueseria','pizza','pizzeria'],library:['biblioteca','bibliotecas'],museum:['museo','museos'],cinema:['cine','cines'],theatre:['teatro','teatros'],hotel:['hotel','hoteles','alojamiento'],hostel:['hostel','hostal','hospedaje'],fuel:['nafta','estacion de servicio','ypf','combustible'],supermarket:['supermercado','supermercados','super'],school:['escuela','escuelas','colegio'],university:['universidad','facultad'],park:['plaza','plazas','parque','parques'],place_of_worship:['iglesia','iglesias','templo','capilla'],toilets:['bano','banos','sanitario'],post_office:['correo','correos'],fire_station:['bombero','bomberos'],veterinary:['veterinaria','veterinario'],parking:['estacionamiento','cochera','playa'],peak:['cerro','cerros','montana'],viewpoint:['mirador','miradores'],recarga_saeta:['recarga','recargas','sube','saeta','tarjeta saeta'],atm_saeta:['recarga saeta cajero'],sports_centre:['gimnasio','club','polideportivo'],swimming_pool:['pileta','piscina'],marketplace:['mercado','feria'],townhall:['municipalidad']};
+function normTxt(t){return (t||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim()}
+function refPos(){return posicionUsuario||[map.getCenter().lat,map.getCenter().lng]}
+function distA(l){const r=refPos();return haversine(r[0],r[1],l.lat,l.lng)}
+function minA(d){const m=Math.max(1,Math.round(d/80));return m<60?`${m} min`:`${Math.floor(m/60)} h ${m%60} min`}
+function minAuto(d){const m=Math.max(1,Math.round(d*1.3/420));return m<60?`${m} min`:`${Math.floor(m/60)} h ${m%60} min`}
+const DIAS_OH=['su','mo','tu','we','th','fr','sa'];
+function estadoAbierto(oh){
+if(!oh)return null;const s=oh.trim().toLowerCase();if(s==='24/7')return true;
+const now=new Date(),dia=now.getDay(),min=now.getHours()*60+now.getMinutes();let cubierto=false,abierto=false;
+for(const regla of s.split(';')){const r=regla.trim();if(!r)continue;
+const m=r.match(/^([a-z,\- ]*?)\s*((?:\d{1,2}:\d{2}\s*-\s*\d{1,2}:\d{2}\s*,?\s*)+|off|closed)$/);if(!m)return null;
+const dias=m[1].trim();let aplica=false;
+if(!dias)aplica=true;else for(let part of dias.split(',')){part=part.trim();
+if(part.includes('-')){const[a,b]=part.split('-').map(x=>DIAS_OH.indexOf(x.trim().slice(0,2)));if(a<0||b<0)return null;let i=a;for(let g=0;g<8;g++){if(i===dia)aplica=true;if(i===b)break;i=(i+1)%7}}
+else{const i=DIAS_OH.indexOf(part.slice(0,2));if(i<0)return null;if(i===dia)aplica=true}}
+if(!aplica)continue;cubierto=true;abierto=false;
+if(/off|closed/.test(m[2]))continue;
+for(const t of m[2].split(',')){const x=t.trim().match(/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/);if(!x)continue;const a=+x[1]*60+ +x[2];let b=+x[3]*60+ +x[4];if(b<=a)b+=1440;if((min>=a&&min<b)||(min+1440>=a&&min+1440<b))abierto=true}}
+return cubierto?abierto:false}
+let lugarFicha=null,marcadorSel=null;
+function abrirFicha(l){lugarFicha=l;
+document.getElementById('fEmoji').textContent=EMOJIS[l.cat]||'📍';
+document.getElementById('fNombre').textContent=l.nombre;
+document.getElementById('fTipo').textContent=(SING[l.cat]||NOMBRES[l.cat]||'Lugar')+(l.ele?` · ${l.ele} m`:'');
+const d=distA(l),est=estadoAbierto(l.oh),aprox=posicionUsuario?'':' (desde el centro del mapa)';
+let meta=`<span class="f-chip">📏 ${formatearDistancia(d)}${aprox}</span><span class="f-chip">🚶 ${minA(d)}</span><span class="f-chip">🚗 ${minAuto(d)}</span>`;
+if(est===true)meta+='<span class="f-chip ok">● Abierto ahora</span>';else if(est===false)meta+='<span class="f-chip no">● Cerrado ahora</span>';
+document.getElementById('fMeta').innerHTML=meta;
+const info=[];if(l.dir)info.push(`<div><span class="i">📍</span><span>${l.dir}</span></div>`);
+if(l.oh)info.push(`<div><span class="i">🕒</span><span>${l.oh.replace(/;/g,' · ')}</span></div>`);
+if(l.tel)info.push(`<div><span class="i">📞</span><span>${l.tel}</span></div>`);
+else if(FALLBACK_TEL[l.cat])info.push(`<div><span class="i">📞</span><span>Sin teléfono propio · ${FALLBACK_TEL[l.cat][1]}: ${FALLBACK_TEL[l.cat][0]}</span></div>`);
+if(l.web){const u=/^https?:/.test(l.web)?l.web:'https://'+l.web;info.push(`<div><span class="i">🌐</span><a href="${u}" target="_blank" rel="noopener">${l.web.replace(/^https?:\/\//,'')}</a></div>`)}
+document.getElementById('fInfo').innerHTML=info.join('');
+const ll=document.getElementById('fLlamar');const num=l.tel?l.tel.split(/[;,\/]/)[0].replace(/[^\d+]/g,''):(FALLBACK_TEL[l.cat]?FALLBACK_TEL[l.cat][0]:'');
+if(num){ll.href='tel:'+num;ll.classList.remove('off');ll.textContent='📞 Llamar'}else ll.classList.add('off');
+if(marcadorSel)map.removeLayer(marcadorSel);
+marcadorSel=L.marker([l.lat,l.lng],{icon:L.divIcon({className:'',html:`<div class="sel-pulse">${EMOJIS[l.cat]||'📍'}</div>`,iconSize:[44,44],iconAnchor:[22,22]}),interactive:false,zIndexOffset:2500}).addTo(map);
+map.setView([l.lat,l.lng],Math.max(map.getZoom(),16),{animate:true});map.panBy([0,130],{animate:false});
+document.getElementById('ficha').classList.add('activo')}
+function cerrarFicha(){document.getElementById('ficha').classList.remove('activo');if(marcadorSel){map.removeLayer(marcadorSel);marcadorSel=null}lugarFicha=null}
+map.on('click',()=>{if(lugarFicha)cerrarFicha()});
+document.getElementById('fIr').addEventListener('click',()=>{const l=lugarFicha;if(!l)return;if(!posicionUsuario){alert('Todavía no se detectó tu ubicación.');return}
+mostrarBotonIr(l.lat,l.lng,l.nombre);cerrarFicha();calcularRuta(posicionUsuario[0],posicionUsuario[1],l.lat,l.lng,l.nombre,false)});
+document.getElementById('fCompartir').addEventListener('click',()=>{const l=lugarFicha;if(!l)return;
+const txt=`${l.nombre}${l.dir?' - '+l.dir:''}\nhttps://maps.google.com/?q=${l.lat},${l.lng}`;
+if(navigator.share){navigator.share({title:l.nombre,text:txt}).catch(()=>{})}else window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank')});
+document.getElementById('fGuardar').addEventListener('click',()=>{const l=lugarFicha;if(!l)return;
+if(misLugares.some(x=>Math.abs(x.lat-l.lat)<1e-5&&Math.abs(x.lng-l.lng)<1e-5)){mostrarNotificacion('⭐ Ya está en Mis lugares','info',2000);return}
+misLugares.push({nombre:l.nombre,lat:l.lat,lng:l.lng,fecha:new Date().toLocaleDateString('es-AR')});guardarLugaresS();pintarLugares();mostrarNotificacion(`⭐ "${l.nombre}" guardado`,'exito',2000)});
+/* búsqueda */
+function categoriasDeQuery(nq){const out=[];if(nq.length<3&&nq!=='bar')return out;
+for(const[cat,als]of Object.entries(ALIAS_CAT)){if(!LUGARES.some(l=>l.cat===cat))continue;if(als.some(a=>a===nq||(nq.length>=3&&a.startsWith(nq))))out.push(cat)}return out}
+function htmlLugares(q){const nq=normTxt(q);if(nq.length<2)return '';const h=[];
+categoriasDeQuery(nq).slice(0,3).forEach(cat=>{const n=LUGARES.filter(l=>l.cat===cat).length;
+h.push(`<div class="sug-item cat" data-tipo="cat" data-cat="${cat}"><div class="sug-emoji">${EMOJIS[cat]||'📍'}</div><div class="sug-texto"><strong>${NOMBRES[cat]||cat} cerca de vos</strong><small>${n} lugares · ordenados por distancia</small></div></div>`)});
+const toks=nq.split(' ');const cand=[];
+LUGARES.forEach((l,i)=>{if(NO_BUSCAR.has(l.cat)||l.sinNombre&&!['police','hospital','clinic','pharmacy'].includes(l.cat))return;
+const nn=normTxt(l.nombre+' '+(SING[l.cat]||''));if(!toks.every(t=>nn.includes(t)))return;
+const nl=normTxt(l.nombre);cand.push({i,l,sc:(nl.startsWith(nq)?0:(nl.includes(nq)?1:(nl.split(' ').some(w=>w.startsWith(toks[0]))?2:3)))-(l.cat==='peak'?1.5:0),d:distA(l)})});
+cand.sort((a,b)=>a.sc-b.sc||a.d-b.d);
+cand.slice(0,6).forEach(c=>h.push(`<div class="sug-item lugar" data-tipo="lugar" data-i="${c.i}"><div class="sug-emoji">${EMOJIS[c.l.cat]||'📍'}</div><div class="sug-texto"><strong>${c.l.nombre}</strong><small>${SING[c.l.cat]||NOMBRES[c.l.cat]||''} · ${formatearDistancia(c.d)}${c.l.dir?' · '+c.l.dir:''}</small></div></div>`));
+return h.join('')}
+/* cerca de mí */
+let cercaCat=null,cercaSoloAbierto=false;
+function abrirCercaCategoria(cat){document.getElementById('modalCerca').classList.add('activo');ocultarSugerencias();mostrarCercaDe(cat)}
+function toggleCercaAbierto(){cercaSoloAbierto=!cercaSoloAbierto;mostrarCercaDe(cercaCat)}
+function verCercaEnMapa(){const c=cercaCat;cerrarModalCerca();activarCategoria(c)}
+function mostrarCercaDe(cat){cercaCat=cat;
+document.getElementById('cercaLista').style.display='none';document.getElementById('cercaBuscar').style.display='none';
+document.getElementById('cercaResultados').style.display='block';
+document.getElementById('cercaCategoriaActual').textContent=`${EMOJIS[cat]||''} ${NOMBRES[cat]||cat}`;
+document.getElementById('cercaAbierto').classList.toggle('activo',cercaSoloAbierto);
+document.getElementById('cercaSub').textContent=posicionUsuario?'Ordenados por cercanía a tu ubicación.':'Sin GPS todavía: ordenados desde el centro del mapa.';
+let items=LUGARES.filter(l=>l.cat===cat).map(l=>({l,d:distA(l),est:estadoAbierto(l.oh)}));
+if(cercaSoloAbierto)items=items.filter(i=>i.est===true);
+items.sort((a,b)=>a.d-b.d);items=items.slice(0,30);
+const ul=document.getElementById('cercaItems');ul.innerHTML='';
+if(!items.length){ul.innerHTML=`<li class="cerca-vacio-msg">${cercaSoloAbierto?'Ninguno con horario "abierto ahora". Muchos lugares no tienen horario cargado.':'No se encontraron lugares.'}</li>`;return}
+items.forEach(it=>{const li=document.createElement('li');
+const est=it.est===true?'<span class="ab">● Abierto</span>':(it.est===false?'<span class="ce">● Cerrado</span>':'');
+li.innerHTML=`<span class="cerca-item-emoji">${EMOJIS[cat]||'📍'}</span><div class="cerca-item-info"><div class="cerca-item-nombre">${it.l.nombre}</div><div class="cerca-item-sub">${est}<span>${it.l.dir||''}</span></div></div><span class="cerca-item-dist">${formatearDistancia(it.d)}<small>🚶 ${minA(it.d)}</small></span>`;
+li.onclick=()=>{cerrarModalCerca();abrirFicha(it.l)};ul.appendChild(li)})}
+function cerrarModalCerca(){document.getElementById('modalCerca').classList.remove('activo');document.getElementById('cercaResultados').style.display='none';document.getElementById('cercaLista').style.display='flex';document.getElementById('cercaBuscar').style.display=''}
+function volverCategoriasCerca(){document.getElementById('cercaLista').style.display='flex';document.getElementById('cercaBuscar').style.display='';document.getElementById('cercaResultados').style.display='none'}
+/* emergencias */
+function abrirEmergencias(){const cont=document.getElementById('emLista');cont.innerHTML='';
+[['police','🚓'],['hospital','🏥'],['fire_station','🚒']].forEach(([cat,e])=>{
+const c=LUGARES.filter(l=>l.cat===cat).map(l=>({l,d:distA(l)})).sort((a,b)=>a.d-b.d)[0];if(!c)return;
+const l=c.l,num=l.tel?l.tel.split(/[;,\/]/)[0].replace(/[^\d+]/g,''):FALLBACK_TEL[cat][0];
+const div=document.createElement('div');div.className='em-item';
+div.innerHTML=`<span class="e">${e}</span><div class="t">${l.nombre}<small>${SING[cat]} más cercano · ${formatearDistancia(c.d)} · 🚶 ${minA(c.d)} · 🚗 ${minAuto(c.d)}</small></div><a href="tel:${num}">📞</a><button class="go">Ir</button>`;
+div.querySelector('.go').onclick=()=>{cerrarEmergencias();if(!posicionUsuario){abrirFicha(l);return}mostrarBotonIr(l.lat,l.lng,l.nombre);calcularRuta(posicionUsuario[0],posicionUsuario[1],l.lat,l.lng,l.nombre,false)};
+div.querySelector('.t').onclick=()=>{cerrarEmergencias();abrirFicha(l)};cont.appendChild(div)});
+if(!posicionUsuario)cont.insertAdjacentHTML('afterbegin','<div class="cerca-vacio-msg" style="padding:8px 0">Sin GPS todavía: se muestra lo más cercano al centro del mapa.</div>');
+document.getElementById('modalEmerg').classList.add('activo')}
+function cerrarEmergencias(){document.getElementById('modalEmerg').classList.remove('activo')}
+document.getElementById('btnEmerg').addEventListener('click',abrirEmergencias);
 
 /* SERVICE WORKER - Registro para modo OFFLINE */
 if ('serviceWorker' in navigator) {
