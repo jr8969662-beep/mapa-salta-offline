@@ -195,6 +195,7 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 
 .punto-usuario{width:22px;height:22px;position:relative}
 .punto-usuario .circulo{width:100%;height:100%;background:var(--primary-light);border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 2px rgba(59,130,246,.3),0 4px 12px rgba(0,0,0,.3);animation:pulso 2s infinite}
+.punto-usuario.sin-senal .circulo{background:#94a3b8;animation:none;box-shadow:0 0 0 2px rgba(148,163,184,.4)}
 .punto-usuario .flecha{position:absolute;top:-14px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:14px solid var(--primary-light);filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));transform-origin:50% 25px}
 @keyframes pulso{0%{box-shadow:0 0 0 2px rgba(59,130,246,.4),0 4px 12px rgba(0,0,0,.3)}50%{box-shadow:0 0 0 12px rgba(59,130,246,0),0 4px 12px rgba(0,0,0,.3)}100%{box-shadow:0 0 0 2px rgba(59,130,246,.4),0 4px 12px rgba(0,0,0,.3)}}
 .circulo-precision{background:rgba(59,130,246,.12);border:2px solid rgba(59,130,246,.3);border-radius:50%;pointer-events:none}
@@ -705,18 +706,43 @@ function actualizarFlecha(){const f=document.getElementById('flechaUsuario');if(
 function actualizarCalidadGps(acc){const el=document.getElementById('calidadGps'),txt=document.getElementById('calidadTexto');el.classList.remove('excelente','buena','regular','mala');let cal,label;
 if(acc<10){cal='excelente';label=`Excelente (±${Math.round(acc)} m)`}else if(acc<30){cal='buena';label=`Buena (±${Math.round(acc)} m)`}else if(acc<100){cal='regular';label=`Regular (±${Math.round(acc)} m)`}else{cal='mala';label=`Mala (±${Math.round(acc)} m)`}
 el.classList.add(cal,'activo');txt.textContent=label}
+/* Ubicación en tiempo real: marcador animado, seguimiento, rumbo GPS y aviso de señal perdida */
+let posVista=null,animGps=null,ultimoFix=0,siguiendo=false,wakeLock=null;
+function moverMarcadorSuave(destino){
+if(!marcadorUsuario||!posVista){posVista=destino.slice();return}
+const ini=posVista.slice(),t0=performance.now(),dur=Math.min(1100,Math.max(400,(Date.now()-ultimoFix)||800));
+cancelAnimationFrame(animGps);
+const paso=t=>{const k=Math.min(1,(t-t0)/dur),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+posVista=[ini[0]+(destino[0]-ini[0])*e,ini[1]+(destino[1]-ini[1])*e];
+marcadorUsuario.setLatLng(posVista);if(circuloPrecision)circuloPrecision.setLatLng(posVista);
+if(siguiendo)map.setView(posVista,map.getZoom(),{animate:false});
+if(k<1)animGps=requestAnimationFrame(paso)};
+animGps=requestAnimationFrame(paso)}
+async function pedirPantallaActiva(){try{if('wakeLock' in navigator&&!wakeLock){wakeLock=await navigator.wakeLock.request('screen');wakeLock.addEventListener('release',()=>{wakeLock=null})}}catch(e){}}
+function soltarPantallaActiva(){try{if(wakeLock){wakeLock.release();wakeLock=null}}catch(e){}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&(siguiendo||navActiva))pedirPantallaActiva()});
+function seguirUsuario(on,zoom){siguiendo=on;const b=document.getElementById('btnCentrar');
+b.classList.toggle('activo',on);b.innerHTML=on?'<span class="tab-ico">🧭</span>Siguiendo':'<span class="tab-ico">🎯</span>Ubicación';
+if(on){if(posVista||posicionUsuario)map.setView(posVista||posicionUsuario,Math.max(map.getZoom(),zoom||17),{animate:true});pedirPantallaActiva()}else if(!navActiva)soltarPantallaActiva()}
 function manejarPosicion(pos){const lat=pos.coords.latitude,lng=pos.coords.longitude,ahora=Date.now(),acc=pos.coords.accuracy;
 if(acc>100&&posicionUsuario)return;
 precisionActual=acc;
-if(pos.coords.speed!=null&&pos.coords.speed>=0)ultimaVelocidad=pos.coords.speed*3.6;
-if(posicionAnterior&&timestampAnterior){const dist=haversine(posicionAnterior[0],posicionAnterior[1],lat,lng);if(dist>3&&!usarBrujulaDispositivo)headingUsuario=calcularRumbo(posicionAnterior[0],posicionAnterior[1],lat,lng)}
+const vel=pos.coords.speed;
+if(vel!=null&&vel>=0)ultimaVelocidad=vel*3.6;
+if(posicionUsuario&&(vel==null||vel<0.7)){const dj=haversine(posicionUsuario[0],posicionUsuario[1],lat,lng);if(dj<Math.min(acc*0.5,6)){ultimoFix=ahora;if(circuloPrecision)circuloPrecision.setRadius(acc);actualizarCalidadGps(acc);ponerSenal(true);return}}
+if(pos.coords.heading!=null&&!isNaN(pos.coords.heading)&&vel>1&&!usarBrujulaDispositivo)headingUsuario=pos.coords.heading;
+else if(posicionAnterior){const dist=haversine(posicionAnterior[0],posicionAnterior[1],lat,lng);if(dist>3&&!usarBrujulaDispositivo)headingUsuario=calcularRumbo(posicionAnterior[0],posicionAnterior[1],lat,lng)}
 posicionAnterior=[lat,lng];timestampAnterior=ahora;posicionUsuario=[lat,lng];
-if(marcadorUsuario)marcadorUsuario.setLatLng([lat,lng]);else marcadorUsuario=L.marker([lat,lng],{icon:iconoUsuario,zIndexOffset:1000}).addTo(map);
-if(circuloPrecision)map.removeLayer(circuloPrecision);
-circuloPrecision=L.circle([lat,lng],{radius:acc,className:'circulo-precision',interactive:false}).addTo(map);
+if(!marcadorUsuario){marcadorUsuario=L.marker([lat,lng],{icon:iconoUsuario,zIndexOffset:1000}).addTo(map);posVista=[lat,lng]}
+if(!circuloPrecision)circuloPrecision=L.circle([lat,lng],{radius:acc,className:'circulo-precision',interactive:false}).addTo(map);
+else circuloPrecision.setRadius(acc);
+moverMarcadorSuave([lat,lng]);ultimoFix=ahora;ponerSenal(true);
 actualizarFlecha();
 if(!primerUbicacion){map.setView([lat,lng],16);primerUbicacion=true;document.getElementById('aviso').style.display='none'}
 actualizarVelocimetro();actualizarCalidadGps(acc);verificarRecalculo();actualizarProgresoRuta()}
+function ponerSenal(ok){const el=document.querySelector('.punto-usuario');if(el)el.classList.toggle('sin-senal',!ok)}
+setInterval(()=>{if(ultimoFix&&Date.now()-ultimoFix>20000)ponerSenal(false)},5000);
+map.on('dragstart',()=>{if(siguiendo&&!navActiva)seguirUsuario(false)});
 function calcularRumbo(lat1,lng1,lat2,lng2){const toRad=d=>d*Math.PI/180,toDeg=r=>r*180/Math.PI,dLng=toRad(lng2-lng1),y=Math.sin(dLng)*Math.cos(toRad(lat2)),x=Math.cos(toRad(lat1))*Math.sin(toRad(lat2))-Math.sin(toRad(lat1))*Math.cos(toRad(lat2))*Math.cos(dLng);return(toDeg(Math.atan2(y,x))+360)%360}
 function errorUbicacion(err){console.warn('Error GPS:',err.message);document.getElementById('aviso').textContent='No se pudo obtener tu ubicación.'}
 if('geolocation'in navigator){navigator.geolocation.watchPosition(manejarPosicion,errorUbicacion,{enableHighAccuracy:true,timeout:15000,maximumAge:0})}
@@ -1451,7 +1477,7 @@ cerrarSplash();
 })();
 
 /* BOTONES */
-document.getElementById('btnCentrar').addEventListener('click',()=>{if(posicionUsuario)map.setView(posicionUsuario,17);else alert('Todavía no se detectó tu ubicación.')});
+document.getElementById('btnCentrar').addEventListener('click',()=>{if(!posicionUsuario){alert('Todavía no se detectó tu ubicación.');return}seguirUsuario(!siguiendo,17);mostrarNotificacion(siguiendo?'🧭 Siguiendo tu ubicación en tiempo real':'📍 Seguimiento desactivado','info',1800)});
 document.getElementById('btnCompartir').addEventListener('click',()=>{
 if(!ultimaBusqueda)return;
 const u=`https://www.google.com/maps?q=${ultimaBusqueda.lat},${ultimaBusqueda.lng}`;
@@ -1771,9 +1797,9 @@ function hablar(t){if(!vozActiva||!('speechSynthesis' in window))return;try{spee
 function toggleVoz(){vozActiva=!vozActiva;document.getElementById('navVoz').textContent=vozActiva?'🔊':'🔇';if(!vozActiva&&'speechSynthesis' in window)speechSynthesis.cancel()}
 function iniciarNav(){if(!rutasAlt.length)return;navActiva=true;document.body.classList.add('navegando');
 document.getElementById('navBanner').classList.add('activo');document.getElementById('navBarra').classList.add('activo');
-if(posicionUsuario)map.setView(posicionUsuario,17);
+seguirUsuario(true,17);
 actualizarNav(true);const sig=pasosRuta[Math.min(1,pasosRuta.length-1)];if(sig)hablar(textoPaso(pasosRuta[0])+(pasosRuta[1]?`. Luego, ${textoPaso(sig).toLowerCase()}`:''))}
-function detenerNav(silencioso){if(!navActiva&&silencioso)return;navActiva=false;document.body.classList.remove('navegando');
+function detenerNav(silencioso){if(!navActiva&&silencioso)return;navActiva=false;seguirUsuario(false);document.body.classList.remove('navegando');
 document.getElementById('navBanner').classList.remove('activo');document.getElementById('navBarra').classList.remove('activo');
 if('speechSynthesis' in window)try{speechSynthesis.cancel()}catch(e){}
 if(!silencioso&&rutaLineas)map.fitBounds(rutaLineas.getBounds(),{padding:[50,50]})}
@@ -1790,8 +1816,7 @@ const r=actualizarResumenRuta();
 if(r){document.getElementById('navTiempo').textContent=formatearTiempo(r.dur);document.getElementById('navResto').textContent=formatearDistancia(r.resto);document.getElementById('navLlegada').textContent=`Llegada ${r.hora}`}
 const av=avisosPaso[prox]||0;
 if(dProx<=250&&av<1&&dProx>60){avisosPaso[prox]=1;hablar(`En ${Math.round(dProx/50)*50} metros, ${textoPaso(paso).toLowerCase()}`)}
-else if(dProx<=60&&av<2){avisosPaso[prox]=2;hablar(textoPaso(paso))}
-if(posicionUsuario&&navActiva)map.panTo(posicionUsuario,{animate:true,duration:.6})}
+else if(dProx<=60&&av<2){avisosPaso[prox]=2;hablar(textoPaso(paso))}}
 function verificarRecalculo() {
     if (!autoRecalcActivo || !destinoActual || !posicionUsuario || recalculoEnProgreso) return;
     if (!ultimaPosRecalc) { ultimaPosRecalc = posicionUsuario; return; }
