@@ -500,6 +500,17 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 .em-item .go{background:#1a73e8;color:#fff}
 .sug-chip.rojo{background:#dc2626;color:#fff;border-color:#dc2626}
 .sug-item.lugar{border-left:4px solid #1a73e8}.sug-item.cat{border-left:4px solid #f59e0b}
+
+.lin-btn-vivo{width:100%;padding:13px;border:none;border-radius:var(--r);background:#dc2626;color:#fff;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;margin-bottom:8px}
+.lin-btn-vivo.activo{background:var(--bg-soft);color:var(--text);border:1.5px solid var(--border)}
+.vivo-estado{font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:10px;min-height:0}
+.vivo-estado:empty{display:none}
+.vivo-estado b{color:#dc2626}
+.leaflet-marker-icon.bus-vivo-icon{transition:transform 1.2s linear}
+.bus-vivo{position:relative;width:38px;height:38px;border-radius:50%;background:var(--bc,#2563eb);color:#fff;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;letter-spacing:-.3px}
+.bus-vivo .bf{position:absolute;inset:-9px;pointer-events:none}
+.bus-vivo .bf::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:9px solid var(--bc,#2563eb)}
+.bus-vivo .br{position:absolute;right:-6px;bottom:-6px;background:#2563eb;border:2px solid #fff;border-radius:50%;width:17px;height:17px;font-size:10px;display:flex;align-items:center;justify-content:center}
 [data-theme=dark] .panel-ruta{background:#0f172a;border-top:1px solid #334155}
 [data-theme=dark] .panel-ruta .stat{background:#1e293b}
 [data-theme=dark] .panel-ruta .modo button{background:#1e293b;border-color:#334155;color:var(--text)}
@@ -1618,6 +1629,7 @@ let html=`<div class="lin-cab"><button class="lin-cerrar" onclick="volverLista()
 <div class="lin-scroll" id="linDet">
 <div class="lin-det-top">${badgeLinea(l)}<div class="info"><strong>${escHtml(l.grupo)}</strong><small>${l.km} km · ${l.paradas.length} paradas en el mapa</small></div></div>
 ${l.trazos&&l.trazos.length?'<button class="lin-btn-mapa" onclick="verEnMapa()">🗺️ Ver en el mapa</button>':`<div class="nota-lin">${escHtml(l.aviso||'Sin dibujo en el mapa.')}</div>`}${l.terminal?`<div class="nota-lin">📍 Terminal: ${escHtml(l.terminal)}</div>`:''}
+${codigosVivo(l.ref).length?`<button class="lin-btn-vivo${vivoRef===l.ref?' activo':''}" id="btnVivo" onclick="toggleVivo('${l.ref}')">${vivoRef===l.ref?'⏹ Dejar de ver en vivo':'🔴 Ver colectivos en vivo'}</button><div class="vivo-estado" id="vivoEstado">${vivoRef===l.ref?'Buscando colectivos…':''}</div>`:''}
 <div class="lin-tabs"><button class="lin-tab${tabLinea==='recorrido'?' activo':''}" data-t="recorrido">Recorrido</button><button class="lin-tab${tabLinea==='paradas'?' activo':''}" data-t="paradas">Paradas (${l.paradas.length})</button></div>`;
 if(tabLinea==='recorrido'){
 if(of.length>1)html+=`<div class="lin-pills">${of.map((x,i)=>`<button class="lin-f${i===recorridoIdx?' activo':''}" data-r="${i}">${escHtml(x.nombre)}</button>`).join('')}</div>`;
@@ -1680,7 +1692,7 @@ vistaLinea(ref);abrirHojaLineas();
 if(!$lin('hojaLineas').classList.contains('activo'))abrirHojaLineas();
 }
 function verEnMapa(){const l=SAETA.porRef[lineaActiva];cerrarHojaLineas();if(l)encuadrarLinea(l)}
-function limpiarLinea(){lineaActiva=null;capaLinea.clearLayers();$lin('chipLinea').classList.remove('activo')}
+function limpiarLinea(){detenerVivo();lineaActiva=null;capaLinea.clearLayers();$lin('chipLinea').classList.remove('activo')}
 $lin('btnColes').addEventListener('click',()=>{
 if($lin('hojaLineas').classList.contains('activo')){cerrarHojaLineas();return}
 if(lineaActiva&&SAETA)vistaLinea(lineaActiva);else vistaLista();
@@ -2172,6 +2184,50 @@ if(!posicionUsuario)cont.insertAdjacentHTML('afterbegin','<div class="cerca-vaci
 document.getElementById('modalEmerg').classList.add('activo')}
 function cerrarEmergencias(){document.getElementById('modalEmerg').classList.remove('activo')}
 document.getElementById('btnEmerg').addEventListener('click',abrirEmergencias);
+
+
+/* ===== COLECTIVOS EN VIVO (posiciones de RedBus vía intermediario de Cloudflare) ===== */
+const VIVO_URL_DEFECTO='';
+let REDBUS=null,vivoRef=null,vivoTimer=null,vivoMarcas={},capaVivo=null,vivoCargando=false;
+function urlVivo(){try{return localStorage.getItem('salta_vivo_url')||VIVO_URL_DEFECTO}catch(e){return VIVO_URL_DEFECTO}}
+async function cargarRedbus(){try{const r=await fetch('data/redbus_lineas.json');if(r.ok)REDBUS=await r.json()}catch(e){}}
+function codigosVivo(ref){return(REDBUS&&REDBUS.alias&&REDBUS.alias[ref])||[]}
+function etiquetaCod(cod){const x=REDBUS&&REDBUS.lineas.find(a=>a[0]===cod);return x?x[1]:cod}
+function estadoVivo(html){const e=document.getElementById('vivoEstado');if(e)e.innerHTML=html}
+function toggleVivo(ref){
+if(vivoRef===ref){detenerVivo();vistaLinea(ref);return}
+let u=urlVivo();
+if(!u){u=prompt('Pegá la dirección de tu intermediario de Cloudflare (termina en workers.dev):','https://');
+if(!u||!/^https:\/\/.+/.test(u.trim())){mostrarNotificacion('Hace falta la dirección del intermediario','aviso',3000);return}
+u=u.trim().replace(/\/+$/,'');try{localStorage.setItem('salta_vivo_url',u)}catch(e){}}
+iniciarVivo(ref);vistaLinea(ref)}
+function iniciarVivo(ref){detenerVivo();vivoRef=ref;if(!capaVivo)capaVivo=L.layerGroup().addTo(map);
+actualizarVivo();vivoTimer=setInterval(()=>{if(document.visibilityState==='visible')actualizarVivo()},15000)}
+function detenerVivo(){clearInterval(vivoTimer);vivoTimer=null;vivoRef=null;if(capaVivo)capaVivo.clearLayers();vivoMarcas={}}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&vivoRef)actualizarVivo()});
+async function actualizarVivo(){
+const ref=vivoRef;if(!ref||vivoCargando)return;const cods=codigosVivo(ref);if(!cods.length)return;
+vivoCargando=true;
+try{
+let base=urlVivo();base=base.replace(/\/+$/,'');
+const r=await fetch(`${base}/?l=${cods.join(',')}`,{cache:'no-store'});
+if(!r.ok)throw new Error('http '+r.status);
+const data=await r.json();if(vivoRef!==ref)return;
+const l=SAETA.porRef[ref],color=l?l.color:'#2563eb';const vistos=new Set();let n=0;
+cods.forEach(cod=>{const d=data[cod];if(!d||!d.posiciones)return;
+d.posiciones.forEach(b=>{if(b.vehiculoNoVisibles||b.latitud==null)return;
+const id=cod+'-'+b.interno;vistos.add(id);n++;
+const popup=`<strong>🚌 Interno ${escHtml(b.interno)}</strong><br><small>Línea ${escHtml(etiquetaCod(cod))}</small>${b.proximaParada?`<br><small>🚏 Próxima parada: ${escHtml(b.proximaParada)}</small>`:''}${b.vehiculoRampa?'<br><small>♿ Con rampa</small>':''}`;
+const ll=[b.latitud,b.longitud];
+if(vivoMarcas[id]){vivoMarcas[id].setLatLng(ll);vivoMarcas[id].setPopupContent(popup);const f=vivoMarcas[id].getElement()&&vivoMarcas[id].getElement().querySelector('.bf');if(f)f.style.transform=`rotate(${b.orientacion||0}deg)`}
+else{const ic=L.divIcon({className:'bus-vivo-icon',html:`<div class="bus-vivo" style="--bc:${color}"><span class="bf" style="transform:rotate(${b.orientacion||0}deg)"></span>${escHtml(String(b.interno))}${b.vehiculoRampa?'<span class="br">♿</span>':''}</div>`,iconSize:[38,38],iconAnchor:[19,19]});
+vivoMarcas[id]=L.marker(ll,{icon:ic,zIndexOffset:3500}).bindPopup(popup).addTo(capaVivo)}})});
+Object.keys(vivoMarcas).forEach(id=>{if(!vistos.has(id)){capaVivo.removeLayer(vivoMarcas[id]);delete vivoMarcas[id]}});
+const hora=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+estadoVivo(n?`<b>● EN VIVO</b> · ${n} colectivo${n>1?'s':''} circulando · actualizado ${hora}`:`<b>● EN VIVO</b> · No hay colectivos circulando ahora en esta línea · ${hora}`);
+}catch(e){estadoVivo('⚠️ No se pudo conectar con el servidor en vivo. Reintentando…');console.warn('vivo',e)}
+finally{vivoCargando=false}}
+cargarRedbus();
 
 /* SERVICE WORKER - Registro para modo OFFLINE */
 if ('serviceWorker' in navigator) {
