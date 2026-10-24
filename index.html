@@ -1206,23 +1206,45 @@ function tramoGratis(pts, calle, regla) {
     ]).bindPopup(`<strong>🟢 Estacionamiento Gratis</strong><br><small>📍 ${calle} entre ${regla.d} y ${regla.h}${lado}</small><br><small>Fuente: Municipalidad de Salta (lista oficial, 25/1/2024). Hoy la ciudad tiene unas 100 cuadras verdes y la lista completa no está publicada: guiate por el cordón pintado.</small>`);
 }
 
-function dibujarEstacionamientosGratis() {
+async function dibujarEstacionamientosGratis() {
     const K = 'estacionamiento_gratis';
     if (!capas[K]) { capas[K] = L.layerGroup(); capasActivas[K] = false; }
     capas[K].clearLayers();
     let dibujados = 0;
     const omitidos = [];
+    const trazados = [];
 
+    // 1) Trazos del mapa oficial de la Municipalidad (data/cordon_verde.json)
+    try {
+        const r = await fetch('data/cordon_verde.json');
+        if (r.ok) {
+            const tr = await r.json();
+            tr.forEach(t => {
+                const entre = (t.d && t.h) ? ` entre ${t.d} y ${t.h}` : '';
+                capas[K].addLayer(L.featureGroup([
+                    L.polyline(t.p, { color: '#ffffff', weight: 13, opacity: 0.8, lineCap: 'round', lineJoin: 'round', interactive: false }),
+                    L.polyline(t.p, { color: '#16a34a', weight: 8, opacity: 1, lineCap: 'round', lineJoin: 'round' })
+                ]).bindPopup(`<strong>🟢 Estacionamiento Gratis</strong><br><small>📍 ${t.c}${entre}</small><br><small>Fuente: mapa oficial de la Municipalidad de Salta. Guiate también por el cordón pintado de verde.</small>`));
+                t.p.forEach(p => trazados.push(p));
+                dibujados++;
+            });
+        }
+    } catch (e) { console.warn('cordon_verde.json no disponible', e); }
+
+    // 2) Lista municipal escrita (24 cuadras): se dibuja solo lo que el mapa oficial no cubre
     CALLES_GRATIS.forEach(regla => {
         const r = resolverTramoGratis(regla);
         if (!r.ok) { omitidos.push(`${regla.c} (entre ${regla.d} y ${regla.h}): ${r.motivo}`); return; }
+        const m = r.pts[Math.floor(r.pts.length / 2)];
+        const cubierto = trazados.some(p => haversine(p[0], p[1], m[0], m[1]) < 45);
+        if (cubierto) return;
         capas[K].addLayer(tramoGratis(r.pts, regla.c, regla));
         dibujados++;
     });
 
-    console.log(`✅ ${dibujados}/${CALLES_GRATIS.length} tramos dibujados`);
+    console.log(`✅ ${dibujados} tramos de cordón verde dibujados`);
     if (omitidos.length) console.warn('🟢 Omitidos:\n' + omitidos.join('\n'));
-    
+
     let pref = null;
     try { pref = localStorage.getItem('salta_gratis'); } catch (e) {}
     if (pref !== '0' && dibujados > 0 && !capasActivas[K]) {
@@ -1346,7 +1368,8 @@ cargarCalles(),
 cargarDirecciones(),
 cargarRutasSaeta().then(()=>cargarSitios())
 ]);
-dibujarEstacionamientosGratis();
+await dibujarEstacionamientosGratis();
+generarBotonesFiltros();Object.keys(capasActivas).forEach(c=>{if(capasActivas[c])document.getElementById('btn-'+c)?.classList.add('activo')});
 
 input.placeholder='Buscá una calle, esquina o dirección...';
 cargarLugaresGuardados();
