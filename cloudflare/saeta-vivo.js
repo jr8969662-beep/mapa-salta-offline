@@ -19,7 +19,7 @@ export default {
     if (req.method === 'OPTIONS') return new Response(null, { headers: CORS });
     const url = new URL(req.url);
     const codigos = (url.searchParams.get('l') || '')
-      .split(',').map(s => s.trim()).filter(c => /^\d{3}$/.test(c)).slice(0, 8);
+      .split(',').map(s => s.trim()).filter(c => /^\d{3}$/.test(c)).slice(0, 45);
     if (!codigos.length) {
       return new Response(JSON.stringify({ error: 1, mensaje: 'Falta ?l=601' }),
         { status: 400, headers: { ...CORS, 'content-type': 'application/json' } });

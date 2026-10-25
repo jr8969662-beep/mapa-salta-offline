@@ -506,6 +506,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 .vivo-estado{font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:10px;min-height:0}
 .vivo-estado:empty{display:none}
 .vivo-estado b{color:#dc2626}
+.cerca-bar{position:fixed;left:8px;right:8px;bottom:12px;z-index:1600;background:#fff;border-radius:12px;padding:10px 12px;box-shadow:0 2px 12px rgba(0,0,0,.3);font-size:13px;display:flex;gap:8px;align-items:center}.cerca-bar button{border:0;background:#eee;border-radius:50%;width:28px;height:28px;flex:none}.bus-vivo.quieto{filter:grayscale(1);opacity:.7}
 .leaflet-marker-icon.bus-vivo-icon{transition:transform 5s linear}
 .bus-vivo{position:relative;width:38px;height:38px;border-radius:50%;background:var(--bc,#2563eb);color:#fff;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;letter-spacing:-.3px}
 .bus-vivo .bf{position:absolute;inset:-9px;pointer-events:none}
@@ -1021,7 +1022,7 @@ function borrarHistorial(){try{localStorage.removeItem(HIST_KEY)}catch(e){};most
 const CHIPS=[{e:'🏥',t:'Hospital',c:'hospital'},{e:'🚓',t:'Comisaría',c:'police'},{e:'💊',t:'Farmacia',c:'pharmacy'},{e:'🏧',t:'Cajero',c:'atm'},{e:'☕',t:'Café',c:'cafe'},{e:'🍺',t:'Bar',c:'bar'},{e:'🍽️',t:'Restaurante',c:'restaurant'},{e:'📚',t:'Biblioteca',c:'library'},{e:'⛰️',t:'Cerro',c:'peak'},{e:'⛽',t:'Nafta',c:'fuel'},{e:'🏦',t:'Banco',c:'bank'},{e:'🛒',t:'Super',c:'supermarket'},{e:'🚌',t:'Parada SAETA',c:'bus_stop'}];
 function mostrarSugerenciasIniciales(){
 const h=[];
-h.push('<div class="sug-titulo">⚡ Búsquedas rápidas</div><div class="sug-chips"><button class="sug-chip rojo" id="chipEmerg">🚨 Emergencias</button>');
+h.push('<div class="sug-titulo">⚡ Búsquedas rápidas</div><div class="sug-chips"><button class="sug-chip rojo" id="chipEmerg">🚨 Emergencias</button><button class="sug-chip" id="chipBusCerca">🚌 Colectivos cerca de mí</button>');
 CHIPS.forEach(c=>h.push(`<button class="sug-chip" data-cat="${c.c}">${c.e} ${c.t}</button>`));
 h.push('</div>');
 const hist=cargarHistorial();
@@ -1032,6 +1033,7 @@ h.push(`<div class="sug-item historial" data-hidx="${hist.indexOf(x)}"><div clas
 sugerencias.innerHTML=h.join('');
 sugerencias.classList.add('activo');
 sugerencias.querySelectorAll('.sug-chip[data-cat]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.cat==='bus_stop')activarCategoria(b.dataset.cat);else abrirCercaCategoria(b.dataset.cat)}));
+document.getElementById('chipBusCerca')?.addEventListener('click',()=>{ocultarSugerencias();iniciarCerca()});
 document.getElementById('chipEmerg')?.addEventListener('click',()=>{ocultarSugerencias();abrirEmergencias()});
 sugerencias.querySelectorAll('.sug-item.historial').forEach(it=>it.addEventListener('click',()=>{
 const i=parseInt(it.dataset.hidx),x=cargarHistorial()[i];if(!x)return;
@@ -2205,23 +2207,53 @@ function iniciarVivo(ref){detenerVivo();vivoRef=ref;if(!capaVivo)capaVivo=L.laye
 actualizarVivo();vivoTimer=setInterval(()=>{if(document.visibilityState==='visible')actualizarVivo()},5000)}
 function detenerVivo(){clearInterval(vivoTimer);vivoTimer=null;vivoRef=null;if(capaVivo)capaVivo.clearLayers();vivoMarcas={}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&vivoRef)actualizarVivo()});
+
+const vivoPrev={};
+async function pedirVivo(cods){const base=urlVivo().replace(/\/+$/,'');const out={};
+for(let i=0;i<cods.length;i+=40){const r=await fetch(`${base}/vivo?l=${cods.slice(i,i+40).join(',')}`,{cache:'no-store'});
+if(!r.ok)throw new Error('http '+r.status);Object.assign(out,await r.json())}return out}
+function busQuieto(id,b){const k=b.latitud.toFixed(5)+','+b.longitud.toFixed(5),p=vivoPrev[id],t=Date.now();
+if(!p||p.k!==k){vivoPrev[id]={k,t};return 0}return Math.round((t-p.t)/1000)}
+function iconoBus(b,color,txt,quieto){return L.divIcon({className:'bus-vivo-icon',html:`<div class="bus-vivo${quieto?' quieto':''}" style="--bc:${color}"><span class="bf" style="transform:rotate(${b.orientacion||0}deg)"></span>${escHtml(txt)}${b.vehiculoRampa?'<span class="br">♿</span>':''}</div>`,iconSize:[38,38],iconAnchor:[19,19]})}
+function popupBus(b,cod,quieto,dist){return `<strong>🚌 Interno ${escHtml(b.interno)}</strong><br><small>Línea ${escHtml(etiquetaCod(cod))}</small>${dist!=null?`<br><small>📏 A ${dist<1000?Math.round(dist)+' m':(dist/1000).toFixed(1)+' km'} de vos</small>`:''}${b.proximaParada?`<br><small>🚏 Próxima parada: ${escHtml(b.proximaParada)}</small>`:''}${quieto>=60?`<br><small>⚠️ Sin movimiento hace ${Math.round(quieto/60)} min (GPS detenido o colectivo parado)</small>`:''}${b.vehiculoRampa?'<br><small>♿ Con rampa</small>':''}`}
+/* Modo "Colectivos cerca de mí": consulta TODAS las líneas, sin depender de cuál sea */
+let cercaTimer=null,cercaMarcas={},cercaOn=false;
+function detenerCerca(){clearInterval(cercaTimer);cercaTimer=null;cercaOn=false;cercaMarcas={};if(capaCerca)capaCerca.clearLayers();const b=document.getElementById('cercaBar');if(b)b.remove()}
+let capaCerca=null;
+function iniciarCerca(){if(cercaOn){detenerCerca();return}
+if(!REDBUS){mostrarNotificacion('Cargando líneas…','aviso',2000);return}
+if(!posicionUsuario){mostrarNotificacion('Primero activá tu ubicación (botón 📍)','aviso',3500);return}
+cercaOn=true;if(!capaCerca)capaCerca=L.layerGroup().addTo(map);
+let bar=document.createElement('div');bar.id='cercaBar';bar.className='cerca-bar';bar.innerHTML='<span id="cercaTxt">Buscando colectivos cerca…</span><button onclick="detenerCerca()">✕</button>';document.body.appendChild(bar);
+map.setView(posicionUsuario,Math.max(map.getZoom(),16));actualizarCerca();cercaTimer=setInterval(()=>{if(document.visibilityState==='visible')actualizarCerca()},5000)}
+let cercaCargando=false;
+async function actualizarCerca(){if(cercaCargando||!cercaOn)return;cercaCargando=true;
+try{const cods=REDBUS.lineas.map(a=>a[0]);const data=await pedirVivo(cods);if(!cercaOn)return;
+const me=posicionUsuario,vistos=new Set(),lista=[];
+cods.forEach(cod=>{const d=data[cod];if(!d||!d.posiciones)return;d.posiciones.forEach(b=>{if(b.latitud==null||b.longitud==null)return;
+const dist=haversine(me[0],me[1],b.latitud,b.longitud);if(dist>1500)return;lista.push({b,cod,dist})})});
+lista.sort((x,y)=>x.dist-y.dist);
+lista.forEach(({b,cod,dist},i)=>{const id=cod+'-'+b.interno;vistos.add(id);const q=busQuieto(id,b);
+const nom=etiquetaCod(cod).split(' ')[0];const ll=[b.latitud,b.longitud];const ic=iconoBus(b,'#2563eb',nom,q>=60),pp=popupBus(b,cod,q,dist);
+if(cercaMarcas[id]){cercaMarcas[id].setLatLng(ll);cercaMarcas[id].setIcon(ic);cercaMarcas[id].setPopupContent(pp)}
+else cercaMarcas[id]=L.marker(ll,{icon:ic,zIndexOffset:3500}).bindPopup(pp).addTo(capaCerca)});
+Object.keys(cercaMarcas).forEach(id=>{if(!vistos.has(id)){capaCerca.removeLayer(cercaMarcas[id]);delete cercaMarcas[id]}});
+const hora=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+const t=document.getElementById('cercaTxt');if(t)t.innerHTML=lista.length?`<b>● EN VIVO</b> · ${lista.length} colectivo${lista.length>1?'s':''} a menos de 1,5 km · más cercano: <b>${escHtml(etiquetaCod(lista[0].cod))}</b> a ${Math.round(lista[0].dist)} m · ${hora}`:`<b>● EN VIVO</b> · Ningún colectivo a menos de 1,5 km · ${hora}`;
+}catch(e){const t=document.getElementById('cercaTxt');if(t)t.textContent='⚠️ Sin conexión con el servidor en vivo. Reintentando…'}finally{cercaCargando=false}}
 async function actualizarVivo(){
 const ref=vivoRef;if(!ref||vivoCargando)return;const cods=codigosVivo(ref);if(!cods.length)return;
 vivoCargando=true;
 try{
-let base=urlVivo();base=base.replace(/\/+$/,'');
-const r=await fetch(`${base}/vivo?l=${cods.join(',')}`,{cache:'no-store'});
-if(!r.ok)throw new Error('http '+r.status);
-const data=await r.json();if(vivoRef!==ref)return;
+const data=await pedirVivo(cods);if(vivoRef!==ref)return;
 const l=SAETA.porRef[ref],color=l?l.color:'#2563eb';const vistos=new Set();let n=0;
 cods.forEach(cod=>{const d=data[cod];if(!d||!d.posiciones)return;
-d.posiciones.forEach(b=>{if(b.vehiculoNoVisibles||b.latitud==null)return;
-const id=cod+'-'+b.interno;vistos.add(id);n++;
-const popup=`<strong>🚌 Interno ${escHtml(b.interno)}</strong><br><small>Línea ${escHtml(etiquetaCod(cod))}</small>${b.proximaParada?`<br><small>🚏 Próxima parada: ${escHtml(b.proximaParada)}</small>`:''}${b.vehiculoRampa?'<br><small>♿ Con rampa</small>':''}`;
-const ll=[b.latitud,b.longitud];
-if(vivoMarcas[id]){vivoMarcas[id].setLatLng(ll);vivoMarcas[id].setPopupContent(popup);const f=vivoMarcas[id].getElement()&&vivoMarcas[id].getElement().querySelector('.bf');if(f)f.style.transform=`rotate(${b.orientacion||0}deg)`}
-else{const ic=L.divIcon({className:'bus-vivo-icon',html:`<div class="bus-vivo" style="--bc:${color}"><span class="bf" style="transform:rotate(${b.orientacion||0}deg)"></span>${escHtml(String(b.interno))}${b.vehiculoRampa?'<span class="br">♿</span>':''}</div>`,iconSize:[38,38],iconAnchor:[19,19]});
-vivoMarcas[id]=L.marker(ll,{icon:ic,zIndexOffset:3500}).bindPopup(popup).addTo(capaVivo)}})});
+d.posiciones.forEach(b=>{if(b.latitud==null||b.longitud==null)return;
+const id=cod+'-'+b.interno;vistos.add(id);n++;const q=busQuieto('l'+id,b);
+const dist=posicionUsuario?haversine(posicionUsuario[0],posicionUsuario[1],b.latitud,b.longitud):null;
+const popup=popupBus(b,cod,q,dist),ic=iconoBus(b,color,String(b.interno),q>=60),ll=[b.latitud,b.longitud];
+if(vivoMarcas[id]){vivoMarcas[id].setLatLng(ll);vivoMarcas[id].setIcon(ic);vivoMarcas[id].setPopupContent(popup)}
+else vivoMarcas[id]=L.marker(ll,{icon:ic,zIndexOffset:3500}).bindPopup(popup).addTo(capaVivo)})});
 Object.keys(vivoMarcas).forEach(id=>{if(!vistos.has(id)){capaVivo.removeLayer(vivoMarcas[id]);delete vivoMarcas[id]}});
 const hora=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 estadoVivo(n?`<b>● EN VIVO</b> · ${n} colectivo${n>1?'s':''} circulando · actualizado ${hora} (cada 5 s)`:`<b>● EN VIVO</b> · No hay colectivos circulando ahora en esta línea · ${hora}`);
