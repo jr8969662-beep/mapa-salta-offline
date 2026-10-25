@@ -65,18 +65,57 @@ const pos=r.cum[i]+t*Math.sqrt(l2);
 if(hint!=null)cost+=Math.min(Math.abs(pos-hint),500)*0.05;
 if(!best||cost<best.cost)best={pos,d,cost}}
 return best}
+/* punto (lat,lng) sobre el recorrido a `pos` metros del inicio */
+function puntoEn(r,pos){
+if(r.loop)pos=((pos%r.total)+r.total)%r.total;else pos=Math.max(0,Math.min(r.total,pos));
+let lo=0,hi=r.cum.length-1;while(hi-lo>1){const m=(lo+hi)>>1;if(r.cum[m]<=pos)lo=m;else hi=m}
+const sg=(r.cum[hi]-r.cum[lo])||1,t=(pos-r.cum[lo])/sg,a=r.pts[lo],b=r.pts[hi];
+return[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t]}
+/* velocidades aprendidas por tramo de 400 m y franja horaria (pico / normal) */
+const BIN=400;let VEL={},velSucio=false;
+try{VEL=JSON.parse(localStorage.getItem('salta_vel')||'{}')||{}}catch(e){VEL={}}
+function franja(){const h=new Date().getHours();return(h>=7&&h<9||h>=12&&h<14||h>=17&&h<20)?'p':'n'}
+function aprender(cod,p0,p1,dt){
+const inst=(p1-p0)/dt;if(!(inst>=0&&inst<25))return;
+const key=cod+franja();let o=VEL[key];if(!o)o=VEL[key]={v:[],n:[]};
+const b=Math.floor(((p0+p1)/2)/BIN),n=o.n[b]||0,old=o.v[b];
+o.v[b]=old==null?inst:old+(inst-old)*Math.max(0.08,1/(n+1));o.n[b]=Math.min(n+1,60);velSucio=true}
+function guardarVel(){if(!velSucio)return;velSucio=false;try{localStorage.setItem('salta_vel',JSON.stringify(VEL,(k,v)=>typeof v==='number'?Math.round(v*100)/100:v))}catch(e){}}
+setInterval(guardarVel,60000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')guardarVel()});
+function velBin(cod,b){const r=RB[cod],nb=Math.max(1,Math.ceil(r.total/BIN));b=b%nb;
+for(const f of [franja(),franja()==='p'?'n':'p']){const o=VEL[cod+f];if(o&&(o.n[b]||0)>=3)return Math.min(9,Math.max(1.3,o.v[b]))}
+return VEL_DEF}
+function tiempoRec(cod,s0,s1,vNow){
+let t=0,cur=s0;const lim=s0+400;
+while(cur<s1-0.5){const b=Math.floor(cur/BIN),fin=Math.min(s1,(b+1)*BIN);let v=velBin(cod,b);
+if(vNow!=null&&cur<lim)v=0.5*v+0.5*Math.min(8,Math.max(2.5,vNow));
+t+=(fin-cur)/v;cur=fin}
+return t}
+/* trae las posiciones, las ubica sobre el recorrido y calcula estado (movimiento/detenido/congelado) */
 async function traerBuses(cods){
+await cargarRB();
 const k=cods.slice().sort().join(',');const ahora=Date.now();
 if(cache.k===k&&ahora-cache.t<3000&&cache.d)return cache.d;
 const data=await pedirVivo(cods);cache.k=k;cache.t=ahora;cache.d=data;
-if(RB)cods.forEach(cod=>{const r=RB[cod],d=data[cod];if(!r||!d||!d.posiciones)return;
+cods.forEach(cod=>{const r=RB[cod],d=data[cod];if(!r||!d||!d.posiciones)return;
 d.posiciones.forEach(b=>{if(b.latitud==null||b.longitud==null)return;
-const id=cod+'-'+b.interno,h=Hist[id];
-const pr=proyectar(r,b.latitud,b.longitud,b.orientacion,h?h.pos:null);
-if(!pr){Hist[id]={pos:null,t:ahora,v:h&&h.v,off:true};b._pos=null;return}
-let v=h&&h.v;
-if(h&&h.pos!=null&&ahora-h.t>=2500&&ahora-h.t<90000){const inst=(pr.pos-h.pos)/((ahora-h.t)/1000);if(inst>=0&&inst<25)v=v==null?inst:0.6*v+0.4*inst}
-Hist[id]={pos:pr.pos,t:ahora,v};b._pos=pr.pos;b._v=v})});
+const id=cod+'-'+b.interno,k5=b.latitud.toFixed(5)+','+b.longitud.toFixed(5);
+let h=Hist[id];
+if(!h)h=Hist[id]={k:k5,idDesde:ahora,al:b.latitud,ag:b.longitud,aT:ahora,pos:null,t:0,v:null};
+if(h.k!==k5){h.k=k5;h.idDesde=ahora}
+if(dist(h.al,h.ag,b.latitud,b.longitud)>25){h.al=b.latitud;h.ag=b.longitud;h.aT=ahora}
+const cong=ahora-h.idDesde>=75000,par=!cong&&ahora-h.aT>=45000;
+b._est={e:cong?'c':par?'p':'m',seg:cong?(ahora-h.idDesde)/1000:par?(ahora-h.aT)/1000:0};
+const pr=proyectar(r,b.latitud,b.longitud,b.orientacion,h.pos);
+if(!pr){b._pos=null;b._d=null;b._v=h.v;return}
+b._pos=pr.pos;b._d=pr.d;
+const dt=(ahora-h.t)/1000;
+if(h.pos==null||h.t===0){h.pos=pr.pos;h.t=ahora}
+else if(dt>=2.5){
+if(dt<90&&!cong&&Math.abs(pr.pos-h.pos)<r.total/2){const p1=Math.max(pr.pos,h.pos),inst=(p1-h.pos)/dt;
+if(inst<25){h.v=h.v==null?inst:0.6*h.v+0.4*inst;aprender(cod,h.pos,p1,dt)}}
+h.pos=pr.pos;h.t=ahora}
+b._v=h.v})});
 return data}
 function velEfectiva(v){if(v==null)return VEL_DEF;return Math.min(8,Math.max(2.5,0.5*v+0.5*VEL_DEF))}
 /* mejor llegada a una parada de la línea `cod` (r.stops[k]) */
@@ -84,14 +123,59 @@ function etaParada(cod,stop,data){
 const r=RB[cod],d=data&&data[cod];if(!r||!d||!d.posiciones)return null;
 let best=null;
 for(const b of d.posiciones){if(b._pos==null)continue;
-let delta=stop.d-b._pos;
-if(delta<-60){if(r.loop)delta+=r.total;else continue}
-const metros=Math.max(0,delta),seg=metros/velEfectiva(b._v);
-if(!best||seg<best.seg)best={seg,min:seg/60,metros,interno:b.interno,llegando:metros<90,b}}
+if(b._est&&b._est.e==='c')continue;
+let s1=stop.d;
+if(s1-b._pos<-60){if(r.loop)s1+=r.total;else continue}
+const metros=Math.max(0,s1-b._pos),seg=tiempoRec(cod,b._pos,Math.max(s1,b._pos),b._v);
+if(!best||seg<best.seg)best={seg,min:seg/60,metros,interno:b.interno,llegando:metros<90,b,det:b._est&&b._est.e==='p'}}
 return best}
-function etaTxt(e){if(!e)return'<span class="bs-sin">Sin colectivos en camino</span>';
+function etaTxt(e,hay){if(!e)return`<span class="bs-sin">${hay===0?'Ningún colectivo de esta línea está transmitiendo ahora':'Sin colectivos en camino hacia esta parada'}</span>`;
 if(e.llegando)return`<b class="bs-ya">Llegando</b> <small>interno ${esc(e.interno)}</small>`;
-return`<b>≈ ${Math.max(1,Math.round(e.min))} min</b> <small>interno ${esc(e.interno)} · a ${mTxt(e.metros)}</small>`}
+return`<b>≈ ${Math.max(1,Math.round(e.min))} min</b> <small>interno ${esc(e.interno)} · a ${mTxt(e.metros)}${e.det?' · detenido ahora':''}</small>`}
+
+
+/* ---------- marcadores de colectivos: pegados a la calle y con movimiento suave ---------- */
+const regs=new Set();let raf=null,lastFr=0;
+function nuevoRegistro(layer){const reg={layer,it:{}};regs.add(reg);return reg}
+function limpiarRegistro(reg){if(!reg)return;reg.layer.clearLayers();reg.it={}}
+function edad(s){return s<90?Math.round(s)+' s':Math.round(s/60)+' min'}
+function popupHtml(it){const b=it.b,e=b._est||{e:'m',seg:0};
+const est=e.e==='c'?`<br><small>⚠️ Señal congelada hace ${edad(e.seg)}: el GPS de este colectivo no se actualiza, su posición puede ser vieja.</small>`:e.e==='p'?`<br><small>⏸️ Detenido hace ${edad(e.seg)} (semáforo, parada o tránsito)</small>`:'<br><small>▶️ En movimiento</small>';
+const d=posicionUsuario?dist(posicionUsuario[0],posicionUsuario[1],it.lat,it.lng):null;
+return`<strong>🚌 Interno ${esc(b.interno)}</strong><br><small>Línea ${esc(nombreLinea(it.cod))}</small>`+(d!=null?`<br><small>📏 A ${mTxt(d)} de vos</small>`:'')+(b.proximaParada?`<br><small>🚏 Próxima parada: ${esc(b.proximaParada)}</small>`:'')+est+`<br><small>🕒 Dato recibido hace ${edad((Date.now()-it.T)/1000)}</small>`+(b.vehiculoRampa?'<br><small>♿ Con rampa</small>':'')}
+function estiloMarcador(it){const el=it.m.getElement&&it.m.getElement();if(!el)return;const bv=el.querySelector('.bus-vivo');if(!bv)return;
+const e=(it.b._est||{}).e;bv.classList.toggle('quieto',e==='c');bv.classList.toggle('parado',e==='p');
+const f=bv.querySelector('.bf');if(f)f.style.transform=`rotate(${it.b.orientacion||0}deg)`}
+function pintar(reg,lista){
+const ahora=Date.now(),vistos=new Set();
+lista.forEach(x=>{const id=x.id,b=x.b;vistos.add(id);
+const r=RB&&RB[x.cod],snap=!!(r&&b._pos!=null&&b._d!=null&&b._d<45);
+const tgt=snap?puntoEn(r,b._pos):[b.latitud,b.longitud];
+let it=reg.it[id];
+if(!it){const m=L.marker(tgt,{icon:iconoBus(b,x.color,x.txt,false),zIndexOffset:3500,keyboard:false});
+it=reg.it[id]={m,lat:tgt[0],lng:tgt[1],s:snap?b._pos:null,from:tgt,to:tgt,t0:ahora};
+m.bindPopup(()=>popupHtml(it));m.addTo(reg.layer)}
+it.b=b;it.cod=x.cod;it.r=r;it.T=ahora;it.snap=snap;
+if(snap){it.tp=b._pos;const mov=b._est&&b._est.e==='m'&&b._v!=null;it.vv=mov?Math.min(9,Math.max(0,b._v)):0}
+else{it.s=null;it.from=[it.lat,it.lng];it.to=tgt;it.t0=ahora}
+estiloMarcador(it)});
+Object.keys(reg.it).forEach(id=>{if(!vistos.has(id)){reg.layer.removeLayer(reg.it[id].m);delete reg.it[id]}});
+arrancar()}
+function frame(ts){raf=null;
+if(document.visibilityState!=='visible'){return}
+let hay=false;const ahora=Date.now();const dt=Math.min(1,(ts-lastFr)/1000);
+if(ts-lastFr>=70){lastFr=ts;
+regs.forEach(reg=>{for(const id in reg.it){hay=true;const it=reg.it[id];let lat,lng;
+if(it.snap&&it.r){const pred=it.tp+it.vv*Math.min(7,(ahora-it.T)/1000);
+if(it.s==null||it.s>pred+150||pred-it.s>250)it.s=pred;
+else{const k=1-Math.exp(-dt/0.7);it.s=pred>=it.s?it.s+(pred-it.s)*k:it.s+(pred-it.s)*k*0.25}
+[lat,lng]=puntoEn(it.r,it.s)}
+else{const f=Math.min(1,(ahora-it.t0)/2500);lat=it.from[0]+(it.to[0]-it.from[0])*f;lng=it.from[1]+(it.to[1]-it.from[1])*f}
+if(Math.abs(lat-it.lat)>1e-6||Math.abs(lng-it.lng)>1e-6){it.lat=lat;it.lng=lng;it.m.setLatLng([lat,lng])}}})}
+else regs.forEach(reg=>{if(Object.keys(reg.it).length)hay=true});
+if(hay)raf=requestAnimationFrame(frame)}
+function arrancar(){if(!raf&&document.visibilityState==='visible')raf=requestAnimationFrame(frame)}
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')arrancar()});
 
 /* ---------- panel inferior ---------- */
 function css(){if($('busCss'))return;const s=document.createElement('style');s.id='busCss';s.textContent=`
@@ -121,13 +205,13 @@ function css(){if($('busCss'))return;const s=document.createElement('style');s.i
 #avisoBar.activo{display:flex}
 .av-it{background:#111827;color:#fff;border-radius:12px;padding:8px 10px;font-size:13px;display:flex;gap:8px;align-items:center;box-shadow:0 3px 14px rgba(0,0,0,.35)}
 .av-it span{flex:1}.av-it button{border:0;background:rgba(255,255,255,.18);color:#fff;border-radius:8px;padding:5px 9px}
-.bus-vivo.quieto{filter:grayscale(1);opacity:.7}
+.bus-vivo.quieto{filter:grayscale(1);opacity:.65}.bus-vivo.parado{filter:saturate(.55);box-shadow:0 0 0 3px #f59e0b}
 .bs-alerta{background:#fef3c7;color:#92400e;border-radius:10px;padding:8px 10px;font-size:12px;margin:6px 0}
 `;document.head.appendChild(s);
 const d=document.createElement('div');d.className='bs';d.id='busSheet';d.innerHTML='<div class="bs-cab"><h3 id="bsTit"></h3><button onclick="BUS.cerrar()" aria-label="Cerrar">✕</button></div><div id="bsCuerpo"></div>';document.body.appendChild(d);
 const a=document.createElement('div');a.id='avisoBar';document.body.appendChild(a)}
 function abrir(titulo,vistaId){css();vista=vistaId;$('bsTit').textContent=titulo;$('busSheet').classList.add('activo')}
-function cerrar(){const s=$('busSheet');if(s)s.classList.remove('activo');vista=null;clearInterval(vistaTimer);vistaTimer=null;selPlan=null;if(capaBus)capaBus.clearLayers()}
+function cerrar(){const s=$('busSheet');if(s)s.classList.remove('activo');vista=null;clearInterval(vistaTimer);vistaTimer=null;selPlan=null;if(capaBus)capaBus.clearLayers();limpiarRegistro(regPlan)}
 function capa(){if(!capaBus)capaBus=L.layerGroup().addTo(map);return capaBus}
 function programar(fn,ms){clearInterval(vistaTimer);vistaTimer=setInterval(()=>{if(document.visibilityState==='visible'&&!ocupado)fn()},ms)}
 
@@ -165,7 +249,7 @@ const nom=nombreParada(g.items[0].s);
 g.items.sort((a,b)=>(a.e?a.e.seg:1e9)-(b.e?b.e.seg:1e9));
 h+=`<div class="bs-card"><div class="bs-par">🚏 ${esc(nom)} <small>· a ${mTxt(g.d)} (${minTxt(g.d/CAMINA)} a pie)</small> <button class="bs-btn sec" style="padding:3px 8px;font-size:12px;margin-left:4px" onclick="BUS.irParada(${g.lat},${g.lng})">📍 Ver</button></div>`;
 g.items.forEach(i=>{const apurate=i.e&&!i.e.llegando&&i.e.min>0&&i.e.min*CAMINA<g.d*0.7&&g.d>150?' <small style="color:#b45309">· no llegás caminando</small>':'';
-h+=`<div class="bs-fila">${badge(i.cod)}<div class="bs-eta">${etaTxt(i.e)}${apurate}${nombreLinea(i.cod)!==corto(i.cod)?`<div class="bs-sub">${esc(nombreLinea(i.cod))}</div>`:''}</div><button onclick="BUS.avisarLlega('${i.cod}',${i.s.k})" title="Avisarme">🔔</button></div>`});
+h+=`<div class="bs-fila">${badge(i.cod)}<div class="bs-eta">${etaTxt(i.e,data&&data[i.cod]&&data[i.cod].posiciones?data[i.cod].posiciones.length:undefined)}${apurate}${nombreLinea(i.cod)!==corto(i.cod)?`<div class="bs-sub">${esc(nombreLinea(i.cod))}</div>`:''}</div><button onclick="BUS.avisarLlega('${i.cod}',${i.s.k})" title="Avisarme">🔔</button></div>`});
 h+='</div>'});
 h+='<div class="bs-nota">Los minutos son una estimación con la posición real de cada colectivo (se actualiza cada 7 s). Pueden variar con el tránsito.</div>';
 $('bsCuerpo').innerHTML=h;
@@ -258,7 +342,7 @@ h+=pasos.join('')+'<div class="bs-nota">Las caminatas se muestran en línea rect
 $('bsCuerpo').innerHTML=h;
 dibujarPlan(op);
 await refrescarOpcion(i);programar(()=>refrescarOpcion(i),6000)}
-function volverPlan(){clearInterval(vistaTimer);vistaTimer=null;if(capaBus)capaBus.clearLayers();if(selPlan)selPlan.sel=-1;pintarPlan();refrescarProx()}
+function volverPlan(){clearInterval(vistaTimer);vistaTimer=null;if(capaBus)capaBus.clearLayers();limpiarRegistro(regPlan);if(selPlan)selPlan.sel=-1;pintarPlan();refrescarProx()}
 function dibujarPlan(op){
 const c=capa();c.clearLayers();const P=selPlan;
 const seg=(l)=>{const r=RB[l.cod];let i0=l.a.i,i1=l.b.i;let pts;
@@ -274,7 +358,7 @@ const lb=op.legs[op.legs.length-1].b;
 c.addLayer(L.polyline([[lb.lat,lb.lng],P.d],{color:'#6b7280',weight:4,dashArray:'2 8',interactive:false}));
 c.addLayer(L.marker(P.d,{icon:L.divIcon({className:'',html:'<div style="font-size:30px;line-height:30px">🏁</div>',iconSize:[30,30],iconAnchor:[6,28]}),interactive:false}));
 try{map.fitBounds(L.latLngBounds(all),{paddingTopLeft:[30,90],paddingBottomRight:[30,Math.round(window.innerHeight*0.45)]})}catch(e){}}
-let busesOpc=null;
+let regPlan=null,layerPlan=null;
 async function refrescarOpcion(i){
 if(vista!=='plan'||!selPlan||selPlan.sel!==i||ocupado)return;ocupado=true;
 try{const op=selPlan.R.opciones[i];const cods=[...new Set(op.legs.map(l=>l.cod))];
@@ -283,11 +367,10 @@ op.legs.forEach((l,k)=>{const e=etaParada(l.cod,l.a,data);const el=$('bsEta'+k);
 if(el)el.innerHTML=k===0?'🕒 '+etaTxt(e):'🕒 Colectivos de esta línea: '+(e?`el más cercano llegaría a esa parada en ≈ ${Math.max(1,Math.round(e.min))} min`:'ninguno en camino ahora');
 });
 /* dibujar colectivos */
-if(busesOpc)busesOpc.forEach(m=>capa().removeLayer(m));busesOpc=[];
-op.legs.forEach(l=>{const d=data[l.cod];if(!d||!d.posiciones)return;d.posiciones.forEach(b=>{if(b.latitud==null||b._pos==null)return;
-if(b._pos>l.b.d+50&&!RB[l.cod].loop)return;
-const ic=iconoBus(b,colorCod(l.cod),String(b.interno),false);
-const m=L.marker([b.latitud,b.longitud],{icon:ic,zIndexOffset:3600}).bindPopup(popupBus(b,l.cod,0,null));capa().addLayer(m);busesOpc.push(m)})});
+if(!regPlan){if(!layerPlan)layerPlan=L.layerGroup().addTo(map);regPlan=nuevoRegistro(layerPlan)}
+const lista=[];op.legs.forEach(l=>{const d=data[l.cod];if(!d||!d.posiciones)return;d.posiciones.forEach(b=>{if(b.latitud==null||b._pos==null)return;
+if(b._pos>l.b.d+50&&!RB[l.cod].loop)return;lista.push({id:l.cod+'-'+b.interno,cod:l.cod,b,color:colorCod(l.cod),txt:String(b.interno)})})});
+pintar(regPlan,lista);
 }catch(e){const el=$('bsEta0');if(el)el.textContent='⚠️ Sin conexión con el servidor en vivo'}
 finally{ocupado=false}}
 async function refrescarProx(){
@@ -364,7 +447,7 @@ const data=await traerBuses([best.cod]);const e=etaParada(best.cod,best.s,data);
 const el2=$(elId);if(el2)el2.innerHTML=`<div style="margin-top:6px">🕒 ${etaTxt(e)}</div><button class="bs-btn" style="margin-top:6px" onclick="BUS.avisarLlega('${best.cod}',${best.s.k})">🔔 Avisarme</button>`
 }catch(e){const el=$(elId);if(el)el.innerHTML='<small>⚠️ No se pudo calcular el tiempo.</small>'}}
 
-window.BUS={paradasCerca,planificar,verOpcion,volverPlan,cerrar,avisarLlega,avisarBajar,quitarAviso,irParada,etaPopup,
+window.BUS={traer:traerBuses,nuevoRegistro,limpiar:limpiarRegistro,pintar,paradasCerca,planificar,verOpcion,volverPlan,cerrar,avisarLlega,avisarBajar,quitarAviso,irParada,etaPopup,
   _t:{armarRB,proyectar,planear,etaParada,set:(x)=>{RB=x}}};
 cargarAvisos();
 })();
