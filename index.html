@@ -545,6 +545,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 
 <div class="acciones-destino">
 <button id="btnIr" title="Cómo llegar" style="display:none;">🛣️ Cómo llegar</button>
+<button id="btnBus" title="Cómo llegar en colectivo" style="display:none;">🚌 En colectivo</button>
 <button id="btnCompartir" title="Compartir por WhatsApp" style="display:none;">📤 Compartir</button>
 </div>
 
@@ -591,6 +592,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 <div class="f-info" id="fInfo"></div>
 <div class="f-btns">
 <button class="f-ir" id="fIr">🛣️ Cómo llegar</button>
+<button class="f-sec" id="fBus" style="flex:1 1 100%">🚌 Cómo llegar en colectivo</button>
 <a class="f-sec" id="fLlamar" href="#">📞 Llamar</a>
 <button class="f-sec" id="fCompartir">📤 Compartir</button>
 <button class="f-sec" id="fGuardar">⭐ Guardar</button>
@@ -973,7 +975,7 @@ return res;
 
 /* MOSTRAR */
 function limpiarBusqueda(){if(marcadorCalle){map.removeLayer(marcadorCalle);marcadorCalle=null}if(trazoCalle){map.removeLayer(trazoCalle);trazoCalle=null}}
-function mostrarBotonIr(lat,lng,nombre){destinoActual={lat,lng,nombre};document.getElementById('btnIr').style.display='flex';document.getElementById('btnCompartir').style.display='flex'}
+function mostrarBotonIr(lat,lng,nombre){destinoActual={lat,lng,nombre};document.getElementById('btnIr').style.display='flex';document.getElementById('btnCompartir').style.display='flex';document.getElementById('btnBus').style.display='flex'}
 function mostrarCalle(c){
 limpiarBusqueda();
 const l=c.tramos.map(t=>L.polyline(t,{color:'#ef4444',weight:6,opacity:.85,lineCap:'round',lineJoin:'round'}));
@@ -1022,7 +1024,7 @@ function borrarHistorial(){try{localStorage.removeItem(HIST_KEY)}catch(e){};most
 const CHIPS=[{e:'🏥',t:'Hospital',c:'hospital'},{e:'🚓',t:'Comisaría',c:'police'},{e:'💊',t:'Farmacia',c:'pharmacy'},{e:'🏧',t:'Cajero',c:'atm'},{e:'☕',t:'Café',c:'cafe'},{e:'🍺',t:'Bar',c:'bar'},{e:'🍽️',t:'Restaurante',c:'restaurant'},{e:'📚',t:'Biblioteca',c:'library'},{e:'⛰️',t:'Cerro',c:'peak'},{e:'⛽',t:'Nafta',c:'fuel'},{e:'🏦',t:'Banco',c:'bank'},{e:'🛒',t:'Super',c:'supermarket'},{e:'🚌',t:'Parada SAETA',c:'bus_stop'}];
 function mostrarSugerenciasIniciales(){
 const h=[];
-h.push('<div class="sug-titulo">⚡ Búsquedas rápidas</div><div class="sug-chips"><button class="sug-chip rojo" id="chipEmerg">🚨 Emergencias</button><button class="sug-chip" id="chipBusCerca">🚌 Colectivos cerca de mí</button>');
+h.push('<div class="sug-titulo">⚡ Búsquedas rápidas</div><div class="sug-chips"><button class="sug-chip rojo" id="chipEmerg">🚨 Emergencias</button><button class="sug-chip" id="chipParadas">🚏 Paradas cerca de mí</button><button class="sug-chip" id="chipBusCerca">🚌 Colectivos cerca de mí</button>');
 CHIPS.forEach(c=>h.push(`<button class="sug-chip" data-cat="${c.c}">${c.e} ${c.t}</button>`));
 h.push('</div>');
 const hist=cargarHistorial();
@@ -1033,6 +1035,7 @@ h.push(`<div class="sug-item historial" data-hidx="${hist.indexOf(x)}"><div clas
 sugerencias.innerHTML=h.join('');
 sugerencias.classList.add('activo');
 sugerencias.querySelectorAll('.sug-chip[data-cat]').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.cat==='bus_stop')activarCategoria(b.dataset.cat);else abrirCercaCategoria(b.dataset.cat)}));
+document.getElementById('chipParadas')?.addEventListener('click',()=>{ocultarSugerencias();BUS.paradasCerca()});
 document.getElementById('chipBusCerca')?.addEventListener('click',()=>{ocultarSugerencias();iniciarCerca()});
 document.getElementById('chipEmerg')?.addEventListener('click',()=>{ocultarSugerencias();abrirEmergencias()});
 sugerencias.querySelectorAll('.sug-item.historial').forEach(it=>it.addEventListener('click',()=>{
@@ -1562,6 +1565,7 @@ cerrarSplash();
 })();
 
 /* BOTONES */
+document.getElementById('btnBus').addEventListener('click',()=>{if(!destinoActual)return;BUS.planificar(destinoActual.lat,destinoActual.lng,destinoActual.nombre)});
 document.getElementById('btnCentrar').addEventListener('click',()=>{if(!posicionUsuario){alert('Todavía no se detectó tu ubicación.');return}seguirUsuario(!siguiendo,17);mostrarNotificacion(siguiendo?'🧭 Siguiendo tu ubicación en tiempo real':'📍 Seguimiento desactivado','info',1800)});
 document.getElementById('btnCompartir').addEventListener('click',()=>{
 if(!ultimaBusqueda)return;
@@ -1631,7 +1635,7 @@ let html=`<div class="lin-cab"><button class="lin-cerrar" onclick="volverLista()
 <div class="lin-scroll" id="linDet">
 <div class="lin-det-top">${badgeLinea(l)}<div class="info"><strong>${escHtml(l.grupo)}</strong><small>${l.km} km · ${l.paradas.length} paradas en el mapa</small></div></div>
 ${l.trazos&&l.trazos.length?'<button class="lin-btn-mapa" onclick="verEnMapa()">🗺️ Ver en el mapa</button>':`<div class="nota-lin">${escHtml(l.aviso||'Sin dibujo en el mapa.')}</div>`}${l.terminal?`<div class="nota-lin">📍 Terminal: ${escHtml(l.terminal)}</div>`:''}
-${codigosVivo(l.ref).length?`<button class="lin-btn-vivo${vivoRef===l.ref?' activo':''}" id="btnVivo" onclick="toggleVivo('${l.ref}')">${vivoRef===l.ref?'⏹ Dejar de ver en vivo':'🔴 Ver colectivos en vivo'}</button><div class="vivo-estado" id="vivoEstado">${vivoRef===l.ref?'Buscando colectivos…':''}</div>`:''}
+${codigosVivo(l.ref).length?`<button class="lin-btn-vivo${vivoRef===l.ref?' activo':''}" id="btnVivo" onclick="toggleVivo('${l.ref}')">${vivoRef===l.ref?'⏹ Dejar de ver en vivo':'🔴 Ver colectivos en vivo'}</button><div class="vivo-estado" id="vivoEstado">${vivoRef===l.ref?'Buscando colectivos…':''}</div><button class="lin-btn-mapa" onclick="cerrarHojaLineas();BUS.paradasCerca()">⏱️ Cuánto falta (paradas cerca de mí)</button>`:''}
 <div class="lin-tabs"><button class="lin-tab${tabLinea==='recorrido'?' activo':''}" data-t="recorrido">Recorrido</button><button class="lin-tab${tabLinea==='paradas'?' activo':''}" data-t="paradas">Paradas (${l.paradas.length})</button></div>`;
 if(tabLinea==='recorrido'){
 if(of.length>1)html+=`<div class="lin-pills">${of.map((x,i)=>`<button class="lin-f${i===recorridoIdx?' activo':''}" data-r="${i}">${escHtml(x.nombre)}</button>`).join('')}</div>`;
@@ -1674,7 +1678,9 @@ capaLinea.addLayer(L.polyline(t,{color:l.color,weight:6,opacity:1,lineCap:'round
 l.paradas.forEach(i=>{const p=SAETA.paradas[i];
 const m=L.circleMarker([p.lat,p.lng],{radius:7,color:l.color,weight:3,fillColor:'#ffffff',fillOpacity:1});
 const ch=p.lineas.map(x=>`<span class="linea-chip" style="background:${(SAETA.porRef[x]||{}).color||'#6b7280'}" onclick="abrirLinea('${x}')">${escHtml(x)}</span>`).join('');
-m.bindPopup(`<strong>🚏 ${escHtml(nombreParada(p))}</strong>${p.nombre&&p.calle?`<br><small>📍 ${escHtml(p.calle)}</small>`:''}<div class="lineas-container"><small style="color:var(--text-muted);font-weight:700;">🚌 Líneas que paran:</small><div class="lineas-lista">${ch}</div></div>`);
+const etaId='eta'+i;
+m.bindPopup(`<strong>🚏 ${escHtml(nombreParada(p))}</strong>${p.nombre&&p.calle?`<br><small>📍 ${escHtml(p.calle)}</small>`:''}<div class="lineas-container"><small style="color:var(--text-muted);font-weight:700;">🚌 Líneas que paran:</small><div class="lineas-lista">${ch}</div></div><div id="${etaId}"><small>Calculando cuánto falta…</small></div>`);
+m.on('popupopen',()=>{if(window.BUS)BUS.etaPopup(l.ref,p.lat,p.lng,etaId)});
 capaLinea.addLayer(m)});
 }
 function encuadrarLinea(l){
@@ -2132,6 +2138,7 @@ function cerrarFicha(){document.getElementById('ficha').classList.remove('activo
 map.on('click',()=>{if(lugarFicha)cerrarFicha()});
 document.getElementById('fIr').addEventListener('click',()=>{const l=lugarFicha;if(!l)return;if(!posicionUsuario){alert('Todavía no se detectó tu ubicación.');return}
 mostrarBotonIr(l.lat,l.lng,l.nombre);cerrarFicha();calcularRuta(posicionUsuario[0],posicionUsuario[1],l.lat,l.lng,l.nombre,false)});
+document.getElementById('fBus').addEventListener('click',()=>{const l=lugarFicha;if(!l)return;cerrarFicha();BUS.planificar(l.lat,l.lng,l.nombre)});
 document.getElementById('fCompartir').addEventListener('click',()=>{const l=lugarFicha;if(!l)return;
 const txt=`${l.nombre}${l.dir?' - '+l.dir:''}\nhttps://maps.google.com/?q=${l.lat},${l.lng}`;
 if(navigator.share){navigator.share({title:l.nombre,text:txt}).catch(()=>{})}else window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank')});
@@ -2273,5 +2280,6 @@ if ('serviceWorker' in navigator) {
 }
 
 </script>
+<script src="bus.js"></script>
 </body>
 </html>
