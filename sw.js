@@ -4,7 +4,7 @@
 // Subí VERSION cada vez que cambies index.html o los geojson
 // ============================================
 
-const VERSION = 'v42';
+const VERSION = 'v43';
 const CACHE_APP = 'salta-app-' + VERSION;
 // FIJO: index.html usa este nombre para descargar/borrar teselas. No lo ligues a VERSION.
 const CACHE_TILES = 'salta-tiles-v15';

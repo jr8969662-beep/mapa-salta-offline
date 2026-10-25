@@ -889,7 +889,7 @@ const d=await r.json();if(!d.lineas)return;
 d.porRef={};
 d.lineas.forEach(l=>{
 d.porRef[l.ref]=l;
-const tx=[l.ref,l.grupo].concat(l.calles);
+const tx=[l.ref,l.grupo,l.nombre||''].concat(l.calles);
 (l.oficial||[]).forEach(o=>{tx.push(o.nombre);o.ida.forEach(x=>tx.push(x));o.vuelta.forEach(x=>tx.push(x))});
 l._busq=normalizar(tx.join(' | '));
 });
@@ -1622,7 +1622,7 @@ const m=todas.find(c=>normalizar(c).includes(q));if(m)pasaPor[l.ref]=m});
 }
 $lin('linLista').innerHTML=ls.length?ls.map(l=>{
 const par=l.paradas.length;
-return`<div class="lin-fila" onclick="abrirLinea('${l.ref}')">${badgeLinea(l)}<div class="lin-txt"><strong>${escHtml(l.grupo)}${(l.oficial&&l.oficial.length>1)?' · '+l.oficial.length+' ramales':''}</strong>${pasaPor[l.ref]?`<small class="pasa">Pasa por ${escHtml(pasaPor[l.ref])}</small>`:`<small>Sale de ${escHtml(cabecera(l))}</small>`}<small>${l.km} km · ${par} paradas</small></div><span class="lin-flecha">›</span></div>`}).join(''):'<div class="lin-vacio">No encontré ninguna línea ni calle con ese nombre.</div>';
+return`<div class="lin-fila" onclick="abrirLinea('${l.ref}')">${badgeLinea(l)}<div class="lin-txt"><strong>${escHtml(l.nombre||l.grupo)}${(l.oficial&&l.oficial.length>1)?' · '+l.oficial.length+' ramales':''}</strong>${pasaPor[l.ref]?`<small class="pasa">Pasa por ${escHtml(pasaPor[l.ref])}</small>`:`<small>Sale de ${escHtml(cabecera(l))}</small>`}<small>${l.km} km · ${par} paradas</small></div><span class="lin-flecha">›</span></div>`}).join(''):'<div class="lin-vacio">No encontré ninguna línea ni calle con ese nombre.</div>';
 }
 function listaTL(arr,color,titulo){
 if(!arr||!arr.length)return'';
@@ -1633,7 +1633,7 @@ const l=SAETA.porRef[ref];if(!l)return;
 const of=l.oficial||[],o=of[recorridoIdx]||of[0];
 let html=`<div class="lin-cab"><button class="lin-cerrar" onclick="volverLista()" title="Volver">←</button><h3>Línea ${escHtml(l.ref)}</h3><button class="lin-cerrar" onclick="cerrarHojaLineas()">✕</button></div>
 <div class="lin-scroll" id="linDet">
-<div class="lin-det-top">${badgeLinea(l)}<div class="info"><strong>${escHtml(l.grupo)}</strong><small>${l.km} km · ${l.paradas.length} paradas en el mapa</small></div></div>
+<div class="lin-det-top">${badgeLinea(l)}<div class="info"><strong>${escHtml(l.nombre||l.grupo)}</strong><small>${l.km} km · ${l.paradas.length} paradas en el mapa</small></div></div>
 ${l.trazos&&l.trazos.length?'<button class="lin-btn-mapa" onclick="verEnMapa()">🗺️ Ver en el mapa</button>':`<div class="nota-lin">${escHtml(l.aviso||'Sin dibujo en el mapa.')}</div>`}${l.terminal?`<div class="nota-lin">📍 Terminal: ${escHtml(l.terminal)}</div>`:''}
 ${codigosVivo(l.ref).length?`<button class="lin-btn-vivo${vivoRef===l.ref?' activo':''}" id="btnVivo" onclick="toggleVivo('${l.ref}')">${vivoRef===l.ref?'⏹ Dejar de ver en vivo':'🔴 Ver colectivos en vivo'}</button><div class="vivo-estado" id="vivoEstado">${vivoRef===l.ref?'Buscando colectivos…':''}</div><button class="lin-btn-mapa" onclick="cerrarHojaLineas();BUS.paradasCerca()">⏱️ Cuánto falta (paradas cerca de mí)</button>`:''}
 <div class="lin-tabs"><button class="lin-tab${tabLinea==='recorrido'?' activo':''}" data-t="recorrido">Recorrido</button><button class="lin-tab${tabLinea==='paradas'?' activo':''}" data-t="paradas">Paradas (${l.paradas.length})</button></div>`;
@@ -1684,7 +1684,7 @@ m.on('popupopen',()=>{if(window.BUS)BUS.etaPopup(l.ref,p.lat,p.lng,etaId)});
 capaLinea.addLayer(m)});
 }
 function encuadrarLinea(l){
-if(l.grupo.startsWith('Interurbano')){map.setView(CENTRO_SALTA,12);return}
+if(l.grupo.startsWith('Interurbano')&&l.km>150){map.setView(CENTRO_SALTA,12);return}
 let pts=[];l.trazos.forEach(t=>t.forEach(p=>pts.push(p)));
 if(pts.length)map.fitBounds(L.latLngBounds(pts),{padding:[40,40]});
 }
