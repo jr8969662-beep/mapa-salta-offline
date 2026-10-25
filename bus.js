@@ -179,32 +179,32 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 
 /* ---------- panel inferior ---------- */
 function css(){if($('busCss'))return;const s=document.createElement('style');s.id='busCss';s.textContent=`
-.bs{position:fixed;left:0;right:0;bottom:0;z-index:2350;background:var(--bg);color:var(--text);border-radius:20px 20px 0 0;box-shadow:0 -10px 36px rgba(0,0,0,.25);padding:8px 14px calc(14px + env(safe-area-inset-bottom,0px));max-height:66vh;overflow:auto;transform:translateY(105%);transition:transform .25s ease}
+.bs{position:fixed;left:0;right:0;bottom:0;z-index:2350;background:var(--bg);color:var(--text);border-radius:20px 20px 0 0;box-shadow:0 -10px 36px rgba(0,0,0,.25);padding:8px 14px calc(14px + env(safe-area-inset-bottom,0px));max-height:72vh;overflow:auto;transform:translateY(105%);transition:transform .25s ease}
 .bs.activo{transform:none}
 .bs-cab{display:flex;align-items:center;gap:8px;position:sticky;top:-8px;background:var(--bg);padding:8px 0 6px;z-index:2}
-.bs-cab h3{flex:1;font-size:16px}
-.bs-cab button{border:0;background:var(--bg-soft);color:var(--text);border-radius:50%;width:32px;height:32px;font-size:15px}
-.bs-badge{display:inline-block;min-width:44px;text-align:center;padding:5px 8px;border-radius:10px;color:#fff;font-weight:800;font-size:14px;text-shadow:0 1px 2px rgba(0,0,0,.25);flex:none}
+.bs-cab h3{flex:1;font-size:19px}
+.bs-cab button{border:0;background:var(--bg-soft);color:var(--text);border-radius:50%;width:46px;height:46px;font-size:22px}
+.bs-badge{display:inline-block;min-width:54px;text-align:center;padding:8px 10px;border-radius:12px;color:#fff;font-weight:800;font-size:17px;text-shadow:0 1px 2px rgba(0,0,0,.25);flex:none}
 .bs-card{border:1px solid var(--border);border-radius:14px;padding:10px 12px;margin:8px 0;background:var(--bg-soft)}
 .bs-card.sel{border-color:var(--primary-light)}
-.bs-par{font-weight:700;font-size:14px}
-.bs-par small,.bs-sub{color:var(--text-muted);font-weight:500;font-size:12px}
-.bs-fila{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--border);font-size:13px}
+.bs-par{font-weight:700;font-size:16px}
+.bs-par small,.bs-sub{color:var(--text-muted);font-weight:500;font-size:14px}
+.bs-fila{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--border);font-size:15px}
 .bs-fila:first-of-type{border-top:0}
 .bs-fila .bs-eta{flex:1;min-width:0}
-.bs-fila button,.bs-btn{border:0;border-radius:10px;background:var(--primary-light);color:#fff;font-weight:700;font-size:13px;padding:8px 10px;flex:none}
+.bs-fila button,.bs-btn{border:0;border-radius:10px;background:var(--primary-light);color:#fff;font-weight:700;font-size:16px;padding:13px 16px;flex:none}
 .bs-btn.sec{background:var(--bg);color:var(--text);border:1px solid var(--border)}
-.bs-fila button.ico{background:var(--bg);color:var(--text);border:1px solid var(--border);padding:7px 9px}
+.bs-fila button.ico{background:var(--bg);color:var(--text);border:1px solid var(--border);padding:10px 12px}
 .bs-ya{color:#16a34a}.bs-sin{color:var(--text-muted)}
-.bs-op{display:flex;gap:10px;align-items:center}.bs-op .t{flex:1}.bs-op .m{font-size:18px;font-weight:800;text-align:right}
-.bs-paso{display:flex;gap:10px;padding:8px 0;font-size:14px;border-top:1px solid var(--border)}
-.bs-paso:first-of-type{border-top:0}.bs-paso .i{font-size:20px;width:26px;text-align:center;flex:none}
-.bs-nota{color:var(--text-muted);font-size:12px;margin:8px 0}
+.bs-op{display:flex;gap:10px;align-items:center}.bs-op .t{flex:1}.bs-op .m{font-size:22px;font-weight:800;text-align:right}
+.bs-paso{display:flex;gap:12px;padding:11px 0;font-size:16px;border-top:1px solid var(--border)}
+.bs-paso:first-of-type{border-top:0}.bs-paso .i{font-size:26px;width:34px;text-align:center;flex:none}
+.bs-nota{color:var(--text-muted);font-size:14px;margin:8px 0}
 .bs-acciones{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 #avisoBar{position:fixed;left:8px;right:8px;top:calc(env(safe-area-inset-top,0px) + 64px);z-index:2200;display:none;flex-direction:column;gap:6px}
 #avisoBar.activo{display:flex}
-.av-it{background:#111827;color:#fff;border-radius:12px;padding:8px 10px;font-size:13px;display:flex;gap:8px;align-items:center;box-shadow:0 3px 14px rgba(0,0,0,.35)}
-.av-it span{flex:1}.av-it button{border:0;background:rgba(255,255,255,.18);color:#fff;border-radius:8px;padding:5px 9px}
+.av-it{background:#111827;color:#fff;border-radius:14px;padding:12px 14px;font-size:16px;display:flex;gap:8px;align-items:center;box-shadow:0 3px 14px rgba(0,0,0,.35)}
+.av-it span{flex:1}.av-it button{border:0;background:rgba(255,255,255,.18);color:#fff;border-radius:10px;padding:9px 14px;font-size:17px}
 .bus-vivo.quieto{filter:grayscale(1);opacity:.65}.bus-vivo.parado{filter:saturate(.55);box-shadow:0 0 0 3px #f59e0b}
 .bs-alerta{background:#fef3c7;color:#92400e;border-radius:10px;padding:8px 10px;font-size:12px;margin:6px 0}
 `;document.head.appendChild(s);
@@ -247,7 +247,7 @@ if(error)h+='<div class="bs-alerta">⚠️ Sin conexión con el servidor en vivo
 cl.forEach((g,gi)=>{
 const nom=nombreParada(g.items[0].s);
 g.items.sort((a,b)=>(a.e?a.e.seg:1e9)-(b.e?b.e.seg:1e9));
-h+=`<div class="bs-card"><div class="bs-par">🚏 ${esc(nom)} <small>· a ${mTxt(g.d)} (${minTxt(g.d/CAMINA)} a pie)</small> <button class="bs-btn sec" style="padding:3px 8px;font-size:12px;margin-left:4px" onclick="BUS.irParada(${g.lat},${g.lng})">📍 Ver</button></div>`;
+h+=`<div class="bs-card"><div class="bs-par">🚏 ${esc(nom)} <small>· a ${mTxt(g.d)} (${minTxt(g.d/CAMINA)} a pie)</small> <button class="bs-btn sec" style="padding:7px 12px;font-size:14px;margin-left:4px" onclick="BUS.irParada(${g.lat},${g.lng})">📍 Ver</button></div>`;
 g.items.forEach(i=>{const apurate=i.e&&!i.e.llegando&&i.e.min>0&&i.e.min*CAMINA<g.d*0.7&&g.d>150?' <small style="color:#b45309">· no llegás caminando</small>':'';
 h+=`<div class="bs-fila">${badge(i.cod)}<div class="bs-eta">${etaTxt(i.e,data&&data[i.cod]&&data[i.cod].posiciones?data[i.cod].posiciones.length:undefined)}${apurate}${nombreLinea(i.cod)!==corto(i.cod)?`<div class="bs-sub">${esc(nombreLinea(i.cod))}</div>`:''}</div><button onclick="BUS.avisarLlega('${i.cod}',${i.s.k})" title="Avisarme">🔔</button></div>`});
 h+='</div>'});

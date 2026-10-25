@@ -520,6 +520,40 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 [data-theme=dark] .aviso-ubicacion{background:rgba(15,23,42,.95);border:1px solid #334155;backdrop-filter:blur(12px)}
 [data-theme=dark] .calidad-gps{background:#1e293b;border-color:#334155;color:var(--text)}
 [data-theme=dark] .velocimetro{background:rgba(15,23,42,.95);border:1px solid #334155}
+
+/* ===== BOTONES MÁS GRANDES (pedido: iconos y botones grandes, fáciles de tocar) ===== */
+:root{--barra-alto:calc(86px + env(safe-area-inset-bottom,0px))}
+.tab{font-size:13px;gap:4px;max-width:130px;font-weight:700}
+.tab .tab-ico{font-size:34px;width:68px;height:44px;border-radius:22px}
+.tab .badge{font-size:12px;min-width:22px;height:22px;border-radius:11px;left:calc(50% + 10px)}
+.buscador{right:84px;top:10px}
+.buscador-contenedor{padding:8px 12px;gap:8px;border-radius:18px}
+.buscador-icono{font-size:26px}
+.buscador input{font-size:18px;padding:14px 4px}
+.buscador{right:80px}
+.buscador-btn{font-size:28px;padding:11px}
+.acciones-destino{gap:8px}
+.acciones-destino button,.acciones-destino #btnIr{font-size:15px;padding:15px 4px;border-radius:30px;gap:4px;flex:1 1 0;min-width:0;max-width:none;white-space:nowrap;justify-content:center}
+.leaflet-touch .leaflet-bar a{width:52px;height:52px;line-height:52px;font-size:30px}
+.leaflet-touch .leaflet-bar{border-radius:14px}
+.btn-flotante{width:60px;height:60px;font-size:30px}
+.btn-flotante .badge{font-size:12px;min-width:24px;height:24px;border-radius:12px}
+.sug-chip{padding:14px 20px;font-size:16px;gap:8px;border-radius:28px}
+.lin-f{padding:11px 18px;font-size:15px;border-radius:24px}
+.lin-btn-mapa,.lin-btn-vivo{padding:17px;font-size:17px}
+.lin-cerrar,.cerrar{min-width:46px;min-height:46px;font-size:22px}
+.lin-badge{min-width:62px;font-size:18px;padding:10px 12px}
+.lin-fila{padding-top:14px;padding-bottom:14px}
+.lin-fila strong{font-size:17px}
+.f-sec,.f-ir{font-size:17px!important;padding:16px!important}
+.f-emoji{font-size:36px;width:58px;height:58px}
+.nav-voz{width:52px;height:52px;font-size:24px}
+.chip-linea-mapa{font-size:17px;padding:10px 10px 10px 14px;top:80px}
+.chip-linea-mapa button{font-size:15px;padding:8px 12px}
+.modal .botones button{padding:17px;font-size:17px}
+.sel-pulse{width:56px;height:56px;font-size:28px}
+.cerca-bar{font-size:15px;padding:13px 14px}.cerca-bar button{width:40px;height:40px;font-size:18px}
+.leaflet-top.leaflet-right{top:8px;right:4px}
 </style>
 </head>
 <body>
@@ -536,7 +570,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 <div class="buscador" id="buscador">
 <div class="buscador-contenedor">
 <span class="buscador-icono">🔍</span>
-<input type="text" id="inputBusqueda" placeholder="Buscá una calle, esquina o dirección..." autocomplete="off">
+<input type="text" id="inputBusqueda" placeholder="Buscar en Salta…" autocomplete="off">
 <button class="buscador-btn" id="btnLimpiar" title="Limpiar" style="display:none;">✕</button>
 <button class="buscador-btn" id="btnVoz" title="Buscar por voz">🎤</button>
 </div>
