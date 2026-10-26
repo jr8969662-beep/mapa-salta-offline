@@ -1501,7 +1501,7 @@ async function dibujarEstacionamientosGratis() {
 
     let pref = null;
     try { pref = localStorage.getItem('salta_gratis'); } catch (e) {}
-    if (pref !== '0' && dibujados > 0 && !capasActivas[K]) {
+    if (false && pref !== '0' && dibujados > 0 && !capasActivas[K]) { // ya no se muestra solo al abrir
         map.addLayer(capas[K]);
         capasActivas[K] = true;
         document.getElementById('btn-' + K)?.classList.add('activo');
@@ -1597,7 +1597,7 @@ map.setView([s.lat,s.lng],s.zoom||14);
 primerUbicacion=true;
 document.getElementById('aviso').style.display='none';
 }
-if(s.filtros&&s.filtros.length){
+if(false&&s.filtros&&s.filtros.length){ // al abrir no se activa ningún filtro solo
 setTimeout(()=>{
 s.filtros.forEach(c=>{
 if(capas[c]&&!capasActivas[c]){
