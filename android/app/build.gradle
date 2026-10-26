@@ -9,8 +9,8 @@ android {
         minSdk 24
         targetSdk 34
         // Cada compilación en GitHub sube el número, así la nueva versión se instala encima de la anterior.
-        versionCode (System.getenv('GITHUB_RUN_NUMBER') ?: '1').toInteger()
-        versionName '1.0'
+        versionCode = Integer.parseInt(System.getenv('GITHUB_RUN_NUMBER') ?: '1')
+        versionName = '1.0'
     }
     signingConfigs {
         release {

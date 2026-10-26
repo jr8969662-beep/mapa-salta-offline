@@ -25,7 +25,11 @@ jobs:
         with:
           gradle-version: '8.9'
       - name: Compilar
-        run: gradle -p android assembleRelease --no-daemon
+        run: |
+          gradle -p android assembleRelease --no-daemon --stacktrace > build.log 2>&1 || {
+            echo "::error::$(grep -E 'error|Error|wrong|FAILED|not found|licen' build.log | head -8 | tr '\n' '|' | cut -c1-900)"
+            exit 1
+          }
       - name: Preparar archivo
         run: cp android/app/build/outputs/apk/release/app-release.apk MapaSalta.apk
       - name: Publicar para descargar
