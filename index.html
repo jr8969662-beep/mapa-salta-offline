@@ -554,6 +554,44 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 .sel-pulse{width:56px;height:56px;font-size:28px}
 .cerca-bar{font-size:15px;padding:13px 14px}.cerca-bar button{width:40px;height:40px;font-size:18px}
 .leaflet-top.leaflet-right{top:8px;right:4px}
+
+/* ===== AGRANDAR MÁS (resultados de búsqueda, fichas, popups, listas) ===== */
+.tab{font-size:14px}
+.tab .tab-ico{font-size:38px;width:72px;height:48px}
+.buscador input{font-size:19px;padding:16px 4px}
+.buscador-icono{font-size:30px}.buscador-btn{font-size:32px;padding:12px}
+.sugerencias{border-radius:20px}
+.sug-titulo{font-size:14px;padding:18px 20px 8px}
+.sug-item{padding:20px 20px;gap:16px;min-height:72px}
+.sug-item .sug-emoji{font-size:34px;width:44px}
+.sug-item .sug-texto{font-size:19px}
+.sug-item .sug-texto small{font-size:15px;margin-top:4px}
+.sug-chip{padding:16px 22px;font-size:18px}
+.sug-chips{gap:10px}
+.f-tit h3{font-size:23px}.f-tit small{font-size:15px}
+.f-emoji{font-size:42px;width:66px;height:66px}
+.ficha .cerrar{width:50px;height:50px;font-size:22px}
+.f-chip{font-size:16px;padding:10px 15px}
+.f-info{font-size:16px;gap:10px}
+.f-sec,.f-ir{font-size:19px!important;padding:18px!important}
+.leaflet-popup-content{font-size:17px;margin:16px 20px;line-height:1.4}
+.leaflet-popup-content small{font-size:15px}
+.leaflet-popup-close-button{font-size:28px!important;width:40px!important;height:40px!important}
+.linea-chip{font-size:15px;padding:7px 14px;border-radius:18px}
+.mini-chip{font-size:14px;padding:5px 12px;border-radius:14px}
+.par-fila{padding:15px 4px}.par-fila strong{font-size:17px}.par-fila small{font-size:15px}
+.hoja-item{padding:18px}.hoja-item .mi-ico{font-size:32px}.hoja-item .mi-txt strong{font-size:17px}.hoja-item .mi-txt small{font-size:14px}
+.lin-buscar{font-size:19px;padding:16px}
+.lin-f{font-size:17px;padding:12px 20px}
+.lin-fila strong{font-size:19px}.lin-fila small{font-size:15px}
+.lin-badge{font-size:20px;min-width:68px;padding:12px 14px}
+.rt-alts button{font-size:15px;padding:10px 15px}.rt-alts button b{font-size:18px}
+.em-item .t{font-size:17px}.em-item .t small{font-size:14px}.em-item .e{font-size:30px;width:40px}
+.em-item button,.em-item a{font-size:15px;padding:12px 16px}
+.cluster-icon{width:54px;height:54px;font-size:18px}
+.leaflet-touch .leaflet-bar a{width:58px;height:58px;line-height:58px;font-size:34px}
+.btn-flotante{width:66px;height:66px;font-size:34px}
+.buscador{right:88px}
 </style>
 </head>
 <body>
@@ -570,7 +608,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 <div class="buscador" id="buscador">
 <div class="buscador-contenedor">
 <span class="buscador-icono">🔍</span>
-<input type="text" id="inputBusqueda" placeholder="Buscar en Salta…" autocomplete="off">
+<input type="text" id="inputBusqueda" placeholder="Buscar…" autocomplete="off">
 <button class="buscador-btn" id="btnLimpiar" title="Limpiar" style="display:none;">✕</button>
 <button class="buscador-btn" id="btnVoz" title="Buscar por voz">🎤</button>
 </div>
