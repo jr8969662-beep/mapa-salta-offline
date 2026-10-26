@@ -2346,10 +2346,23 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('sw.js').then(reg => {
             console.log('✅ Service Worker registrado', reg);
+            // Buscar versión nueva al abrir y cada vez que se vuelve a la app
+            const buscar=()=>{try{reg.update()}catch(e){}};
+            buscar();
+            document.addEventListener('visibilitychange',()=>{if(!document.hidden)buscar()});
+            setInterval(buscar,30*60*1000);
         }).catch(err => {
             console.error('❌ Error registrando SW:', err);
         });
     });
+    // Cuando una versión nueva toma el control, recargar una vez (solo si ya había una instalada)
+    if (navigator.serviceWorker.controller) {
+        let recargado = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (recargado) return; recargado = true;
+            location.reload();
+        });
+    }
 }
 
 </script>
