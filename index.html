@@ -818,8 +818,8 @@ document.getElementById('btnTema').addEventListener('click',()=>{const a=documen
 
 /* MAPA */
 const CENTRO_SALTA=[-24.789,-65.411];
-const map=L.map('map',{rotate:true,rotateControl:false,bearing:0,touchRotate:false,shiftKeyRotate:false,compassBearing:false,preferCanvas:true}).setView(CENTRO_SALTA,14);
-const capaBase=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,maxNativeZoom:navigator.onLine?19:16,attribution:'© OpenStreetMap',updateWhenIdle:true,keepBuffer:4});
+const map=L.map('map',{rotate:true,rotateControl:false,bearing:0,touchRotate:false,shiftKeyRotate:false,compassBearing:false,preferCanvas:true,fadeAnimation:false,zoomSnap:1,wheelDebounceTime:30,wheelPxPerZoomLevel:80,inertiaDeceleration:3000,tapTolerance:15}).setView(CENTRO_SALTA,14);
+const capaBase=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,maxNativeZoom:navigator.onLine?19:16,attribution:'© OpenStreetMap',updateWhenIdle:false,updateWhenZooming:false,updateInterval:80,keepBuffer:3,crossOrigin:true});
 capaBase.addTo(map);
 map.zoomControl.setPosition('topright');
 setTimeout(actualizarMapaOscuro,100);
