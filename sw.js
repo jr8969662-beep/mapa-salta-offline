@@ -2,9 +2,10 @@
 // SERVICE WORKER - Mapa Salta Offline
 // v21 - colectivos SAETA: líneas, recorridos y paradas (data/saeta_lineas.json)
 // Subí VERSION cada vez que cambies index.html o los geojson
+// Cambiar también el texto de <div id="verApp"> en index.html
 // ============================================
 
-const VERSION = 'v51';
+const VERSION = 'v52';
 const CACHE_APP = 'salta-app-' + VERSION;
 // FIJO: index.html usa este nombre para descargar/borrar teselas. No lo ligues a VERSION.
 const CACHE_TILES = 'salta-tiles-v15';
