@@ -393,8 +393,9 @@ b.innerHTML=avisos.map((a,i)=>`<div class="av-it"><span>🔔 ${esc(a.txt)}${a.es
 function quitarAviso(i){avisos.splice(i,1);guardarAvisos();pintarAvisos();if(!avisos.length)detenerAv()}
 function pedirPermiso(){try{if('Notification' in window&&Notification.permission==='default')Notification.requestPermission()}catch(e){}}
 function iniciarAv(){if(avTimer)return;avTimer=setInterval(chequearAvisos,6000);chequearAvisos();
+try{if(window.AndroidApp)AndroidApp.keepScreenOn(true)}catch(e){}
 try{if('wakeLock' in navigator)navigator.wakeLock.request('screen').then(w=>{wl=w}).catch(()=>{})}catch(e){}}
-function detenerAv(){clearInterval(avTimer);avTimer=null;try{if(wl){wl.release();wl=null}}catch(e){}}
+function detenerAv(){clearInterval(avTimer);avTimer=null;try{if(window.AndroidApp)AndroidApp.keepScreenOn(false)}catch(e){}try{if(wl){wl.release();wl=null}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&avisos.length){chequearAvisos();try{if('wakeLock' in navigator&&!wl)navigator.wakeLock.request('screen').then(w=>{wl=w}).catch(()=>{})}catch(e){}}});
 function avisarLlega(cod,k,umbral){
 if(!RB||!RB[cod]||!RB[cod].stops[k])return;const s=RB[cod].stops[k];umbral=umbral||3;
@@ -414,6 +415,7 @@ function sonar(titulo,cuerpo){
 try{if(navigator.vibrate)navigator.vibrate([400,150,400,150,800])}catch(e){}
 beep();mostrarNotificacion('🔔 '+titulo+(cuerpo?' · '+cuerpo:''),'exito',8000);
 try{if('speechSynthesis' in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(titulo+'. '+(cuerpo||''));u.lang='es-AR';speechSynthesis.speak(u)}}catch(e){}
+try{if(window.AndroidApp&&AndroidApp.notify)AndroidApp.notify(titulo,cuerpo||'')}catch(e){}
 try{if('Notification' in window&&Notification.permission==='granted'){
 if(navigator.serviceWorker&&navigator.serviceWorker.ready)navigator.serviceWorker.ready.then(r=>r.showNotification(titulo,{body:cuerpo||'',icon:'icons/icon-192.png',vibrate:[400,150,400],tag:'bus-aviso',renotify:true})).catch(()=>{});
 else new Notification(titulo,{body:cuerpo||''})}}catch(e){}}

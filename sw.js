@@ -5,7 +5,7 @@
 // Cambiar también el texto de <div id="verApp"> en index.html
 // ============================================
 
-const VERSION = 'v52';
+const VERSION = 'v53';
 const CACHE_APP = 'salta-app-' + VERSION;
 // FIJO: index.html usa este nombre para descargar/borrar teselas. No lo ligues a VERSION.
 const CACHE_TILES = 'salta-tiles-v15';
@@ -84,6 +84,8 @@ self.addEventListener('fetch', (event) => {
 
     // Rutas (OSRM): siempre a la red, no se guardan
     if (url.hostname.includes('osrm')) return;
+    // Servicios en vivo (buses, rutas, búsquedas): siempre a la red, nunca de caché
+    if (url.origin !== self.location.origin && !url.hostname.endsWith('unpkg.com') && !esTesela(url) && !esFuente(url)) return;
 
     // Fuentes de Google (Inter) - cache-first persistente
     if (esFuente(url)) {
