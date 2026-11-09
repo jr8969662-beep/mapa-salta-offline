@@ -5,7 +5,7 @@
 // Cambiar también el texto de <div id="verApp"> en index.html
 // ============================================
 
-const VERSION = 'v63';
+const VERSION = 'v64';
 const CACHE_APP = 'salta-app-' + VERSION;
 // FIJO: index.html usa este nombre para descargar/borrar teselas. No lo ligues a VERSION.
 const CACHE_TILES = 'salta-tiles-v15';
@@ -28,6 +28,7 @@ const APP_URLS = [
     './data/saeta_lineas.json',
     './data/saeta_recarga.geojson',
     './data/cordon_verde.json',
+    './data/barrios.json',
     './data/cerros.geojson',
     './data/redbus_lineas.json',
     './data/redbus_rutas.json',

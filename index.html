@@ -662,7 +662,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v63</div>
+<div class="ver-app" id="verApp">v64</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
@@ -1131,6 +1131,107 @@ if(m2)return{tipo:'direccion',calle:m2[1].trim(),numero:parseInt(m2[2])}}
 return{tipo:'calle',calle:q};
 }
 
+/* BARRIOS, "¿QUISISTE DECIR…?" Y COORDENADAS/ENLACES */
+let BARRIOS=[];
+const BARRIO_AB={bo:'',bario:'',barr:'',barrio:'',fco:'francisco',frco:'francisco',sn:'san',nva:'nueva',nvo:'nuevo',vte:'vicente',vcte:'vicente',vicen:'vicente',
+mza:'manzana',urb:'urbanizacion',ptos:'puertos',pque:'parque',pq:'parque',ctro:'centro',jp2:'juan pablo 2',jpii:'juan pablo 2',jp:'juan pablo',
+i:'1',ii:'2',iii:'3',iv:'4',v:'5',vi:'6',vii:'7',viii:'8',ix:'9',x:'10',lib:'libertador',gdor:'gobernador','1ro':'1','1°':'1'};
+const BARRIO_GEN=new Set(['villa','loteo','urbanizacion','parque','general','doctor','nueva','nuevo','santa','santo','san']);
+function tokensBarrio(t){
+if(!t)return[];
+let x=String(t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/\b(b|bº|b°)\s*[°º.]/g,' ').replace(/^b[°º]/,' ').replace(/[^a-z0-9\s]/g,' ');
+const out=[];
+for(const w of x.split(/\s+/).filter(Boolean)){
+let r=BARRIO_AB[w]!==undefined?BARRIO_AB[w]:(ABREV[w]||w);
+for(const s of String(r).split(' '))if(s&&!CALLE_STOP.has(s)&&(s.length>1||/\d/.test(s)))out.push(s)}
+return out}
+function prepararBarrio(b){
+if(!b._N)b._N=tokensBarrio(b.n).map(w=>({w,k:fonCalle(w),g:BARRIO_GEN.has(w)&&tokensBarrio(b.n).length>1}));
+return b._N}
+function buscarBarrios(texto,lim){
+const Q=tokensBarrio(texto).map(w=>({w,k:fonCalle(w),g:false,ini:false}));
+if(!Q.length)return[];
+let out=[];
+for(const fz of [false,true]){
+for(const b of BARRIOS){const r=puntuarCalle(Q,prepararBarrio(b),fz,0,0);if(r&&r.sc!==undefined)out.push({b,sc:r.sc,aprox:fz&&r.aprox})}
+if(out.length)break}
+out.sort((a,b)=>b.sc-a.sc);
+if(out.length&&posicionUsuario){const top=out[0].sc;out.forEach(o=>{o.d=haversine(posicionUsuario[0],posicionUsuario[1],o.b.lat,o.b.lng)});
+out.sort((a,b)=>Math.abs(a.sc-b.sc)<.01?a.d-b.d:b.sc-a.sc)}
+return out.slice(0,lim||4)}
+function fmtDist(m){return m<1000?`a ${Math.round(m/10)*10} m`:`a ${(m/1000).toFixed(m<10000?1:0).replace('.',',')} km`}
+async function cargarBarrios(){
+try{const r=await fetch('data/barrios.json');if(!r.ok)return;
+BARRIOS=(await r.json()).map(([n,lat,lng])=>({n,lat,lng}))}catch(e){}}
+function mostrarBarrio(b){
+limpiarBusqueda();
+trazoCalle=L.circle([b.lat,b.lng],{radius:350,color:'#ef4444',weight:2,dashArray:'6 6',fillColor:'#ef4444',fillOpacity:.08}).addTo(map);
+marcadorCalle=L.marker([b.lat,b.lng],{icon:L.divIcon({className:'punto-direccion',iconSize:[26,26],iconAnchor:[13,26]}),zIndexOffset:2000}).addTo(map).bindPopup(`<strong>🏘️ Barrio ${b.n}</strong><br><small>${b.lat.toFixed(5)}, ${b.lng.toFixed(5)}</small>`).openPopup();
+map.setView([b.lat,b.lng],16);
+ultimaBusqueda={texto:'Barrio '+b.n,lat:b.lat,lng:b.lng};mostrarBotonIr(b.lat,b.lng,'Barrio '+b.n)}
+/* ¿Quisiste decir…? : criterio más flojo que el buscador normal */
+function esqueleto(w){return w.replace(/[aeiou]/g,'')}
+function parecidoFlojo(q,n){
+if(q===n)return true;
+if(/^\d+$/.test(q)||/^\d+$/.test(n))return false;
+if(q.length>=2&&n.startsWith(q))return true;
+if(q.length<3)return false;
+if(fonCalle(q)===fonCalle(n))return true;
+const d=distCalle(q,n);
+if(d<=(q.length>=6?2:1))return true;
+if(q.length>=3&&esqueleto(q).length>=3&&esqueleto(q)===esqueleto(n))return true;
+return false}
+function sugerirParecidos(texto){
+const Q=tokensBarrio(texto).filter(w=>!CALLE_GEN.has(w));
+if(!Q.length)return[];
+const cand=[];
+const probar=(nombre,toks,tipo,extra)=>{
+let sc=0;const usados=new Set();
+for(const q of Q){let ok=-1;for(let i=0;i<toks.length;i++){if(usados.has(i))continue;if(parecidoFlojo(q,toks[i])){ok=i;break}}
+if(ok<0)return;usados.add(ok);sc+=1-Math.abs(q.length-toks[ok].length)*.1}
+sc-= (toks.length-usados.size)*.3;
+cand.push({nombre,tipo,sc,extra})};
+for(const c of callesIndex){prepararCalle(c);probar(c.nombreOriginal,c._k.map(x=>x.w),'calle',c)}
+for(const b of BARRIOS)probar('Barrio '+b.n,prepararBarrio(b).map(x=>x.w),'barrio',b);
+try{for(const l of LUGARES)if(l.nombre)probar(l.nombre,tokensBarrio(l.nombre),'lugar',l)}catch(e){}
+cand.sort((a,b)=>b.sc-a.sc);
+const vistos=new Set(),res=[];
+for(const c of cand){const k=normTxt(c.nombre);if(vistos.has(k))continue;vistos.add(k);res.push(c);if(res.length>=3)break}
+return res}
+/* Coordenadas y enlaces */
+function _par(a,b){a=parseFloat(a);b=parseFloat(b);
+if(isNaN(a)||isNaN(b)||Math.abs(a)>90||Math.abs(b)>180)return null;return[a,b]}
+function _dms(g,m,s,h){let v=Math.abs(parseFloat(g))+(parseFloat(m)||0)/60+(parseFloat(s)||0)/3600;
+if(/^[SsWwOo]/.test(h||'')||parseFloat(g)<0)v=-v;return v}
+function parsearCoordenadas(q){
+q=(q||'').trim();if(!q)return null;
+if(/^https?:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps|g\.co\/kgs|share\.google)/i.test(q))return{corto:true};
+let m,p=null;
+let u=q;try{u=decodeURIComponent(q)}catch(e){}
+if(/^(https?:|geo:)/i.test(u)||/(google\.|openstreetmap\.|maps\.apple|waze\.com|bing\.com\/maps)/i.test(u)){
+const pats=[/!3d(-?\d+(?:\.\d+)?)!4d(-?\d+(?:\.\d+)?)/,/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/,/[?&](?:q|ll|query|destination|daddr|center|sll|viewpoint|mlat)=(?:loc:)?(-?\d+(?:\.\d+)?)[,\s+]+(-?\d+(?:\.\d+)?)/i,/geo:(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/i,/#map=\d+\/(-?\d+(?:\.\d+)?)\/(-?\d+(?:\.\d+)?)/,/mlat=(-?\d+(?:\.\d+)?)&mlon=(-?\d+(?:\.\d+)?)/,/\/place\/(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/];
+for(const re of pats){m=u.match(re);if(m){p=_par(m[1],m[2]);if(p)break}}
+if(!p)return{noLeido:true};
+}else{
+m=u.match(/^(-?\d{1,2}(?:[.,]\d+)?)\s*°?\s*([NSns])?\s*[,;\s]\s*(-?\d{1,3}(?:[.,]\d+)?)\s*°?\s*([EWOeow])?$/);
+if(m){let a=parseFloat(m[1].replace(',','.')),b=parseFloat(m[3].replace(',','.'));
+if(/s/i.test(m[2]||''))a=-Math.abs(a);if(/[wo]/i.test(m[4]||''))b=-Math.abs(b);p=_par(a,b)}
+if(!p){m=u.match(/^(\d{1,3})\s*[°º]\s*(\d{1,2})?\s*['′]?\s*(\d{1,2}(?:[.,]\d+)?)?\s*["″]?\s*([NSns])\s*[,;\s]*(\d{1,3})\s*[°º]\s*(\d{1,2})?\s*['′]?\s*(\d{1,2}(?:[.,]\d+)?)?\s*["″]?\s*([EWOeow])$/);
+if(m)p=_par(_dms(m[1],m[2],(m[3]||'').replace(',','.'),m[4]),_dms(m[5],m[6],(m[7]||'').replace(',','.'),m[8]))}
+}
+if(!p)return null;
+let[la,ln]=p;
+if(Math.abs(la)>=60&&Math.abs(ln)<=40){const t=la;la=ln;ln=t}
+if(Math.abs(la)>90||Math.abs(ln)>180)return null;
+return{lat:la,lng:ln,enSalta:la>-25.2&&la<-24.4&&ln>-65.8&&ln<-65.1}}
+function mostrarPunto(lat,lng){
+limpiarBusqueda();
+const txt=lat.toFixed(5)+', '+lng.toFixed(5);
+marcadorCalle=L.marker([lat,lng],{icon:L.divIcon({className:'punto-direccion',iconSize:[26,26],iconAnchor:[13,26]}),zIndexOffset:2000}).addTo(map).bindPopup(`<strong>📍 Punto</strong><br><small>${txt}</small><br><a href="https://www.google.com/maps/search/?api=1&query=${lat},${lng}" target="_blank" rel="noopener">Abrir en Google Maps</a>`).openPopup();
+map.setView([lat,lng],17);
+ultimaBusqueda={texto:txt,lat,lng};mostrarBotonIr(lat,lng,txt);
+guardarEnHistorial(txt,'coord',lat,lng,txt)}
+
 /* GEOMETRÍA */
 const cacheIntersecciones=new Map();
 function interseccionSegmentos(p1,p2,p3,p4){
@@ -1259,7 +1360,9 @@ document.getElementById('chipEmerg')?.addEventListener('click',()=>{ocultarSuger
 sugerencias.querySelectorAll('.sug-item.historial').forEach(it=>it.addEventListener('click',()=>{
 const i=parseInt(it.dataset.hidx),x=cargarHistorial()[i];if(!x)return;
 const p=parsearQuery(x.texto);
-if(x.tipo==='calle'){const c=buscarCalleExacta(x.texto);if(c)mostrarCalle(c)}
+if(x.tipo==='barrio'){const b=BARRIOS.find(z=>'Barrio '+z.n===x.texto)||{n:x.texto.replace(/^Barrio /,''),lat:x.lat,lng:x.lng};mostrarBarrio(b)}
+else if(x.tipo==='coord'){mostrarPunto(x.lat,x.lng)}
+else if(x.tipo==='calle'){const c=buscarCalleExacta(x.texto);if(c)mostrarCalle(c)}
 else if(x.tipo==='direccion'){const c=buscarCalleExacta(p.calle||x.texto),d=p.tipo==='direccion'?buscarDireccionRapido(p.calle,p.numero):null;if(c&&d)mostrarDireccion(c,d);else if(c)mostrarCalle(c)}
 else if(x.tipo==='entre'&&p.tipo==='entre')mostrarCuadra(p)
 else if(x.tipo==='esquina'&&p.tipo==='esquina'){const {cA,cB}=resolverEsquina(p.calle1,p.calle2);
@@ -1282,7 +1385,20 @@ input.value=(NOMBRES[cat]||cat);
 mostrarNotificacion(`✅ Mostrando ${NOMBRES[cat]||cat}`,'exito',2000);
 }
 function ocultarSugerencias(){sugerencias.classList.remove('activo')}
+function htmlParecidos(q){
+const ps=sugerirParecidos(q);if(!ps.length)return '';
+return '<div class="sug-titulo">🤔 ¿Quisiste decir…?</div>'+ps.map((x,i)=>`<div class="sug-item" data-tipo="parecido" data-i="${i}"><div class="sug-emoji">${x.tipo==='barrio'?'🏘️':x.tipo==='lugar'?'📍':'🛣️'}</div><div class="sug-texto"><strong>${x.nombre}</strong><small>${x.tipo==='barrio'?'Barrio':x.tipo==='lugar'?'Lugar':'Calle'}</small></div></div>`).join('')}
+let _parecidos=[],_barriosRes=[];
 function renderizarSugerencias(q){
+const co=parsearCoordenadas(q);
+if(co){let h0;
+if(co.corto)h0='<div class="sug-item"><div class="sug-emoji">🔗</div><div class="sug-texto"><strong>Enlace corto</strong><small>No puedo leerlo sin abrirlo. Abrilo en Google Maps y pegá el enlace largo o las coordenadas.</small></div></div>';
+else if(co.noLeido)h0='<div class="sug-item"><div class="sug-emoji">🔗</div><div class="sug-texto"><strong>No encontré coordenadas en ese enlace</strong><small>Probá con las coordenadas, por ejemplo -24.7886, -65.4107</small></div></div>';
+else h0=`<div class="sug-item esquina" data-tipo="coord"><div class="sug-emoji">📍</div><div class="sug-texto"><strong>Ir a ${co.lat.toFixed(5)}, ${co.lng.toFixed(5)}</strong><small>${co.enSalta?'Coordenadas válidas':'⚠️ Queda fuera de Salta capital'}</small></div></div>`;
+sugerencias.innerHTML=h0;sugerencias.classList.add('activo');
+const it=sugerencias.querySelector('[data-tipo=coord]');
+if(it)it.addEventListener('click',()=>{mostrarPunto(co.lat,co.lng);input.value=co.lat.toFixed(5)+', '+co.lng.toFixed(5);btnLimpiar.style.display='flex';ocultarSugerencias();input.blur()});
+return}
 const p=parsearQuery(q),h=[];
 if(p.tipo==='entre'){
 h.push(`<div class="sug-item esquina" data-tipo="entre"><div class="sug-emoji">📍</div><div class="sug-texto"><strong>Buscar cuadra</strong><small>${p.calle} entre ${p.desde} y ${p.hasta}</small></div></div>`);
@@ -1298,9 +1414,16 @@ h.push(`<div class="sug-item direccion" data-tipo="direccion"><div class="sug-em
 }
 else{
 const lug=htmlLugares(q);if(lug)h.push(lug);
+const expl=/^\s*(barrio|bo|b[°º]|bº|b°|barr)\b/i.test(q);
+const bar=buscarBarrios(q,expl?6:3);
+const hb=bar.map((o,i)=>`<div class="sug-item" data-tipo="barrio" data-i="${i}"><div class="sug-emoji">🏘️</div><div class="sug-texto"><strong>Barrio ${o.b.n}</strong><small>${o.d!=null?fmtDist(o.d)+' · ':''}${o.aprox?'parecido a lo que escribiste':'Barrio'}</small></div></div>`);
+_barriosRes=bar.map(o=>o.b);
+if(expl)hb.forEach(x=>h.push(x));
 const res=buscarCalleRapido(q);
 res.forEach(c=>h.push(`<div class="sug-item" data-tipo="calle" data-nombre="${c.nombre}"><div class="sug-emoji">🛣️</div><div class="sug-texto"><strong>${c.nombreOriginal}</strong><small>${c._aprox?'Calle · parecida a lo que escribiste':'Calle'}</small></div></div>`));
-if(!res.length&&!lug&&q.length>=2)h.push(`<div class="sug-item"><div class="sug-emoji">😕</div><div class="sug-texto"><strong>Sin resultados</strong><small>Probá con otro nombre</small></div></div>`);
+if(!expl&&hb.length&&(!res.length||bar[0].sc>=res.length*0+0))hb.forEach(x=>h.push(x));
+if(!res.length&&!lug&&!bar.length&&q.length>=2){const hp=htmlParecidos(q);_parecidos=sugerirParecidos(q);
+if(hp)h.push(hp);else h.push(`<div class="sug-item"><div class="sug-emoji">😕</div><div class="sug-texto"><strong>Sin resultados</strong><small>Probá con otro nombre</small></div></div>`)}
 }
 if(!h.length){sugerencias.classList.remove('activo');return}
 sugerencias.innerHTML=h.join('');
@@ -1310,6 +1433,8 @@ const t=it.dataset.tipo;
 if(t==='cat'){borrarTodoBusqueda();abrirCercaCategoria(it.dataset.cat);input.value='';btnLimpiar.style.display='none';input.blur();return}
 if(t==='lugar'){const l=LUGARES[+it.dataset.i];if(l){limpiarBusqueda();input.value=l.nombre;btnLimpiar.style.display='flex';ocultarSugerencias();input.blur();abrirFicha(l)}return}
 if(t==='entre'){if(mostrarCuadra(p)){ocultarSugerencias();input.blur()}return}
+if(t==='barrio'){const b=_barriosRes[+it.dataset.i];if(b){mostrarBarrio(b);guardarEnHistorial('Barrio '+b.n,'barrio',b.lat,b.lng,'Barrio '+b.n);input.value='Barrio '+b.n;btnLimpiar.style.display='flex';ocultarSugerencias();input.blur()}return}
+if(t==='parecido'){const x=_parecidos[+it.dataset.i];if(x){input.value=x.nombre;btnLimpiar.style.display='flex';renderizarSugerencias(x.nombre)}return}
 if(t==='esquina'){
 const {cA,cB}=resolverEsquina(p.calle1,p.calle2);
 if(!cA){alert(`No se encontró "${p.calle1}"`);return}
@@ -1794,6 +1919,7 @@ try{
 await Promise.all([
 cargarCalles(),
 cargarDirecciones(),
+cargarBarrios(),
 cargarRutasSaeta().then(()=>cargarSitios())
 ]);
 await dibujarEstacionamientosGratis();
