@@ -662,7 +662,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v67</div>
+<div class="ver-app" id="verApp">v68</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
@@ -676,6 +676,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 <div class="f-btns">
 <button class="f-ir" id="fIr">🛣️ Cómo llegar</button>
 <button class="f-sec" id="fBus" style="flex:1 1 100%">🚌 Cómo llegar en colectivo</button>
+<a class="f-sec" id="fGoogle" href="#" target="_blank" rel="noopener" style="flex:1 1 100%">🔎 Ver en Google Maps (teléfono, horario, fotos)</a>
 <a class="f-sec" id="fLlamar" href="#">📞 Llamar</a>
 <button class="f-sec" id="fCompartir">📤 Compartir</button>
 <button class="f-sec" id="fGuardar">⭐ Guardar</button>
@@ -2515,6 +2516,7 @@ if(l.web){const u=/^https?:/.test(l.web)?l.web:'https://'+l.web;info.push(`<div>
 document.getElementById('fInfo').innerHTML=info.join('');
 const ll=document.getElementById('fLlamar');const num=l.tel?l.tel.split(/[;,\/]/)[0].replace(/[^\d+]/g,''):(FALLBACK_TEL[l.cat]?FALLBACK_TEL[l.cat][0]:'');
 if(num){ll.href='tel:'+num;ll.classList.remove('off');ll.textContent='📞 Llamar'}else ll.classList.add('off');
+{const g=document.getElementById('fGoogle');g.href=l.sinNombre?`https://www.google.com/maps/search/?api=1&query=${l.lat},${l.lng}`:`https://www.google.com/maps/search/${encodeURIComponent(l.nombre)}/@${l.lat},${l.lng},19z`}
 if(marcadorSel)map.removeLayer(marcadorSel);
 marcadorSel=L.marker([l.lat,l.lng],{icon:L.divIcon({className:'',html:`<div class="sel-pulse">${EMOJIS[l.cat]||'📍'}</div>`,iconSize:[44,44],iconAnchor:[22,22]}),interactive:false,zIndexOffset:2500}).addTo(map);
 map.setView([l.lat,l.lng],Math.max(map.getZoom(),16),{animate:true});map.panBy([0,130],{animate:false});
