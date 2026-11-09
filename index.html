@@ -662,7 +662,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v61</div>
+<div class="ver-app" id="verApp">v62</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
@@ -1090,6 +1090,12 @@ function borrarTrazoBusqueda(){
 limpiarBusqueda();ultimaBusqueda=null;
 ['btnIr','btnCompartir','btnBus'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none'});
 const pr=document.getElementById('panelRuta');if(!(pr&&pr.classList.contains('activo')))destinoActual=null}
+function ponerTextoBusqueda(t){try{input.value=t;btnLimpiar.style.display=t?'flex':'none'}catch(e){}}
+function borrarTodoBusqueda(){
+borrarTrazoBusqueda();
+try{if(lineaActiva)limpiarLinea()}catch(e){}
+try{if(cercaOn)detenerCerca()}catch(e){}
+Object.keys(capasActivas).forEach(k=>{if(capasActivas[k]&&capas[k])toggleCapa(k)})}
 function mostrarCalle(c){
 limpiarBusqueda();
 const l=c.tramos.map(t=>L.polyline(t,{color:'#ef4444',weight:6,opacity:.85,lineCap:'round',lineJoin:'round'}));
@@ -1199,7 +1205,7 @@ sugerencias.innerHTML=h.join('');
 sugerencias.classList.add('activo');
 sugerencias.querySelectorAll('.sug-item[data-tipo]').forEach(it=>it.addEventListener('click',()=>{
 const t=it.dataset.tipo;
-if(t==='cat'){borrarTrazoBusqueda();abrirCercaCategoria(it.dataset.cat);input.value='';btnLimpiar.style.display='none';input.blur();return}
+if(t==='cat'){borrarTodoBusqueda();abrirCercaCategoria(it.dataset.cat);input.value='';btnLimpiar.style.display='none';input.blur();return}
 if(t==='lugar'){const l=LUGARES[+it.dataset.i];if(l){limpiarBusqueda();input.value=l.nombre;btnLimpiar.style.display='flex';ocultarSugerencias();input.blur();abrirFicha(l)}return}
 if(t==='esquina'){
 const cA=buscarCalleExacta(p.calle1),cB=buscarCalleExacta(p.calle2);
@@ -1231,12 +1237,12 @@ input.addEventListener('focus',()=>{if(input.value.trim().length<2)mostrarSugere
 input.addEventListener('input',e=>{
 const q=e.target.value.trim();
 btnLimpiar.style.display=q.length>0?'flex':'none';
-if(q.length===0)borrarTrazoBusqueda();
+if(q.length===0)borrarTodoBusqueda();
 if(q.length<2)mostrarSugerenciasIniciales();
 else renderDebounced(q);
 });
 input.addEventListener('keydown',e=>{if(e.key==='Enter'){const p=sugerencias.querySelector('.sug-item[data-tipo]');if(p)p.click()}});
-btnLimpiar.addEventListener('click',()=>{borrarTrazoBusqueda();input.value='';btnLimpiar.style.display='none';input.focus();mostrarSugerenciasIniciales()});
+btnLimpiar.addEventListener('click',()=>{borrarTodoBusqueda();input.value='';btnLimpiar.style.display='none';input.focus();mostrarSugerenciasIniciales()});
 document.addEventListener('click',e=>{if(!e.target.closest('.buscador'))ocultarSugerencias()});
 btnVoz.addEventListener('click',()=>{
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -1589,8 +1595,9 @@ document.getElementById('btnFiltros').addEventListener('click',abrirPanelFiltros
 function toggleCapa(c){
 if(!capas[c])return;
 const b=document.getElementById('btn-'+c);
-if(capasActivas[c]){map.removeLayer(capas[c]);capasActivas[c]=false;b?.classList.remove('activo')}
-else{map.addLayer(capas[c]);capasActivas[c]=true;b?.classList.add('activo')}
+const nombreC=NOMBRES[c]||c;
+if(capasActivas[c]){map.removeLayer(capas[c]);capasActivas[c]=false;b?.classList.remove('activo');if(input.value===nombreC)ponerTextoBusqueda('')}
+else{map.addLayer(capas[c]);capasActivas[c]=true;b?.classList.add('activo');ponerTextoBusqueda(nombreC)}
 actualizarBadgeFiltros();
 guardarEstado();
 }
@@ -1825,14 +1832,14 @@ if(!SAETA||!SAETA.porRef[ref])return;
 const l=SAETA.porRef[ref];
 if(lineaActiva!==ref){recorridoIdx=0;tabLinea='recorrido'}
 lineaActiva=ref;
-dibujarLinea(l);
+dibujarLinea(l);ponerTextoBusqueda('Línea '+l.ref);
 $lin('chipLineaRef').textContent=l.ref;$lin('chipLineaRef').style.background=l.color;$lin('chipLinea').classList.add('activo');
 try{map.closePopup()}catch(e){}
 vistaLinea(ref);abrirHojaLineas();
 if(!$lin('hojaLineas').classList.contains('activo'))abrirHojaLineas();
 }
 function verEnMapa(){const l=SAETA.porRef[lineaActiva];cerrarHojaLineas();if(l)encuadrarLinea(l)}
-function limpiarLinea(){detenerVivo();lineaActiva=null;capaLinea.clearLayers();$lin('chipLinea').classList.remove('activo')}
+function limpiarLinea(){detenerVivo();lineaActiva=null;if(/^Línea /.test(input.value))ponerTextoBusqueda('');capaLinea.clearLayers();$lin('chipLinea').classList.remove('activo')}
 $lin('btnColes').addEventListener('click',()=>{
 if($lin('hojaLineas').classList.contains('activo')){cerrarHojaLineas();return}
 if(lineaActiva&&SAETA)vistaLinea(lineaActiva);else vistaLista();
