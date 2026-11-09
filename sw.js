@@ -5,7 +5,7 @@
 // Cambiar también el texto de <div id="verApp"> en index.html
 // ============================================
 
-const VERSION = 'v54';
+const VERSION = 'v55';
 const CACHE_APP = 'salta-app-' + VERSION;
 // FIJO: index.html usa este nombre para descargar/borrar teselas. No lo ligues a VERSION.
 const CACHE_TILES = 'salta-tiles-v15';
@@ -79,6 +79,16 @@ self.addEventListener('activate', (event) => {
     );
 });
 
+let _cacheTeselas = null;
+function abrirCacheTeselas() { return _cacheTeselas || (_cacheTeselas = caches.open(CACHE_TILES)); }
+
+let _nuevas = 0;
+function recortarTeselas(cache) {
+    // Cada tanto, si hay demasiadas teselas guardadas, se borran las más viejas (las descargadas primero)
+    if (++_nuevas % 300) return;
+    cache.keys().then((ks) => { if (ks.length > 8000) ks.slice(0, ks.length - 6000).forEach((k) => cache.delete(k)); });
+}
+
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
@@ -103,16 +113,16 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // Teselas del mapa
+    // Teselas del mapa: primero lo guardado; si no está, se baja (con permiso CORS para poder guardarla) y se guarda
     if (esTesela(url)) {
         event.respondWith(
-            caches.open(CACHE_TILES).then((cache) =>
+            abrirCacheTeselas().then((cache) =>
                 cache.match(claveTesela(url)).then((enCache) => {
                     if (enCache) return enCache;
-                    return fetch(event.request).then((enRed) => {
-                        if (enRed.ok) cache.put(claveTesela(url), enRed.clone());
+                    return fetch(claveTesela(url), { mode: 'cors', credentials: 'omit' }).then((enRed) => {
+                        if (enRed.ok) { cache.put(claveTesela(url), enRed.clone()); recortarTeselas(cache); }
                         return enRed;
-                    }).catch(() => new Response('', { status: 404 }));
+                    }).catch(() => fetch(event.request)).catch(() => new Response('', { status: 404 }));
                 })
             )
         );
