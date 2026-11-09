@@ -7,6 +7,7 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📍</text></svg>">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#1e40af">
+<script>if(/MapaSaltaApp/.test(navigator.userAgent))document.documentElement.setAttribute('data-theme','dark')</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -652,7 +653,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v55</div>
+<div class="ver-app" id="verApp">v56</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
@@ -814,7 +815,9 @@ const TEMA_KEY='salta_tema';
 function aplicarTema(t){document.documentElement.setAttribute('data-theme',t);const bt=document.getElementById('btnTema');bt.querySelector('.mi-ico').textContent=t==='dark'?'☀️':'🌙';bt.querySelector('strong').textContent=t==='dark'?'Modo claro':'Modo oscuro';try{localStorage.setItem(TEMA_KEY,t)}catch(e){}}
 function actualizarMapaOscuro(){const t=document.documentElement.getAttribute('data-theme'),m=document.getElementById('map'),ti=document.querySelector('.leaflet-tile-pane');if(t==='dark'){m.classList.add('mapa-oscuro');ti?.classList.add('mapa-oscuro')}else{m.classList.remove('mapa-oscuro');ti?.classList.remove('mapa-oscuro')}}
 function aplicarTemaYMapa(t){aplicarTema(t);actualizarMapaOscuro()}
-(function(){let t=null;try{t=localStorage.getItem(TEMA_KEY)}catch(e){};if(!t){const h=new Date().getHours();t=(h>=20||h<7)?'dark':'light'}aplicarTema(t)})();
+(function(){let t=null;try{t=localStorage.getItem(TEMA_KEY)}catch(e){};if(!t){const h=new Date().getHours();t=(h>=20||h<7)?'dark':'light'}
+if(/MapaSaltaApp/.test(navigator.userAgent))t='dark';/* en el APK siempre arranca en modo oscuro */
+aplicarTema(t)})();
 document.getElementById('btnTema').addEventListener('click',()=>{const a=document.documentElement.getAttribute('data-theme');aplicarTemaYMapa(a==='dark'?'light':'dark')});
 
 /* MAPA */
