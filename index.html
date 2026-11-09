@@ -662,7 +662,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v60</div>
+<div class="ver-app" id="verApp">v61</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
@@ -1086,6 +1086,10 @@ return res;
 /* MOSTRAR */
 function limpiarBusqueda(){if(marcadorCalle){map.removeLayer(marcadorCalle);marcadorCalle=null}if(trazoCalle){map.removeLayer(trazoCalle);trazoCalle=null}}
 function mostrarBotonIr(lat,lng,nombre){destinoActual={lat,lng,nombre};document.getElementById('btnIr').style.display='flex';document.getElementById('btnCompartir').style.display='flex';document.getElementById('btnBus').style.display='flex'}
+function borrarTrazoBusqueda(){
+limpiarBusqueda();ultimaBusqueda=null;
+['btnIr','btnCompartir','btnBus'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display='none'});
+const pr=document.getElementById('panelRuta');if(!(pr&&pr.classList.contains('activo')))destinoActual=null}
 function mostrarCalle(c){
 limpiarBusqueda();
 const l=c.tramos.map(t=>L.polyline(t,{color:'#ef4444',weight:6,opacity:.85,lineCap:'round',lineJoin:'round'}));
@@ -1150,10 +1154,13 @@ document.getElementById('chipBusCerca')?.addEventListener('click',()=>{ocultarSu
 document.getElementById('chipEmerg')?.addEventListener('click',()=>{ocultarSugerencias();abrirEmergencias()});
 sugerencias.querySelectorAll('.sug-item.historial').forEach(it=>it.addEventListener('click',()=>{
 const i=parseInt(it.dataset.hidx),x=cargarHistorial()[i];if(!x)return;
+const p=parsearQuery(x.texto);
 if(x.tipo==='calle'){const c=buscarCalleExacta(x.texto);if(c)mostrarCalle(c)}
-else if(x.tipo==='direccion'&&x.lat&&x.lng){map.setView([x.lat,x.lng],18);
-L.marker([x.lat,x.lng],{icon:L.divIcon({className:'punto-direccion',iconSize:[26,26],iconAnchor:[13,26]})}).addTo(map).bindPopup(`<strong>📍 ${x.nombreOriginal}</strong>`).openPopup()}
-else if(x.tipo==='esquina'&&x.lat&&x.lng)map.setView([x.lat,x.lng],17);
+else if(x.tipo==='direccion'){const c=buscarCalleExacta(p.calle||x.texto),d=p.tipo==='direccion'?buscarDireccionRapido(p.calle,p.numero):null;if(c&&d)mostrarDireccion(c,d);else if(c)mostrarCalle(c)}
+else if(x.tipo==='esquina'&&p.tipo==='esquina'){const cA=buscarCalleExacta(p.calle1),cB=buscarCalleExacta(p.calle2);
+if(cA&&cB){let dc=null;if(p.numero)dc=buscarDireccionRapido(p.calle1,p.numero)||buscarDireccionRapido(p.calle2,p.numero);mostrarInterseccion(cA,cB,p.numero,dc)}
+else if(x.lat&&x.lng)map.setView([x.lat,x.lng],17)}
+btnLimpiar.style.display='flex';
 ocultarSugerencias();input.value=x.texto}));
 }
 function activarCategoria(cat){
@@ -1192,8 +1199,8 @@ sugerencias.innerHTML=h.join('');
 sugerencias.classList.add('activo');
 sugerencias.querySelectorAll('.sug-item[data-tipo]').forEach(it=>it.addEventListener('click',()=>{
 const t=it.dataset.tipo;
-if(t==='cat'){abrirCercaCategoria(it.dataset.cat);input.value='';btnLimpiar.style.display='none';input.blur();return}
-if(t==='lugar'){const l=LUGARES[+it.dataset.i];if(l){input.value=l.nombre;ocultarSugerencias();input.blur();abrirFicha(l)}return}
+if(t==='cat'){borrarTrazoBusqueda();abrirCercaCategoria(it.dataset.cat);input.value='';btnLimpiar.style.display='none';input.blur();return}
+if(t==='lugar'){const l=LUGARES[+it.dataset.i];if(l){limpiarBusqueda();input.value=l.nombre;btnLimpiar.style.display='flex';ocultarSugerencias();input.blur();abrirFicha(l)}return}
 if(t==='esquina'){
 const cA=buscarCalleExacta(p.calle1),cB=buscarCalleExacta(p.calle2);
 if(!cA){alert(`No se encontró "${p.calle1}"`);return}
@@ -1203,19 +1210,19 @@ mostrarInterseccion(cA,cB,p.numero,dc);
 const txt=`${cA.nombreOriginal} y ${cB.nombreOriginal}${p.numero?' '+p.numero:''}`;
 const la=ultimaBusqueda?[ultimaBusqueda.lat,ultimaBusqueda.lng]:[0,0];
 guardarEnHistorial(txt,'esquina',la[0],la[1],txt);
-input.value=txt;ocultarSugerencias();input.blur();
+input.value=txt;btnLimpiar.style.display='flex';ocultarSugerencias();input.blur();
 }
 else if(t==='direccion'){
 const c=buscarCalleExacta(p.calle),d=buscarDireccionRapido(p.calle,p.numero);
 if(d){mostrarDireccion(c,d);const txt=`${c.nombreOriginal} ${p.numero}`;
 guardarEnHistorial(txt,'direccion',d.lat,d.lng,txt);input.value=txt}
 else{mostrarCalle(c);guardarEnHistorial(c.nombreOriginal,'calle',c.lat,c.lng,c.nombreOriginal);input.value=c.nombreOriginal}
-ocultarSugerencias();input.blur();
+btnLimpiar.style.display='flex';ocultarSugerencias();input.blur();
 }
 else if(t==='calle'){
 const c=callesMap.get(it.dataset.nombre)||callesIndex.find(x=>x.nombre===it.dataset.nombre);
 if(c){mostrarCalle(c);guardarEnHistorial(c.nombreOriginal,'calle',c.lat,c.lng,c.nombreOriginal);
-input.value=c.nombreOriginal;ocultarSugerencias();input.blur()}
+input.value=c.nombreOriginal;btnLimpiar.style.display='flex';ocultarSugerencias();input.blur()}
 }
 }));
 }
@@ -1224,11 +1231,12 @@ input.addEventListener('focus',()=>{if(input.value.trim().length<2)mostrarSugere
 input.addEventListener('input',e=>{
 const q=e.target.value.trim();
 btnLimpiar.style.display=q.length>0?'flex':'none';
+if(q.length===0)borrarTrazoBusqueda();
 if(q.length<2)mostrarSugerenciasIniciales();
 else renderDebounced(q);
 });
 input.addEventListener('keydown',e=>{if(e.key==='Enter'){const p=sugerencias.querySelector('.sug-item[data-tipo]');if(p)p.click()}});
-btnLimpiar.addEventListener('click',()=>{input.value='';btnLimpiar.style.display='none';input.focus();mostrarSugerenciasIniciales()});
+btnLimpiar.addEventListener('click',()=>{borrarTrazoBusqueda();input.value='';btnLimpiar.style.display='none';input.focus();mostrarSugerenciasIniciales()});
 document.addEventListener('click',e=>{if(!e.target.closest('.buscador'))ocultarSugerencias()});
 btnVoz.addEventListener('click',()=>{
 const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
