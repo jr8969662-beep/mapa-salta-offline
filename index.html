@@ -662,7 +662,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v62</div>
+<div class="ver-app" id="verApp">v63</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
@@ -1013,32 +1013,95 @@ let me=null,md=Infinity;
 for(const p of SAETA.paradas){const d=haversine(lat,lng,p.lat,p.lng);if(d<md){md=d;me=p}}
 return(me&&md<30)?me.lineas:[];
 }
-function buscarCalleRapido(termino){
-const n=normalizar(termino);
-if(n.length<2)return[];
-const palabras=n.split(' ').filter(p=>p.length>1);
-const candidatos=new Set();
-palabras.forEach(p=>{
-for(const[k,idxs]of callesPalabras){
-if(k.startsWith(p)){idxs.forEach(i=>candidatos.add(i))}
-}
-});
-let resultados=Array.from(candidatos).map(i=>callesIndex[i]);
-resultados=resultados.filter(c=>c.nombre.includes(n));
-if(resultados.length===0)resultados=callesIndex.filter(c=>c.nombre.includes(n));
-return resultados.slice(0,10);
-}
+/* BÚSQUEDA DE CALLES TOLERANTE: abreviaturas, errores de tipeo, orden de palabras, acentos y sonidos parecidos */
+const ABREV={av:'avenida',avda:'avenida',avd:'avenida',aven:'avenida',bv:'bulevar',bvr:'bulevar',bvd:'bulevar',blvd:'bulevar',boulevard:'bulevar',
+pje:'pasaje',psje:'pasaje',pas:'pasaje',gral:'general',grl:'general',gdor:'gobernador',gob:'gobernador',gdr:'gobernador',cnel:'coronel',crl:'coronel',cor:'coronel',
+tte:'teniente',tnte:'teniente',ten:'teniente',dr:'doctor',dra:'doctora',pte:'presidente',pdte:'presidente',pres:'presidente',pbro:'presbitero',presb:'presbitero',
+sgo:'santiago',stgo:'santiago',sta:'santa',sto:'santo',cap:'capitan',capt:'capitan',alte:'almirante',alm:'almirante',brig:'brigadier',mons:'monsenor',
+ing:'ingeniero',prof:'profesor',lic:'licenciado',hno:'hermano',fr:'fray',int:'intendente',dip:'diputado',sen:'senador',sarg:'sargento',
+cmte:'comandante',cdte:'comandante',cmdte:'comandante',mcal:'mariscal',arq:'arquitecto',pza:'plaza',ntra:'nuestra',sra:'senora',bs:'buenos',as:'aires',
+uno:'1',dos:'2',tres:'3',cuatro:'4',cinco:'5',seis:'6',siete:'7',ocho:'8',nueve:'9',diez:'10',once:'11',doce:'12',trece:'13',catorce:'14',quince:'15',
+dieciseis:'16',diecisiete:'17',dieciocho:'18',diecinueve:'19',veinte:'20',veintiuno:'21',veintidos:'22',veintitres:'23',veinticuatro:'24',veinticinco:'25',
+veintiseis:'26',veintisiete:'27',veintiocho:'28',veintinueve:'29',treinta:'30'};
+const CALLE_STOP=new Set(['de','del','la','las','los','el','y','e','al','en','nro','numero']);
+const CALLE_GEN=new Set(['avenida','calle','pasaje','ruta','bulevar','plaza','doctor','doctora','general','coronel','teniente','capitan','presidente','gobernador','ingeniero','profesor','intendente','acceso','camino']);
+function tokensCalle(t,conIni){
+if(!t)return[];
+let x=String(t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9\s]/g,' ');
+return x.split(/\s+/).filter(Boolean).map(w=>ABREV[w]||w).filter(w=>(w.length>1||/\d/.test(w)||conIni)&&!CALLE_STOP.has(w))}
+function fonCalle(w){
+if(/^\d+$/.test(w))return w;
+return w.replace(/h/g,'').replace(/ll/g,'y').replace(/qu/g,'k').replace(/gu(?=[ei])/g,'g').replace(/g(?=[ei])/g,'j').replace(/c(?=[ei])/g,'s').replace(/c/g,'k').replace(/z/g,'s').replace(/v/g,'b').replace(/w/g,'u').replace(/(.)\1+/g,'$1')}
+function distCalle(a,b){
+const n=a.length,m=b.length;if(Math.abs(n-m)>2)return 9;
+let p2=null,p1=[];for(let j=0;j<=m;j++)p1[j]=j;
+for(let i=1;i<=n;i++){const c=[i];
+for(let j=1;j<=m;j++){let v=Math.min(p1[j]+1,c[j-1]+1,p1[j-1]+(a[i-1]===b[j-1]?0:1));
+if(p2&&i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])v=Math.min(v,p2[j-2]+1);c[j]=v}
+p2=p1;p1=c}
+return p1[m]}
+function igualToken(q,n,fz){
+if(q===n)return 1;
+if(/^\d+$/.test(q)||/^\d+$/.test(n))return 0;
+if(q.length>=2&&n.startsWith(q))return .9;
+if(!fz)return 0;
+if(q.length>=4&&distCalle(q,n)<=(q.length>=7?2:1))return q.length>=7?.65:.75;
+if(q.length>=5&&distCalle(q,n.slice(0,q.length))<=1)return .6;
+return 0}
+const CALLE_NOCALLE=/^(radio|diario|fragata|a\.?r\.?a\.?|lw\s?\d|am\s?\d|fm\s?\d|canal|tv|autodromo|ciclovia|parroquia|rotonda|club|escuela|hospital|aeropuerto|estacion|barrio|capilla|iglesia|colegio|universidad|fortin)\b/i;
+function prepararCalle(c){
+if(!c._k){c._k=tokensCalle(c.nombreOriginal).map(w=>({w,k:fonCalle(w),g:CALLE_GEN.has(w)}));
+c._pen=CALLE_NOCALLE.test(c.nombreOriginal.normalize('NFD').replace(/[\u0300-\u036f]/g,''))?4:0;
+c._pop=Math.min(5.5,Math.log2(1+c.tramos.reduce((a,t)=>a+t.length,0)))}
+return c._k}
+function puntuarCalle(Q,N,fz,pen,pop){
+let total=0,sig=0,minQ=1;const usados=new Set();
+for(const q of Q){if(q.ini)continue;let best=0,bi=-1;
+for(let i=0;i<N.length;i++){if(usados.has(i))continue;const m=igualToken(q.k,N[i].k,fz);if(m>best){best=m;bi=i}}
+if(q.g){if(best>0){usados.add(bi);total+=.6*best}continue}
+sig++;if(best===0)return-1;usados.add(bi);total+=best;if(best<minQ)minQ=best}
+if(!sig)return-1;
+for(const q of Q){if(!q.ini)continue;
+for(let i=0;i<N.length;i++){if(!usados.has(i)&&N[i].w[0]===q.w){usados.add(i);total+=.5;break}}}
+let extra=0,gen=0;N.forEach((n,i)=>{if(!usados.has(i)){if(n.g)gen++;else extra++}});
+let sc=total*10-extra*.5-gen*.4-(pen||0)+(pop||0);
+const q0=Q.find(q=>!q.g&&!q.ini),n0=N.find(n=>!n.g);
+if(q0&&n0&&igualToken(q0.k,n0.k,false)>=.9)sc+=1.5;
+if(!extra)sc+=3;
+return{sc,aprox:minQ<.85}}
+function buscarCalles(texto,lim){
+const Q=tokensCalle(texto,true).map(w=>({w,k:fonCalle(w),g:CALLE_GEN.has(w),ini:w.length===1&&!/\d/.test(w)}));
+if(!Q.length||Q.every(q=>q.ini))return[];
+let out=[];
+for(const fz of [false,true]){
+for(const c of callesIndex){const r=puntuarCalle(Q,prepararCalle(c),fz,c._pen,c._pop);if(r&&r.sc!==undefined)out.push({c,sc:r.sc,aprox:fz&&r.aprox})}
+if(out.length)break}
+out.sort((a,b)=>b.sc-a.sc);
+const top=out.slice(0,lim||10);
+top.forEach(o=>{o.c._aprox=o.aprox});
+return top}
+function buscarCalleRapido(termino){return buscarCalles(termino,10).map(o=>o.c)}
 function buscarCalleExacta(nombre){
 const k=normalizar(nombre);
-let e=callesMap.get(k);if(e)return e;
-const cand=callesIndex.filter(x=>x.nombre.includes(k)||k.includes(x.nombre))
-.sort((a,b)=>Math.abs(a.nombre.length-k.length)-Math.abs(b.nombre.length-k.length));
-return cand[0]||null;
-}
+const e=callesMap.get(k);if(e)return e;
+const r=buscarCalles(nombre,1)[0];
+return r?r.c:null}
+let _dirIdx=null;
+function direccionesPorCalle(c){
+const arr=direccionesMap.get(normalizar(c.nombreOriginal));if(arr)return arr;
+if(!_dirIdx||_dirIdx.n!==direccionesMap.size){_dirIdx={n:direccionesMap.size,l:[]};
+for(const[,v]of direccionesMap)_dirIdx.l.push({v,N:tokensCalle(v[0].calleOriginal).map(w=>({w,k:fonCalle(w),g:CALLE_GEN.has(w)}))})}
+const Q=prepararCalle(c);let mejor=null;
+for(const d of _dirIdx.l){const r1=puntuarCalle(Q,d.N,true),r2=puntuarCalle(d.N,Q,true);
+if(!r1||r1.sc===undefined||!r2||r2.sc===undefined)continue;
+const sc=r1.sc+r2.sc;if(!mejor||sc>mejor.sc)mejor={sc,v:d.v}}
+return mejor?mejor.v:null}
 function buscarDireccionRapido(calle,num){
-const c=normalizar(calle);
-let arr=direccionesMap.get(c);
-if(!arr){for(const[k,v]of direccionesMap){if(k.includes(c)||c.includes(k)){arr=v;break}}}
+let arr=null;
+const c=buscarCalleExacta(calle);
+if(c)arr=direccionesPorCalle(c);
+if(!arr){const cn=normalizar(calle);arr=direccionesMap.get(cn);
+if(!arr){for(const[k,v]of direccionesMap){if(k.includes(cn)||cn.includes(k)){arr=v;break}}}}
 if(!arr||!arr.length)return null;
 let lo=0,hi=arr.length-1,mejor=arr[0],mejorDist=Math.abs(arr[0].numero-num);
 while(lo<=hi){
@@ -1049,12 +1112,22 @@ if(arr[mid].numero<num)lo=mid+1;else if(arr[mid].numero>num)hi=mid-1;else return
 }
 return mejor;
 }
+
+function esNombreCompleto(q){
+const Q=tokensCalle(q);if(Q.length<2)return false;
+const r=buscarCalles(q,1)[0];if(!r)return false;
+const N=prepararCalle(r.c).filter(n=>!n.g).map(n=>n.w),QQ=Q.filter(w=>!CALLE_GEN.has(w));
+return QQ.length>0&&QQ.length===N.length&&QQ.every(w=>N.includes(w))&&N.some(w=>/\d/.test(w))}
 function parsearQuery(q){
-q=q.trim();
-const m1=q.match(/^(.+?)\s+y\s+(.+?)(?:\s+(\d+))?$/i);
+q=q.trim().replace(/\s+/g,' ');
+const sinEsq=q.replace(/^esq(?:uina)?\.?\s+/i,'');
+const me=sinEsq.match(/^(.+?)\s+(?:entre|e\/)\s+(.+?)\s+(?:y|e|&)\s+(.+)$/i);
+if(me)return{tipo:'entre',calle:me[1].trim(),desde:me[2].trim(),hasta:me[3].trim()};
+const m1=sinEsq.match(/^(.+?)\s+(?:y|e|esq\.?|esquina|con|&|\/)\s+(.+?)(?:\s+(\d+))?$/i);
 if(m1)return{tipo:'esquina',calle1:m1[1].trim(),calle2:m1[2].trim(),numero:m1[3]?parseInt(m1[3]):null};
-const m2=q.match(/^(.+?)\s+(\d+)$/);
-if(m2)return{tipo:'direccion',calle:m2[1].trim(),numero:parseInt(m2[2])};
+if(!esNombreCompleto(q)){
+const m2=q.match(/^(.+?)\s+(?:(?:n[°º]|nro\.?|num\.?|numero|#|al|altura)\s*)?(\d+)$/i);
+if(m2)return{tipo:'direccion',calle:m2[1].trim(),numero:parseInt(m2[2])}}
 return{tipo:'calle',calle:q};
 }
 
@@ -1096,6 +1169,31 @@ borrarTrazoBusqueda();
 try{if(lineaActiva)limpiarLinea()}catch(e){}
 try{if(cercaOn)detenerCerca()}catch(e){}
 Object.keys(capasActivas).forEach(k=>{if(capasActivas[k]&&capas[k])toggleCapa(k)})}
+function resolverEsquina(t1,t2){
+const A=buscarCalles(t1,5),B=buscarCalles(t2,5);
+if(!A.length||!B.length)return{cA:A[0]?A[0].c:null,cB:B[0]?B[0].c:null};
+let mejor=null;
+for(const a of A)for(const b of B){if(a.c===b.c)continue;
+if(!esquinas(a.c,b.c).length)continue;
+const sc=a.sc+b.sc;if(!mejor||sc>mejor.sc)mejor={sc,cA:a.c,cB:b.c}}
+return mejor||{cA:A[0].c,cB:B[0].c}}
+function mostrarCuadra(p){
+const A=buscarCalles(p.calle,5),D=buscarCalles(p.desde,5),H=buscarCalles(p.hasta,5);
+if(!A.length){alert(`No se encontró "${p.calle}"`);return false}
+if(!D.length){alert(`No se encontró "${p.desde}"`);return false}
+if(!H.length){alert(`No se encontró "${p.hasta}"`);return false}
+const r=resolverTramoListas(A.map(o=>o.c),D.map(o=>o.c),H.map(o=>o.c));
+if(!r.ok){mostrarNotificacion('No pude ubicar esa cuadra ('+r.motivo+'). Te muestro la calle completa.','aviso',5000);mostrarCalle(A[0].c);return true}
+limpiarBusqueda();
+trazoCalle=L.polyline(r.pts,{color:'#ef4444',weight:8,opacity:.9,lineCap:'round',lineJoin:'round'}).addTo(map);
+const m=r.pts[Math.floor(r.pts.length/2)];
+marcadorCalle=L.marker(m,{icon:L.divIcon({className:'punto-direccion',iconSize:[26,26],iconAnchor:[13,26]}),zIndexOffset:2000}).addTo(map).bindPopup(`<strong>📍 ${r.calle}</strong><br>entre ${r.desde} y ${r.hasta}<br><small>${r.largo} m</small>`).openPopup();
+map.fitBounds(trazoCalle.getBounds(),{padding:[60,60],maxZoom:18});
+const txt=`${r.calle} entre ${r.desde} y ${r.hasta}`;
+ultimaBusqueda={texto:txt,lat:m[0],lng:m[1]};mostrarBotonIr(m[0],m[1],txt);
+guardarEnHistorial(txt,'entre',m[0],m[1],txt);
+ponerTextoBusqueda(txt);
+return true}
 function mostrarCalle(c){
 limpiarBusqueda();
 const l=c.tramos.map(t=>L.polyline(t,{color:'#ef4444',weight:6,opacity:.85,lineCap:'round',lineJoin:'round'}));
@@ -1117,7 +1215,7 @@ limpiarBusqueda();
 const lA=cA.tramos.map(t=>L.polyline(t,{color:'#ef4444',weight:6,opacity:.85,lineCap:'round',lineJoin:'round'}));
 const lB=cB.tramos.map(t=>L.polyline(t,{color:'#3b82f6',weight:6,opacity:.85,lineCap:'round',lineJoin:'round'}));
 trazoCalle=L.layerGroup([...lA,...lB]).addTo(map);
-const inter=calcularIntersecciones(cA,cB);
+const inter=esquinas(cA,cB);
 if(!inter.length){alert(`No se encontró esquina entre "${cA.nombreOriginal}" y "${cB.nombreOriginal}"`);map.fitBounds(L.featureGroup([...lA,...lB]).getBounds(),{padding:[50,50]});return}
 const uni=[];for(const i of inter)if(!uni.some(u=>Math.abs(u[0]-i[0])<.0002&&Math.abs(u[1]-i[1])<.0002))uni.push(i);
 const marcs=uni.map(([la,ln])=>L.marker([la,ln],{icon:L.divIcon({className:'punto-esquina',iconSize:[22,22]}),zIndexOffset:2000}).bindPopup(`<strong>📍 Esquina</strong><br>${cA.nombreOriginal} y ${cB.nombreOriginal}`));
@@ -1150,7 +1248,7 @@ h.push('</div>');
 const hist=cargarHistorial();
 if(hist.length){
 h.push('<div class="sug-titulo" style="display:flex;justify-content:space-between;align-items:center;">🕐 Recientes <button onclick="borrarHistorial()" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:11px;padding:0;text-transform:none;letter-spacing:0;font-weight:700;">Borrar</button></div>');
-hist.forEach(x=>{const e=x.tipo==='esquina'?'🚦':x.tipo==='direccion'?'🏠':'🛣️';
+hist.forEach(x=>{const e=x.tipo==='esquina'?'🚦':x.tipo==='direccion'?'🏠':x.tipo==='entre'?'📍':'🛣️';
 h.push(`<div class="sug-item historial" data-hidx="${hist.indexOf(x)}"><div class="sug-emoji">${e}</div><div class="sug-texto"><strong>${x.nombreOriginal}</strong><small>${new Date(x.fecha).toLocaleDateString('es-AR')}</small></div></div>`)})}
 sugerencias.innerHTML=h.join('');
 sugerencias.classList.add('activo');
@@ -1163,7 +1261,8 @@ const i=parseInt(it.dataset.hidx),x=cargarHistorial()[i];if(!x)return;
 const p=parsearQuery(x.texto);
 if(x.tipo==='calle'){const c=buscarCalleExacta(x.texto);if(c)mostrarCalle(c)}
 else if(x.tipo==='direccion'){const c=buscarCalleExacta(p.calle||x.texto),d=p.tipo==='direccion'?buscarDireccionRapido(p.calle,p.numero):null;if(c&&d)mostrarDireccion(c,d);else if(c)mostrarCalle(c)}
-else if(x.tipo==='esquina'&&p.tipo==='esquina'){const cA=buscarCalleExacta(p.calle1),cB=buscarCalleExacta(p.calle2);
+else if(x.tipo==='entre'&&p.tipo==='entre')mostrarCuadra(p)
+else if(x.tipo==='esquina'&&p.tipo==='esquina'){const {cA,cB}=resolverEsquina(p.calle1,p.calle2);
 if(cA&&cB){let dc=null;if(p.numero)dc=buscarDireccionRapido(p.calle1,p.numero)||buscarDireccionRapido(p.calle2,p.numero);mostrarInterseccion(cA,cB,p.numero,dc)}
 else if(x.lat&&x.lng)map.setView([x.lat,x.lng],17)}
 btnLimpiar.style.display='flex';
@@ -1185,7 +1284,10 @@ mostrarNotificacion(`✅ Mostrando ${NOMBRES[cat]||cat}`,'exito',2000);
 function ocultarSugerencias(){sugerencias.classList.remove('activo')}
 function renderizarSugerencias(q){
 const p=parsearQuery(q),h=[];
-if(p.tipo==='esquina'){
+if(p.tipo==='entre'){
+h.push(`<div class="sug-item esquina" data-tipo="entre"><div class="sug-emoji">📍</div><div class="sug-texto"><strong>Buscar cuadra</strong><small>${p.calle} entre ${p.desde} y ${p.hasta}</small></div></div>`);
+}
+else if(p.tipo==='esquina'){
 h.push(`<div class="sug-item esquina" data-tipo="esquina"><div class="sug-emoji">🚦</div><div class="sug-texto"><strong>Buscar esquina</strong><small>${p.calle1} y ${p.calle2}${p.numero?' (altura '+p.numero+')':''}</small></div></div>`);
 }
 else if(p.tipo==='direccion'){
@@ -1197,7 +1299,7 @@ h.push(`<div class="sug-item direccion" data-tipo="direccion"><div class="sug-em
 else{
 const lug=htmlLugares(q);if(lug)h.push(lug);
 const res=buscarCalleRapido(q);
-res.forEach(c=>h.push(`<div class="sug-item" data-tipo="calle" data-nombre="${c.nombre}"><div class="sug-emoji">🛣️</div><div class="sug-texto"><strong>${c.nombreOriginal}</strong><small>Calle</small></div></div>`));
+res.forEach(c=>h.push(`<div class="sug-item" data-tipo="calle" data-nombre="${c.nombre}"><div class="sug-emoji">🛣️</div><div class="sug-texto"><strong>${c.nombreOriginal}</strong><small>${c._aprox?'Calle · parecida a lo que escribiste':'Calle'}</small></div></div>`));
 if(!res.length&&!lug&&q.length>=2)h.push(`<div class="sug-item"><div class="sug-emoji">😕</div><div class="sug-texto"><strong>Sin resultados</strong><small>Probá con otro nombre</small></div></div>`);
 }
 if(!h.length){sugerencias.classList.remove('activo');return}
@@ -1207,8 +1309,9 @@ sugerencias.querySelectorAll('.sug-item[data-tipo]').forEach(it=>it.addEventList
 const t=it.dataset.tipo;
 if(t==='cat'){borrarTodoBusqueda();abrirCercaCategoria(it.dataset.cat);input.value='';btnLimpiar.style.display='none';input.blur();return}
 if(t==='lugar'){const l=LUGARES[+it.dataset.i];if(l){limpiarBusqueda();input.value=l.nombre;btnLimpiar.style.display='flex';ocultarSugerencias();input.blur();abrirFicha(l)}return}
+if(t==='entre'){if(mostrarCuadra(p)){ocultarSugerencias();input.blur()}return}
 if(t==='esquina'){
-const cA=buscarCalleExacta(p.calle1),cB=buscarCalleExacta(p.calle2);
+const {cA,cB}=resolverEsquina(p.calle1,p.calle2);
 if(!cA){alert(`No se encontró "${p.calle1}"`);return}
 if(!cB){alert(`No se encontró "${p.calle2}"`);return}
 let dc=null;if(p.numero)dc=buscarDireccionRapido(p.calle1,p.numero)||buscarDireccionRapido(p.calle2,p.numero);
@@ -1477,12 +1580,7 @@ function recorteEntre(calle, pA, pB) {
     return [pA, ...medio.map(m => m.p), pB];
 }
 
-function resolverTramoGratis(regla) {
-    const calles = candidatosCalle(regla.c), desdes = candidatosCalle(regla.d), hastas = candidatosCalle(regla.h);
-    if (!calles.length) return { ok: false, motivo: `no está la calle "${regla.c}" en los datos` };
-    if (!desdes.length) return { ok: false, motivo: `no está la calle "${regla.d}" en los datos` };
-    if (!hastas.length) return { ok: false, motivo: `no está la calle "${regla.h}" en los datos` };
-
+function resolverTramoListas(calles, desdes, hastas) {
     // Elegimos el par de esquinas más cercano entre sí (= la cuadra correcta)
     let mejor = null;
     for (const calle of calles) for (const desde of desdes) for (const hasta of hastas) {
@@ -1502,6 +1600,15 @@ function resolverTramoGratis(regla) {
         largo: Math.round(mejor.d),
         calle: mejor.calle.nombreOriginal, desde: mejor.desde.nombreOriginal, hasta: mejor.hasta.nombreOriginal
     };
+}
+
+function resolverTramoGratis(regla) {
+    const calles = candidatosCalle(regla.c), desdes = candidatosCalle(regla.d), hastas = candidatosCalle(regla.h);
+    if (!calles.length) return { ok: false, motivo: `no está la calle "${regla.c}" en los datos` };
+    if (!desdes.length) return { ok: false, motivo: `no está la calle "${regla.d}" en los datos` };
+    if (!hastas.length) return { ok: false, motivo: `no está la calle "${regla.h}" en los datos` };
+
+    return resolverTramoListas(calles, desdes, hastas);
 }
 
 function tramoGratis(pts, calle, regla) {
