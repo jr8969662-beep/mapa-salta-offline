@@ -600,6 +600,8 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 .buscador-icono{color:var(--text-muted);display:flex;align-items:center}
 .buscador-btn.grabando{color:var(--danger)}
 .tab#btnGratis.activo{background:none!important;box-shadow:none!important;border:none!important;color:var(--success)!important}
+.leaflet-overlay-pane{mix-blend-mode:multiply;opacity:.8}
+[data-theme=dark] .leaflet-overlay-pane{mix-blend-mode:screen;opacity:.8}
 .ver-app{position:fixed;top:0;left:14px;z-index:1600;font-size:10px;line-height:12px;font-weight:700;color:#fff;background:rgba(30,64,175,.85);padding:0 7px;border-radius:0 0 7px 7px;pointer-events:none}</style>
 </head>
 <body>
@@ -660,7 +662,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v59</div>
+<div class="ver-app" id="verApp">v60</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
@@ -1491,7 +1493,7 @@ function resolverTramoGratis(regla) {
 function tramoGratis(pts, calle, regla) {
     const lado = regla.l ? ` · ${regla.l}` : '';
     return L.featureGroup([
-        L.polyline(pts, { color: '#ffffff', weight: 13, opacity: 0.8, lineCap: 'round', lineJoin: 'round', interactive: false }),
+        L.polyline(pts, { color: '#ffffff', weight: 13, opacity: 0, lineCap: 'round', lineJoin: 'round', interactive: false }),
         L.polyline(pts, { color: '#16a34a', weight: 8, opacity: 1, lineCap: 'round', lineJoin: 'round' })
     ]).bindPopup(`<strong>🟢 Estacionamiento Gratis</strong><br><small>📍 ${calle} entre ${regla.d} y ${regla.h}${lado}</small><br><small>Fuente: Municipalidad de Salta (lista oficial, 25/1/2024). Hoy la ciudad tiene unas 100 cuadras verdes y la lista completa no está publicada: guiate por el cordón pintado.</small>`);
 }
@@ -1512,7 +1514,7 @@ async function dibujarEstacionamientosGratis() {
             tr.forEach(t => {
                 const entre = (t.d && t.h) ? ` entre ${t.d} y ${t.h}` : '';
                 capas[K].addLayer(L.featureGroup([
-                    L.polyline(t.p, { color: '#ffffff', weight: 13, opacity: 0.8, lineCap: 'round', lineJoin: 'round', interactive: false }),
+                    L.polyline(t.p, { color: '#ffffff', weight: 13, opacity: 0, lineCap: 'round', lineJoin: 'round', interactive: false }),
                     L.polyline(t.p, { color: '#16a34a', weight: 8, opacity: 1, lineCap: 'round', lineJoin: 'round' })
                 ]).bindPopup(`<strong>🟢 Estacionamiento Gratis</strong><br><small>📍 ${t.c}${entre}</small><br><small>Fuente: mapa oficial de la Municipalidad de Salta. Guiate también por el cordón pintado de verde.</small>`));
                 t.p.forEach(p => trazados.push(p));
@@ -1795,7 +1797,7 @@ capaLinea.eachLayer(m=>{if(m.getLatLng&&Math.abs(m.getLatLng().lat-p.lat)<1e-6&&
 function dibujarLinea(l){
 capaLinea.clearLayers();
 l.trazos.forEach(t=>{if(t.length<2)return;
-capaLinea.addLayer(L.polyline(t,{color:'#ffffff',weight:10,opacity:.9,lineCap:'round',lineJoin:'round',interactive:false}));
+capaLinea.addLayer(L.polyline(t,{color:'#ffffff',weight:10,opacity:0,lineCap:'round',lineJoin:'round',interactive:false}));
 capaLinea.addLayer(L.polyline(t,{color:l.color,weight:6,opacity:1,lineCap:'round',lineJoin:'round',interactive:false}));});
 l.paradas.forEach(i=>{const p=SAETA.paradas[i];
 const m=L.circleMarker([p.lat,p.lng],{radius:7,color:l.color,weight:3,fillColor:'#ffffff',fillOpacity:1});

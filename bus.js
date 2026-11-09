@@ -350,7 +350,7 @@ if(i1>=i0)pts=r.pts.slice(i0,i1+1);else pts=r.pts.slice(i0).concat(r.pts.slice(0
 const all=[P.o,P.d];
 c.addLayer(L.polyline([P.o,[op.legs[0].a.lat,op.legs[0].a.lng]],{color:'#6b7280',weight:4,dashArray:'2 8',interactive:false}));
 op.legs.forEach((l,k)=>{const pts=seg(l);pts.forEach(p=>all.push(p));
-c.addLayer(L.polyline(pts,{color:'#fff',weight:10,opacity:.9,interactive:false}));
+c.addLayer(L.polyline(pts,{color:'#fff',weight:10,opacity:0,interactive:false}));
 c.addLayer(L.polyline(pts,{color:colorCod(l.cod),weight:6,opacity:1,interactive:false}));
 [[l.a,'🟢 Subís'],[l.b,'🔴 Bajás']].forEach(([s,t])=>c.addLayer(L.circleMarker([s.lat,s.lng],{radius:9,color:colorCod(l.cod),weight:4,fillColor:'#fff',fillOpacity:1}).bindTooltip(`${t} · ${esc(corto(l.cod))}`,{permanent:true,direction:'top',offset:[0,-8]})));
 if(k<op.legs.length-1){const n=op.legs[k+1].a;c.addLayer(L.polyline([[l.b.lat,l.b.lng],[n.lat,n.lng]],{color:'#6b7280',weight:4,dashArray:'2 8',interactive:false}))}});
