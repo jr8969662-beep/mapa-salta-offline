@@ -652,7 +652,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v53</div>
+<div class="ver-app" id="verApp">v54</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
@@ -2039,6 +2039,21 @@ function abrirModalOffline(){document.getElementById('modalOffline').classList.a
 function cerrarModalOffline(){document.getElementById('modalOffline').classList.remove('activo')}
 document.getElementById('btnOffline').addEventListener('click', abrirModalOffline);
 
+function listaTeselasOffline() {
+    const zonas = [
+        { b: L.latLngBounds([-24.85, -65.48], [-24.72, -65.35]), z: [13, 14, 15, 16] },   // toda la ciudad
+        { b: L.latLngBounds([-24.82, -65.45], [-24.75, -65.38]), z: [17] }                // centro y alrededores, más detalle
+    ];
+    const set = new Set();
+    zonas.forEach(zn => zn.z.forEach(z => {
+        const min = map.project(zn.b.getNorthWest(), z).divideBy(256).floor();
+        const max = map.project(zn.b.getSouthEast(), z).divideBy(256).floor();
+        for (let x = min.x; x <= max.x; x++) for (let y = min.y; y <= max.y; y++)
+            set.add(`https://tile.openstreetmap.org/${z}/${x}/${y}.png`);
+    }));
+    return [...set];
+}
+
 async function actualizarEstadoOffline() {
     const estadoEl = document.getElementById('estadoOffline');
     const textoEl = document.getElementById('textoOffline');
@@ -2060,7 +2075,8 @@ async function actualizarEstadoOffline() {
             btnIniciar.textContent = '📥 Actualizar';
         } else {
             estadoEl.textContent = '⚠️ Todavía no descargaste el mapa offline.';
-            textoEl.textContent = 'Descargá la zona de Salta Capital para usarla sin internet (tarda unos minutos).';
+            const nT = listaTeselasOffline().length;
+            textoEl.textContent = `Descargá Salta Capital para usarla sin internet: unas ${nT} teselas (~${Math.round(nT * 0.02)} MB). Conviene hacerlo con WiFi y tarda unos minutos.`;
             btnBorrar.style.display = 'none';
             btnIniciar.textContent = '📥 Descargar';
         }
@@ -2078,19 +2094,7 @@ async function iniciarDescargaOffline() {
     btn.disabled = true;
     barra.style.display = 'block';
     
-    const bounds = L.latLngBounds([-24.85, -65.48], [-24.72, -65.35]);
-    const zoomLevels = [13, 14, 15, 16];
-    let tiles = [];
-    
-    zoomLevels.forEach(z => {
-        const min = map.project(bounds.getNorthWest(), z).divideBy(256).floor();
-        const max = map.project(bounds.getSouthEast(), z).divideBy(256).floor();
-        for (let x = min.x; x <= max.x; x++) {
-            for (let y = min.y; y <= max.y; y++) {
-                tiles.push(`https://tile.openstreetmap.org/${z}/${x}/${y}.png`);
-            }
-        }
-    });
+    const tiles = listaTeselasOffline();
 
     if (!navigator.onLine) {
         mostrarNotificacion('Necesitás internet para descargar el mapa', 'aviso');
@@ -2098,6 +2102,7 @@ async function iniciarDescargaOffline() {
         return;
     }
 
+    try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) {}
     const cache = await caches.open('salta-tiles-v15');
     let descargados = 0, fallidas = 0;
     const total = tiles.length;
@@ -2108,20 +2113,23 @@ async function iniciarDescargaOffline() {
     };
 
     async function bajarUna(url) {
-        try {
-            if (!(await cache.match(url))) {
+        let ok = false;
+        for (let intento = 0; intento < 3 && !ok; intento++) {
+            try {
+                if (await cache.match(url)) { ok = true; break; }
                 const res = await fetch(url, { mode: 'cors' });
-                if (res.ok) await cache.put(url, res);
-                else fallidas++;
-            }
-        } catch (e) { fallidas++; }
+                if (res.ok) { await cache.put(url, res); ok = true; }
+            } catch (e) { }
+            if (!ok) await new Promise(r => setTimeout(r, 600 * (intento + 1)));
+        }
+        if (!ok) fallidas++;
         descargados++;
         if (descargados % 5 === 0 || descargados === total) pintar();
     }
 
-    // 4 descargas a la vez (más rápido, sin saturar el servidor de OSM)
+    // 6 descargas a la vez (más rápido, sin saturar el servidor de OSM)
     let i = 0;
-    await Promise.all(Array.from({ length: 4 }, async () => {
+    await Promise.all(Array.from({ length: 6 }, async () => {
         while (i < tiles.length) await bajarUna(tiles[i++]);
     }));
 
