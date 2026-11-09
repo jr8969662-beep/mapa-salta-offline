@@ -593,7 +593,14 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 .leaflet-touch .leaflet-bar a{width:58px;height:58px;line-height:58px;font-size:34px}
 .btn-flotante{width:66px;height:66px;font-size:34px}
 .buscador{right:88px}
-.leaflet-tile{will-change:transform;backface-visibility:hidden}.leaflet-container{touch-action:none}.ver-app{position:fixed;top:0;left:14px;z-index:1600;font-size:10px;line-height:12px;font-weight:700;color:#fff;background:rgba(30,64,175,.85);padding:0 7px;border-radius:0 0 7px 7px;pointer-events:none}</style>
+.leaflet-tile{will-change:transform;backface-visibility:hidden}.leaflet-container{touch-action:none}.tab .tab-ico svg,.hoja-item .mi-ico svg{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;display:block}
+.tab .tab-ico svg{width:.9em;height:.9em}
+.hoja-item .mi-ico{color:var(--primary)}
+.buscador-icono svg,.buscador-btn svg{width:1.15em;height:1.15em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;display:block}
+.buscador-icono{color:var(--text-muted);display:flex;align-items:center}
+.buscador-btn.grabando{color:var(--danger)}
+.tab#btnGratis.activo{background:none!important;box-shadow:none!important;border:none!important;color:var(--success)!important}
+.ver-app{position:fixed;top:0;left:14px;z-index:1600;font-size:10px;line-height:12px;font-weight:700;color:#fff;background:rgba(30,64,175,.85);padding:0 7px;border-radius:0 0 7px 7px;pointer-events:none}</style>
 </head>
 <body>
 
@@ -608,10 +615,10 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 
 <div class="buscador" id="buscador">
 <div class="buscador-contenedor">
-<span class="buscador-icono">🔍</span>
+<span class="buscador-icono"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
 <input type="text" id="inputBusqueda" placeholder="Buscar…" autocomplete="off">
 <button class="buscador-btn" id="btnLimpiar" title="Limpiar" style="display:none;">✕</button>
-<button class="buscador-btn" id="btnVoz" title="Buscar por voz">🎤</button>
+<button class="buscador-btn" id="btnVoz" title="Buscar por voz"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg></button>
 </div>
 <div class="sugerencias" id="sugerencias"></div>
 </div>
@@ -623,11 +630,11 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 </div>
 
 <nav class="barra-inferior" aria-label="Menú principal">
-<button class="tab" id="btnCentrar"><span class="tab-ico">🎯</span>Ubicación</button>
-<button class="tab" id="btnCerca"><span class="tab-ico">📡</span>Cerca</button>
-<button class="tab" id="btnColes"><span class="tab-ico">🚌</span>Colectivos</button>
-<button class="tab" id="btnGratis"><span class="tab-ico">🟢</span>Gratis</button>
-<button class="tab" id="btnMas"><span class="tab-ico">☰</span>Más<span class="badge" id="badgeMas"></span></button>
+<button class="tab" id="btnCentrar"><span class="tab-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg></span>Ubicación</button>
+<button class="tab" id="btnCerca"><span class="tab-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>Cerca</button>
+<button class="tab" id="btnColes"><span class="tab-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg></span>Colectivos</button>
+<button class="tab" id="btnGratis"><span class="tab-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M9 17V7h4a3 3 0 0 1 0 6H9"/></svg></span>Gratis</button>
+<button class="tab" id="btnMas"><span class="tab-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="18" y2="18"/></svg></span>Más<span class="badge" id="badgeMas"></span></button>
 </nav>
 
 <div class="chip-linea-mapa" id="chipLinea"><span class="lin-badge" id="chipLineaRef"></span><button class="abrir" id="chipLineaAbrir">Ver recorrido</button><button id="chipLineaX" title="Quitar">✕</button></div>
@@ -643,17 +650,17 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 <div class="hoja-asa"></div>
 <h3>Más opciones</h3>
 <div class="hoja-grid">
-<button class="hoja-item" id="btnEmerg"><span class="mi-ico">🚨</span><span class="mi-txt"><strong>Emergencias</strong><small>Comisaría y hospital cercanos</small></span></button>
+<button class="hoja-item" id="btnEmerg"><span class="mi-ico" style="color:var(--danger)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span><span class="mi-txt"><strong>Emergencias</strong><small>Comisaría y hospital cercanos</small></span></button>
 <button class="hoja-item" id="btnFiltros" style="display:none" hidden><span class="mi-ico">🎛️</span><span class="mi-txt"><strong>Filtros</strong><small>Farmacias, SAETA…</small></span><span class="badge" id="badgeFiltros">0</span></button>
 <button class="hoja-item" id="btnLugares" style="display:none" hidden><span class="mi-ico">⭐</span><span class="mi-txt"><strong>Mis lugares</strong><small>Tus favoritos</small></span></button>
 <button class="hoja-item" id="btnMedir" style="display:none" hidden><span class="mi-ico">📏</span><span class="mi-txt"><strong>Medir</strong><small>Distancia en el mapa</small></span></button>
-<button class="hoja-item" id="btnOffline"><span class="mi-ico">📥</span><span class="mi-txt"><strong>Mapa offline</strong><small>Usar sin internet</small></span></button>
-<button class="hoja-item" id="btnTema"><span class="mi-ico">🌙</span><span class="mi-txt"><strong>Modo oscuro</strong><small>Cambiar colores</small></span></button>
+<button class="hoja-item" id="btnOffline"><span class="mi-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg></span><span class="mi-txt"><strong>Mapa offline</strong><small>Usar sin internet</small></span></button>
+<button class="hoja-item" id="btnTema"><span class="mi-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span><span class="mi-txt"><strong>Modo oscuro</strong><small>Cambiar colores</small></span></button>
 </div>
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v57</div>
+<div class="ver-app" id="verApp">v59</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
@@ -812,7 +819,8 @@ setTimeout(actualizarEstadoConexion,1000);
 
 /* TEMA */
 const TEMA_KEY='salta_tema';
-function aplicarTema(t){document.documentElement.setAttribute('data-theme',t);const bt=document.getElementById('btnTema');bt.querySelector('.mi-ico').textContent=t==='dark'?'☀️':'🌙';bt.querySelector('strong').textContent=t==='dark'?'Modo claro':'Modo oscuro';try{localStorage.setItem(TEMA_KEY,t)}catch(e){}}
+const ICO_SVG={nav:'<svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>',loc:'<svg viewBox="0 0 24 24" aria-hidden="true"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg>',moon:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>',sun:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>'};
+function aplicarTema(t){document.documentElement.setAttribute('data-theme',t);const bt=document.getElementById('btnTema');bt.querySelector('.mi-ico').innerHTML=t==='dark'?ICO_SVG.sun:ICO_SVG.moon;bt.querySelector('strong').textContent=t==='dark'?'Modo claro':'Modo oscuro';try{localStorage.setItem(TEMA_KEY,t)}catch(e){}}
 function actualizarMapaOscuro(){const t=document.documentElement.getAttribute('data-theme'),m=document.getElementById('map'),ti=document.querySelector('.leaflet-tile-pane');if(t==='dark'){m.classList.add('mapa-oscuro');ti?.classList.add('mapa-oscuro')}else{m.classList.remove('mapa-oscuro');ti?.classList.remove('mapa-oscuro')}}
 function aplicarTemaYMapa(t){aplicarTema(t);actualizarMapaOscuro()}
 (function(){let t=null;try{t=localStorage.getItem(TEMA_KEY)}catch(e){};if(!t){const h=new Date().getHours();t=(h>=20||h<7)?'dark':'light'}
@@ -875,7 +883,7 @@ async function pedirPantallaActiva(){try{if(window.AndroidApp)AndroidApp.keepScr
 function soltarPantallaActiva(){try{if(window.AndroidApp)AndroidApp.keepScreenOn(false)}catch(e){}try{if(wakeLock){wakeLock.release();wakeLock=null}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&(siguiendo||navActiva))pedirPantallaActiva()});
 function seguirUsuario(on,zoom){siguiendo=on;const b=document.getElementById('btnCentrar');
-b.classList.toggle('activo',on);b.innerHTML=on?'<span class="tab-ico">🧭</span>Siguiendo':'<span class="tab-ico">🎯</span>Ubicación';
+b.classList.toggle('activo',on);b.innerHTML=on?'<span class="tab-ico">'+ICO_SVG.nav+'</span>Siguiendo':'<span class="tab-ico">'+ICO_SVG.loc+'</span>Ubicación';
 if(on){if(posVista||posicionUsuario)map.setView(posVista||posicionUsuario,Math.max(map.getZoom(),zoom||17),{animate:true});pedirPantallaActiva()}else if(!navActiva)soltarPantallaActiva()}
 function manejarPosicion(pos){const lat=pos.coords.latitude,lng=pos.coords.longitude,ahora=Date.now(),acc=pos.coords.accuracy;
 if(posicionUsuario){
