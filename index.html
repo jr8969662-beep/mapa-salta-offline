@@ -662,7 +662,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v70</div>
+<div class="ver-app" id="verApp">v71</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
@@ -833,7 +833,7 @@ document.getElementById('btnTema').addEventListener('click',()=>{const a=documen
 /* MAPA */
 const CENTRO_SALTA=[-24.789,-65.411];
 const map=L.map('map',{rotate:true,rotateControl:false,bearing:0,touchRotate:false,shiftKeyRotate:false,compassBearing:false,preferCanvas:true,fadeAnimation:false,zoomSnap:1,wheelDebounceTime:30,wheelPxPerZoomLevel:80,inertiaDeceleration:3000,tapTolerance:15}).setView(CENTRO_SALTA,14);
-const capaBase=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,maxNativeZoom:navigator.onLine?19:16,attribution:'© OpenStreetMap',updateWhenIdle:false,updateWhenZooming:false,updateInterval:80,keepBuffer:3});
+const capaBase=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,maxNativeZoom:navigator.onLine?19:16,attribution:'© OpenStreetMap',updateWhenIdle:false,updateWhenZooming:false,updateInterval:80,keepBuffer:4});
 capaBase.addTo(map);
 map.zoomControl.setPosition('topright');
 setTimeout(actualizarMapaOscuro,100);
@@ -1899,15 +1899,20 @@ actualizarBadgeFiltros();
 let precargaTimer=null;
 function precargarVecinos(){
 if(!navigator.onLine||(navigator.connection&&navigator.connection.saveData)||document.hidden)return;
-const z=Math.round(map.getZoom()),b=map.getBounds(),c=map.getCenter(),cola=[];
-const tilesDe=(zz,bb)=>{const mn=map.project(bb.getNorthWest(),zz).divideBy(256).floor(),mx=map.project(bb.getSouthEast(),zz).divideBy(256).floor(),r=[];
-for(let x=mn.x;x<=mx.x;x++)for(let y=mn.y;y<=mx.y;y++)r.push(`https://tile.openstreetmap.org/${zz}/${x}/${y}.png`);return r};
-if(z+1<=18){const w=b.pad(-0.25);const t=tilesDe(z+1,w);if(t.length<=24)cola.push(...t)}
-if(z-1>=12){const t=tilesDe(z-1,b);if(t.length<=16)cola.push(...t)}
-let i=0;const lim=Math.min(cola.length,30);
-const w=async()=>{while(i<lim){const u=cola[i++];try{await fetch(u,{mode:'cors',credentials:'omit'})}catch(e){}}};
-w();w();w()}
-function programarPrecarga(){clearTimeout(precargaTimer);precargaTimer=setTimeout(precargarVecinos,900)}
+const z=Math.round(map.getZoom()),b=map.getBounds(),cola=[],vistos=new Set();
+const tilesDe=(zz,bb)=>{const mn=map.project(bb.getNorthWest(),zz).divideBy(256).floor(),mx=map.project(bb.getSouthEast(),zz).divideBy(256).floor(),n=Math.pow(2,zz),r=[];
+for(let x=mn.x;x<=mx.x;x++)for(let y=mn.y;y<=mx.y;y++){if(y<0||y>=n)continue;r.push(`https://tile.openstreetmap.org/${zz}/${((x%n)+n)%n}/${y}.png`)}return r};
+const meter=(t,max)=>{if(t.length>max)return;t.forEach(u=>{if(!vistos.has(u)&&!_precargadas.has(u)){vistos.add(u);cola.push(u)}})};
+meter(tilesDe(z+1,b.pad(-0.15)),36);
+meter(tilesDe(z-1,b),20);
+if(z+2<=18)meter(tilesDe(z+2,b.pad(-0.35)),24);
+if(z-2>=11)meter(tilesDe(z-2,b),12);
+meter(tilesDe(z,b.pad(0.4)),40);
+let i=0;const lim=Math.min(cola.length,70);
+const w=async()=>{while(i<lim){const u=cola[i++];_precargadas.add(u);try{await fetch(u,{mode:'cors',credentials:'omit'})}catch(e){_precargadas.delete(u)}}};
+w();w();w();w();w()}
+const _precargadas=new Set();
+function programarPrecarga(){clearTimeout(precargaTimer);precargaTimer=setTimeout(precargarVecinos,350)}
 map.on('moveend',programarPrecarga);
 map.on('moveend',guardarEstadoDebounced);
 map.on('zoomend',guardarEstadoDebounced);
