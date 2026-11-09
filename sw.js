@@ -5,7 +5,7 @@
 // Cambiar también el texto de <div id="verApp"> en index.html
 // ============================================
 
-const VERSION = 'v66';
+const VERSION = 'v67';
 const CACHE_APP = 'salta-app-' + VERSION;
 // FIJO: index.html usa este nombre para descargar/borrar teselas. No lo ligues a VERSION.
 const CACHE_TILES = 'salta-tiles-v15';

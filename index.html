@@ -662,7 +662,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v66</div>
+<div class="ver-app" id="verApp">v67</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
@@ -2507,9 +2507,9 @@ const d=distA(l),est=estadoAbierto(l.oh),aprox=posicionUsuario?'':' (desde el ce
 let meta=`<span class="f-chip">📏 ${formatearDistancia(d)}${aprox}</span><span class="f-chip">🚶 ${minA(d)}</span><span class="f-chip">🚗 ${minAuto(d)}</span>`;
 if(est===true)meta+='<span class="f-chip ok">● Abierto ahora</span>';else if(est===false)meta+='<span class="f-chip no">● Cerrado ahora</span>';
 document.getElementById('fMeta').innerHTML=meta;
-const info=[];if(l.dir)info.push(`<div><span class="i">📍</span><span>${l.dir}</span></div>`);
-if(l.oh)info.push(`<div><span class="i">🕒</span><span>${l.oh.replace(/;/g,' · ')}</span></div>`);
-if(l.tel)info.push(`<div><span class="i">📞</span><span>${l.tel}</span></div>`);
+const info=[];const dl=dirLugar(l);if(dl)info.push(`<div><span class="i">📍</span><span>${dl}</span></div>`);
+if(l.oh)info.push(`<div><span class="i">🕒</span><span>${ohEs(l.oh)}</span></div>`);
+if(l.tel)info.push(`<div><span class="i">📞</span><span>${l.tel.split(/[;,]/).map(t=>`<a href="tel:${telPrimero(t)}">${t.trim()}</a>`).join(' · ')}</span></div>`);
 else if(FALLBACK_TEL[l.cat])info.push(`<div><span class="i">📞</span><span>Sin teléfono propio · ${FALLBACK_TEL[l.cat][1]}: ${FALLBACK_TEL[l.cat][0]}</span></div>`);
 if(l.web){const u=/^https?:/.test(l.web)?l.web:'https://'+l.web;info.push(`<div><span class="i">🌐</span><a href="${u}" target="_blank" rel="noopener">${l.web.replace(/^https?:\/\//,'')}</a></div>`)}
 document.getElementById('fInfo').innerHTML=info.join('');
@@ -2535,6 +2535,29 @@ const CATGRUPO={kiosco24:{c:['kiosk','convenience'],f:l=>/24\/7|00:00-24:00/.tes
 function lugaresDeCat(cat){const g=CATGRUPO[cat];if(!g)return LUGARES.filter(l=>l.cat===cat);let r=LUGARES.filter(l=>g.c.includes(l.cat)&&!l.sinNombre);if(g.f)r=r.filter(g.f);return r}
 function categoriasDeQuery(nq){const out=[];if(nq.length<3&&nq!=='bar')return out;
 for(const[cat,als]of Object.entries(ALIAS_CAT)){if(!CATGRUPO[cat]&&!LUGARES.some(l=>l.cat===cat))continue;if(CATGRUPO[cat]&&cat!=='kiosco24'&&!lugaresDeCat(cat).length)continue;if(als.some(a=>a===nq||(nq.length>=3&&a.startsWith(nq))))out.push(cat)}return out}
+/* DATOS DE CONTACTO DE LUGARES: calle más cercana, teléfono y horario en español */
+function calleCercanaA(lat,lng){
+const k=Math.cos(lat*Math.PI/180),M=111320;let best=null,bd=80;
+for(const c of callesIndex){prepararCalle(c);if(c._pen)continue;
+if(!c._bb)c._bb=obtenerBBox(c.tramos);const b=c._bb;
+if(lat<b.minLat-.001||lat>b.maxLat+.001||lng<b.minLng-.001||lng>b.maxLng+.001)continue;
+for(const t of c.tramos)for(let i=0;i<t.length-1;i++){
+const ax=(t[i][1]-lng)*k*M,ay=(t[i][0]-lat)*M,bx=(t[i+1][1]-lng)*k*M,by=(t[i+1][0]-lat)*M;
+const dx=bx-ax,dy=by-ay,l2=dx*dx+dy*dy;let u=l2?-(ax*dx+ay*dy)/l2:0;u=Math.max(0,Math.min(1,u));
+const d=Math.hypot(ax+u*dx,ay+u*dy);if(d<bd){bd=d;best=c}}}
+return best?best.nombreOriginal:''}
+function dirLugar(l){
+if(l.dir)return l.dir;
+if(l._cc===undefined){try{l._cc=calleCercanaA(l.lat,l.lng)}catch(e){l._cc=''}}
+return l._cc?l._cc+' (zona)':''}
+function telPrimero(t){return t?t.split(/[;,\/]/)[0].replace(/[^\d+]/g,''):''}
+function ohEs(o){return(o||'').replace(/\bMo\b/g,'Lun').replace(/\bTu\b/g,'Mar').replace(/\bWe\b/g,'Mié').replace(/\bTh\b/g,'Jue').replace(/\bFr\b/g,'Vie').replace(/\bSa\b/g,'Sáb').replace(/\bSu\b/g,'Dom').replace(/\bPH\b/g,'feriados').replace(/\boff\b/g,'cerrado').replace(/;/g,' · ')}
+function detalleLugar(l){
+const p=[],d=dirLugar(l);
+if(d)p.push('📍 '+d);
+const n=telPrimero(l.tel);if(n)p.push(`📞 <a href="tel:${n}" onclick="event.stopPropagation()">${l.tel.split(/[;,]/)[0].trim()}</a>`);
+if(l.oh)p.push('🕒 '+ohEs(l.oh));
+return p.join(' · ')}
 function htmlLugares(q){const nq=normTxt(q);if(nq.length<2)return '';const h=[];
 categoriasDeQuery(nq).slice(0,3).forEach(cat=>{const n=cat==='kiosco24'?lugaresDeCat('kiosco24').length||LUGARES.filter(l=>['kiosk','convenience'].includes(l.cat)).length:lugaresDeCat(cat).length;
 h.push(`<div class="sug-item cat" data-tipo="cat" data-cat="${cat}"><div class="sug-emoji">${EMOJIS[cat]||'📍'}</div><div class="sug-texto"><strong>${NOMBRES[cat]||cat} cerca de vos</strong><small>${n} lugares · ordenados por distancia</small></div></div>`)});
@@ -2543,7 +2566,7 @@ LUGARES.forEach((l,i)=>{if(NO_BUSCAR.has(l.cat)||l.sinNombre&&!['police','hospit
 const nn=normTxt(l.nombre+' '+(SING[l.cat]||''));if(!toks.every(t=>nn.includes(t)))return;
 const nl=normTxt(l.nombre);cand.push({i,l,sc:(nl.startsWith(nq)?0:(nl.includes(nq)?1:(nl.split(' ').some(w=>w.startsWith(toks[0]))?2:3)))-(l.cat==='peak'?1.5:0),d:distA(l)})});
 cand.sort((a,b)=>a.sc-b.sc||a.d-b.d);
-cand.slice(0,6).forEach(c=>h.push(`<div class="sug-item lugar" data-tipo="lugar" data-i="${c.i}"><div class="sug-emoji">${EMOJIS[c.l.cat]||'📍'}</div><div class="sug-texto"><strong>${c.l.nombre}</strong><small>${SING[c.l.cat]||NOMBRES[c.l.cat]||''} · ${formatearDistancia(c.d)}${c.l.dir?' · '+c.l.dir:''}</small></div></div>`));
+cand.slice(0,6).forEach(c=>h.push(`<div class="sug-item lugar" data-tipo="lugar" data-i="${c.i}"><div class="sug-emoji">${EMOJIS[c.l.cat]||'📍'}</div><div class="sug-texto"><strong>${c.l.nombre}</strong><small>${SING[c.l.cat]||NOMBRES[c.l.cat]||''} · ${formatearDistancia(c.d)}</small>${(()=>{const t=detalleLugar(c.l);return t?'<small>'+t+'</small>':''})()}</div></div>`));
 return h.join('')}
 /* cerca de mí */
 let cercaCat=null,cercaSoloAbierto=false;
@@ -2566,7 +2589,7 @@ const ul=document.getElementById('cercaItems');ul.innerHTML='';
 if(!items.length){ul.innerHTML=`<li class="cerca-vacio-msg">${cercaSoloAbierto?'Ninguno con horario "abierto ahora". Muchos lugares no tienen horario cargado.':'No se encontraron lugares.'}</li>`;return}
 items.forEach(it=>{const li=document.createElement('li');
 const est=it.est===true?'<span class="ab">● Abierto</span>':(it.est===false?'<span class="ce">● Cerrado</span>':'');
-li.innerHTML=`<span class="cerca-item-emoji">${EMOJIS[it.l.cat]||EMOJIS[cat]||'📍'}</span><div class="cerca-item-info"><div class="cerca-item-nombre">${it.l.nombre}</div><div class="cerca-item-sub">${est}<span>${it.l.dir||''}</span></div></div><span class="cerca-item-dist">${formatearDistancia(it.d)}<small>🚶 ${minA(it.d)}</small></span>`;
+li.innerHTML=`<span class="cerca-item-emoji">${EMOJIS[it.l.cat]||EMOJIS[cat]||'📍'}</span><div class="cerca-item-info"><div class="cerca-item-nombre">${it.l.nombre}</div><div class="cerca-item-sub">${est}<span>${dirLugar(it.l)}</span></div></div><span class="cerca-item-dist">${formatearDistancia(it.d)}<small>🚶 ${minA(it.d)}</small></span>`;
 li.onclick=()=>{cerrarModalCerca();abrirFicha(it.l)};ul.appendChild(li)})}
 function cerrarModalCerca(){document.getElementById('modalCerca').classList.remove('activo');document.getElementById('cercaResultados').style.display='none';document.getElementById('cercaLista').style.display='flex';document.getElementById('cercaBuscar').style.display=''}
 function volverCategoriasCerca(){document.getElementById('cercaLista').style.display='flex';document.getElementById('cercaBuscar').style.display='';document.getElementById('cercaResultados').style.display='none'}
