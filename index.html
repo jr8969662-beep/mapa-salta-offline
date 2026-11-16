@@ -662,7 +662,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v71</div>
+<div class="ver-app" id="verApp">v72</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
@@ -1908,11 +1908,11 @@ meter(tilesDe(z-1,b),20);
 if(z+2<=18)meter(tilesDe(z+2,b.pad(-0.35)),24);
 if(z-2>=11)meter(tilesDe(z-2,b),12);
 meter(tilesDe(z,b.pad(0.4)),40);
-let i=0;const lim=Math.min(cola.length,70);
+let i=0;const lim=Math.min(cola.length,40);
 const w=async()=>{while(i<lim){const u=cola[i++];_precargadas.add(u);try{await fetch(u,{mode:'cors',credentials:'omit'})}catch(e){_precargadas.delete(u)}}};
-w();w();w();w();w()}
+w();w();w()}
 const _precargadas=new Set();
-function programarPrecarga(){clearTimeout(precargaTimer);precargaTimer=setTimeout(precargarVecinos,350)}
+function programarPrecarga(){clearTimeout(precargaTimer);precargaTimer=setTimeout(precargarVecinos,700)}
 map.on('moveend',programarPrecarga);
 map.on('moveend',guardarEstadoDebounced);
 map.on('zoomend',guardarEstadoDebounced);
