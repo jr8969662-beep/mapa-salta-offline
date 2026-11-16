@@ -449,7 +449,14 @@ const data=await traerBuses([best.cod]);const e=etaParada(best.cod,best.s,data);
 const el2=$(elId);if(el2)el2.innerHTML=`<div style="margin-top:6px">🕒 ${etaTxt(e)}</div><button class="bs-btn" style="margin-top:6px" onclick="BUS.avisarLlega('${best.cod}',${best.s.k})">🔔 Avisarme</button>`
 }catch(e){const el=$(elId);if(el)el.innerHTML='<small>⚠️ No se pudo calcular el tiempo.</small>'}}
 
-window.BUS={traer:traerBuses,nuevoRegistro,limpiar:limpiarRegistro,pintar,paradasCerca,planificar,verOpcion,volverPlan,cerrar,avisarLlega,avisarBajar,quitarAviso,irParada,etaPopup,
+/* líneas cuyo recorrido pasa a menos de `radio` metros de un punto (las demás no hace falta pedirlas) */
+async function lineasCerca(lat,lng,radio,cods){
+await cargarRB();
+const kx=111320*Math.cos(lat*rad),ky=110540,r2=radio*radio;
+return cods.filter(cod=>{const r=RB[cod];if(!r)return true;
+for(let i=0;i<r.pts.length;i++){const dx=(r.pts[i][1]-lng)*kx,dy=(r.pts[i][0]-lat)*ky;if(dx*dx+dy*dy<=r2)return true}
+return false})}
+window.BUS={traer:traerBuses,lineasCerca,nuevoRegistro,limpiar:limpiarRegistro,pintar,paradasCerca,planificar,verOpcion,volverPlan,cerrar,avisarLlega,avisarBajar,quitarAviso,irParada,etaPopup,
   _t:{armarRB,proyectar,planear,etaParada,set:(x)=>{RB=x}}};
 cargarAvisos();
 })();

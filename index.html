@@ -662,7 +662,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v74</div>
+<div class="ver-app" id="verApp">v75</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
@@ -2641,10 +2641,11 @@ if(!u||!/^https:\/\/.+/.test(u.trim())){mostrarNotificacion('Hace falta la direc
 u=u.trim().replace(/\/+$/,'');try{localStorage.setItem('salta_vivo_url',u)}catch(e){}}
 iniciarVivo(ref);vistaLinea(ref)}
 function iniciarVivo(ref){detenerVivo();vivoRef=ref;if(!capaVivo)capaVivo=L.layerGroup().addTo(map);
-actualizarVivo();vivoTimer=setInterval(()=>{if(document.visibilityState==='visible')actualizarVivo()},5000)}
+actualizarVivo();vivoTimer=setInterval(()=>{if(document.visibilityState==='visible'&&(++tickVivo%(1+fallosVivo))===0)actualizarVivo()},5000)}
 function detenerVivo(){clearInterval(vivoTimer);vivoTimer=null;vivoRef=null;if(window.BUS&&regVivo)BUS.limpiar(regVivo);if(capaVivo)capaVivo.clearLayers();vivoMarcas={}}
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&vivoRef)actualizarVivo()});
 
+let tickVivo=0,fallosVivo=0;
 const vivoPrev={};
 async function pedirVivo(cods){const base=urlVivo().replace(/\/+$/,'');const out={};
 for(let i=0;i<cods.length;i+=40){const r=await fetch(`${base}/vivo?l=${cods.slice(i,i+40).join(',')}`,{cache:'no-store'});
@@ -2662,11 +2663,11 @@ if(!REDBUS){mostrarNotificacion('Cargando líneas…','aviso',2000);return}
 if(!posicionUsuario){mostrarNotificacion('Primero activá tu ubicación (botón 📍)','aviso',3500);return}
 cercaOn=true;if(!capaCerca)capaCerca=L.layerGroup().addTo(map);
 let bar=document.createElement('div');bar.id='cercaBar';bar.className='cerca-bar';bar.innerHTML='<span id="cercaTxt">Buscando colectivos cerca…</span><button onclick="detenerCerca()">✕</button>';document.body.appendChild(bar);
-map.setView(posicionUsuario,Math.max(map.getZoom(),16));actualizarCerca();cercaTimer=setInterval(()=>{if(document.visibilityState==='visible')actualizarCerca()},5000)}
-let cercaCargando=false;
+map.setView(posicionUsuario,Math.max(map.getZoom(),16));actualizarCerca();cercaTimer=setInterval(()=>{if(document.visibilityState==='visible'&&(++tickCerca%(1+fallosCerca))===0)actualizarCerca()},4000)}
+let cercaCargando=false,tickCerca=0,fallosCerca=0;
 async function actualizarCerca(){if(cercaCargando||!cercaOn)return;cercaCargando=true;
-try{const cods=REDBUS.lineas.map(a=>a[0]);const data=await BUS.traer(cods);if(!cercaOn)return;
-const me=posicionUsuario,vistos=new Set(),lista=[];
+try{const me=posicionUsuario;const cods=await BUS.lineasCerca(me[0],me[1],2500,REDBUS.lineas.map(a=>a[0]));const data=await BUS.traer(cods);if(!cercaOn)return;fallosCerca=0;
+const vistos=new Set(),lista=[];
 cods.forEach(cod=>{const d=data[cod];if(!d||!d.posiciones)return;d.posiciones.forEach(b=>{if(b.latitud==null||b.longitud==null)return;
 const dist=haversine(me[0],me[1],b.latitud,b.longitud);if(dist>1500)return;lista.push({b,cod,dist})})});
 lista.sort((x,y)=>x.dist-y.dist);
@@ -2674,12 +2675,12 @@ if(!regCerca)regCerca=BUS.nuevoRegistro(capaCerca);
 BUS.pintar(regCerca,lista.map(({b,cod})=>({id:cod+'-'+b.interno,cod,b,color:'#2563eb',txt:etiquetaCod(cod).split(' ')[0]})));
 const hora=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 const t=document.getElementById('cercaTxt');if(t)t.innerHTML=lista.length?`<b>● EN VIVO</b> · ${lista.length} colectivo${lista.length>1?'s':''} a menos de 1,5 km · más cercano: <b>${escHtml(etiquetaCod(lista[0].cod))}</b> a ${Math.round(lista[0].dist)} m · ${hora}`:`<b>● EN VIVO</b> · Ningún colectivo a menos de 1,5 km · ${hora}`;
-}catch(e){const t=document.getElementById('cercaTxt');if(t)t.textContent='⚠️ Sin conexión con el servidor en vivo. Reintentando…'}finally{cercaCargando=false}}
+}catch(e){fallosCerca=Math.min(fallosCerca+1,4);const t=document.getElementById('cercaTxt');if(t)t.textContent='⚠️ Sin conexión con el servidor en vivo. Reintentando…'}finally{cercaCargando=false}}
 async function actualizarVivo(){
 const ref=vivoRef;if(!ref||vivoCargando)return;const cods=codigosVivo(ref);if(!cods.length)return;
 vivoCargando=true;
 try{
-const data=await BUS.traer(cods);if(vivoRef!==ref)return;
+const data=await BUS.traer(cods);if(vivoRef!==ref)return;fallosVivo=0;
 const l=SAETA.porRef[ref],color=l?l.color:'#2563eb';const lista=[];let cong=0,par=0;
 cods.forEach(cod=>{const d=data[cod];if(!d||!d.posiciones)return;
 d.posiciones.forEach(b=>{if(b.latitud==null||b.longitud==null)return;
@@ -2689,7 +2690,7 @@ if(!regVivo)regVivo=BUS.nuevoRegistro(capaVivo);
 BUS.pintar(regVivo,lista);
 const n=lista.length,hora=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 estadoVivo(n?`<b>● EN VIVO</b> · ${n} colectivo${n>1?'s':''}: ${n-cong-par} en movimiento${par?`, ${par} detenido${par>1?'s':''}`:''}${cong?`, ${cong} con señal congelada ⚠️`:''} · actualizado ${hora}`:`<b>● EN VIVO</b> · Ningún colectivo de esta línea está transmitiendo su ubicación ahora (puede no estar en servicio a esta hora o no tener el GPS conectado) · ${hora}`);
-}catch(e){estadoVivo('⚠️ No se pudo conectar con el servidor en vivo. Reintentando…');console.warn('vivo',e)}
+}catch(e){fallosVivo=Math.min(fallosVivo+1,4);estadoVivo('⚠️ No se pudo conectar con el servidor en vivo. Reintentando…');console.warn('vivo',e)}
 finally{vivoCargando=false}}
 cargarRedbus();
 
