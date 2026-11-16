@@ -662,7 +662,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v73</div>
+<div class="ver-app" id="verApp">v74</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
@@ -1923,8 +1923,6 @@ console.time('carga');
 try{
 await Promise.all([
 cargarCalles(),
-cargarDirecciones(),
-cargarBarrios(),
 cargarRutasSaeta().then(()=>cargarSitios())
 ]);
 await dibujarEstacionamientosGratis();
@@ -1935,6 +1933,7 @@ cargarLugaresGuardados();
 restaurarEstado();
 console.timeEnd('carga');
 console.log('✅ App lista');
+setTimeout(()=>{cargarDirecciones();cargarBarrios()},400);
 }catch(e){
 console.error('Error carga inicial:',e);
 }
