@@ -662,7 +662,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v72</div>
+<div class="ver-app" id="verApp">v73</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
@@ -2348,15 +2348,27 @@ async function actualizarEstadoOffline() {
         }
         const cache = await caches.open('salta-tiles-v15');
         const keys = await cache.keys();
-        if (keys.length > 0) {
-            estadoEl.innerHTML = `✅ Mapa offline listo. <strong>${keys.length}</strong> teselas guardadas en el teléfono.`;
-            textoEl.textContent = 'Podés borrarlas si necesitás liberar espacio.';
+        const guardadas = new Set(keys.map(k => k.url));
+        const plan = listaTeselasOffline();
+        const tiene = plan.filter(u => guardadas.has(u)).length;
+        const pct = Math.round(tiene / plan.length * 100);
+        let uso = '';
+        try { if (navigator.storage && navigator.storage.estimate) { const e = await navigator.storage.estimate(); if (e.usage) uso = ` Ocupa unos ${Math.round(e.usage / 1048576)} MB en el teléfono.`; } } catch (e) {}
+        let fecha = '';
+        try { const f = +localStorage.getItem('offlineFecha'); if (f) { const d = Math.floor((Date.now() - f) / 86400000); fecha = d < 1 ? ' Descargado hoy.' : ` Descargado hace ${d} día${d === 1 ? '' : 's'}.`; } } catch (e) {}
+        if (tiene === plan.length) {
+            estadoEl.innerHTML = `✅ Mapa offline completo de Salta Capital (<strong>${plan.length}</strong> teselas).`;
+            textoEl.textContent = `Funciona sin internet en toda la ciudad.${fecha}${uso} Podés borrarlas si necesitás liberar espacio.`;
             btnBorrar.style.display = 'block';
             btnIniciar.textContent = '📥 Actualizar';
+        } else if (tiene > 0) {
+            estadoEl.innerHTML = `⚠️ Mapa offline <strong>incompleto</strong>: ${tiene} de ${plan.length} teselas (${pct}%).`;
+            textoEl.textContent = `Sin internet van a faltar zonas. Tocá "Completar" con buena señal.${uso}`;
+            btnBorrar.style.display = 'block';
+            btnIniciar.textContent = '📥 Completar';
         } else {
             estadoEl.textContent = '⚠️ Todavía no descargaste el mapa offline.';
-            const nT = listaTeselasOffline().length;
-            textoEl.textContent = `Descargá Salta Capital para usarla sin internet: unas ${nT} teselas (~${Math.round(nT * 0.02)} MB). Conviene hacerlo con WiFi y tarda unos minutos.`;
+            textoEl.textContent = `Descargá Salta Capital para usarla sin internet: unas ${plan.length} teselas (~${Math.round(plan.length * 0.02)} MB). Conviene hacerlo con WiFi y tarda unos minutos.`;
             btnBorrar.style.display = 'none';
             btnIniciar.textContent = '📥 Descargar';
         }
@@ -2419,6 +2431,7 @@ async function iniciarDescargaOffline() {
         actualizarEstadoOffline();
         return;
     }
+    try { localStorage.setItem('offlineFecha', String(Date.now())); } catch (e) {}
     mostrarNotificacion('✅ Descarga offline completa', 'exito', 4000);
     btn.disabled = false;
     actualizarEstadoOffline();
@@ -2427,7 +2440,7 @@ async function iniciarDescargaOffline() {
 async function borrarTeselas() {
     if (!confirm('¿Borrar todas las teselas descargadas? El mapa offline dejará de funcionar.')) return;
     try {
-        await caches.delete('salta-tiles-v15');
+        await caches.delete('salta-tiles-v15');try{localStorage.removeItem('offlineFecha')}catch(e){}
         mostrarNotificacion('🗑️ Teselas borradas', 'exito');
         document.getElementById('barraOffline').style.display = 'none';
         document.getElementById('infoProgreso').textContent = '';

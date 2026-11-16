@@ -5,7 +5,7 @@
 // Cambiar también el texto de <div id="verApp"> en index.html
 // ============================================
 
-const VERSION = 'v72';
+const VERSION = 'v73';
 const CACHE_APP = 'salta-app-' + VERSION;
 // FIJO: index.html usa este nombre para descargar/borrar teselas. No lo ligues a VERSION.
 const CACHE_TILES = 'salta-tiles-v15';
@@ -84,10 +84,33 @@ let _cacheTeselas = null;
 function abrirCacheTeselas() { return _cacheTeselas || (_cacheTeselas = caches.open(CACHE_TILES)); }
 
 let _nuevas = 0;
+// Zonas del mapa offline descargado ([sur, oeste, norte, este]): estas teselas nunca se recortan
+const ZONAS_PROTEGIDAS = [
+    { b: [-24.85, -65.48, -24.72, -65.35], z: [13, 14, 15, 16] },
+    { b: [-24.82, -65.45, -24.75, -65.38], z: [17] }
+];
+function teselaXY(lat, lng, z) {
+    const n = Math.pow(2, z), r = lat * Math.PI / 180;
+    return [Math.floor((lng + 180) / 360 * n), Math.floor((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n)];
+}
+const RANGOS_PROTEGIDOS = [];
+ZONAS_PROTEGIDAS.forEach((zn) => zn.z.forEach((z) => {
+    const mn = teselaXY(zn.b[2], zn.b[1], z), mx = teselaXY(zn.b[0], zn.b[3], z);
+    RANGOS_PROTEGIDOS.push({ z, x0: mn[0], x1: mx[0], y0: mn[1], y1: mx[1] });
+}));
+function esProtegida(urlStr) {
+    const m = /\/(\d+)\/(\d+)\/(\d+)\.png/.exec(urlStr);
+    if (!m) return false;
+    const z = +m[1], x = +m[2], y = +m[3];
+    return RANGOS_PROTEGIDOS.some((r) => r.z === z && x >= r.x0 && x <= r.x1 && y >= r.y0 && y <= r.y1);
+}
 function recortarTeselas(cache) {
-    // Cada tanto, si hay demasiadas teselas guardadas, se borran las más viejas (las descargadas primero)
+    // Cada tanto, si hay demasiadas teselas sueltas, se borran las más viejas, pero nunca las del mapa offline descargado
     if (++_nuevas % 300) return;
-    cache.keys().then((ks) => { if (ks.length > 8000) ks.slice(0, ks.length - 6000).forEach((k) => cache.delete(k)); });
+    cache.keys().then((ks) => {
+        const libres = ks.filter((k) => !esProtegida(k.url));
+        if (libres.length > 6000) libres.slice(0, libres.length - 4000).forEach((k) => cache.delete(k));
+    });
 }
 
 self.addEventListener('fetch', (event) => {
