@@ -48,7 +48,7 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 .conexion-aviso.offline{background:var(--warning);color:#000}
 .conexion-aviso.online{background:var(--success);color:#fff}
 
-.leaflet-tile-pane.mapa-oscuro{filter:invert(1) hue-rotate(180deg) brightness(.88) contrast(1.25) saturate(.6)}
+.leaflet-tile-pane.mapa-oscuro{filter:invert(1) hue-rotate(180deg) brightness(1.02) contrast(.88) saturate(.5)}
 #map.mapa-oscuro::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(30,64,175,.18) 0%,rgba(88,28,135,.12) 50%,rgba(15,23,42,.25) 100%);pointer-events:none;z-index:400;mix-blend-mode:multiply}
 #map.mapa-oscuro::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 0%,rgba(0,0,0,.35) 100%);pointer-events:none;z-index:401;mix-blend-mode:multiply}
 
@@ -199,7 +199,7 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 .punto-usuario{width:22px;height:22px;position:relative}
 .punto-usuario .circulo{width:100%;height:100%;background:var(--primary-light);border:3px solid #fff;border-radius:50%;box-shadow:0 0 0 2px rgba(59,130,246,.3),0 4px 12px rgba(0,0,0,.3);animation:pulso 2s infinite}
 .punto-usuario.sin-senal .circulo{background:#94a3b8;animation:none;box-shadow:0 0 0 2px rgba(148,163,184,.4)}
-.punto-usuario .flecha{position:absolute;top:-14px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:14px solid var(--primary-light);filter:drop-shadow(0 2px 4px rgba(0,0,0,.3));transform-origin:50% 25px}
+.punto-usuario .circulo{position:relative;z-index:1}.punto-usuario .flecha{position:absolute;left:50%;top:50%;margin-top:-40px;width:80px;height:80px;border-radius:50%;background:conic-gradient(from -30deg,rgba(59,130,246,.55) 0deg 60deg,transparent 60deg);-webkit-mask:radial-gradient(circle,#000 0 22%,transparent 70%);mask:radial-gradient(circle,#000 0 22%,transparent 70%);pointer-events:none;z-index:0;transform-origin:50% 50%;transition:transform .25s linear}
 @keyframes pulso{0%{box-shadow:0 0 0 2px rgba(59,130,246,.4),0 4px 12px rgba(0,0,0,.3)}50%{box-shadow:0 0 0 12px rgba(59,130,246,0),0 4px 12px rgba(0,0,0,.3)}100%{box-shadow:0 0 0 2px rgba(59,130,246,.4),0 4px 12px rgba(0,0,0,.3)}}
 .circulo-precision{background:rgba(59,130,246,.12);border:2px solid rgba(59,130,246,.3);border-radius:50%;pointer-events:none}
 
@@ -386,7 +386,7 @@ body{background:var(--bg);color:var(--text);transition:background .3s,color .3s}
 [data-theme=dark] .marcador-sitio.marcador-lomada{background:#fb923c;border-color:#fed7aa;box-shadow:0 0 16px rgba(251,146,60,.6),0 2px 6px rgba(0,0,0,.5)}
 [data-theme=dark] .marcador-sitio.marcador-plaza{background:var(--success);border-color:#6ee7b7;box-shadow:0 0 16px rgba(52,211,153,.6),0 2px 6px rgba(0,0,0,.5)}
 [data-theme=dark] .punto-usuario .circulo{background:var(--primary);box-shadow:0 0 0 3px rgba(96,165,250,.4),0 0 20px rgba(96,165,250,.8),0 4px 12px rgba(0,0,0,.5)}
-[data-theme=dark] .punto-usuario .flecha{border-bottom-color:var(--primary);filter:drop-shadow(0 0 6px rgba(96,165,250,.8))}
+[data-theme=dark] .punto-usuario .flecha{background:conic-gradient(from -30deg,rgba(96,165,250,.6) 0deg 60deg,transparent 60deg)}
 [data-theme=dark] .circulo-precision{background:rgba(96,165,250,.08);border-color:rgba(96,165,250,.25)}
 [data-theme=dark] .cluster-icon{background:var(--primary);color:#0f172a;box-shadow:0 0 24px rgba(96,165,250,.6),0 0 0 8px rgba(96,165,250,.2);border-color:#f8fafc}
 [data-theme=dark] .cluster-icon.medium{background:var(--accent);color:#0f172a;box-shadow:0 0 24px rgba(251,191,36,.6),0 0 0 10px rgba(251,191,36,.2)}
@@ -660,12 +660,13 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 <button class="hoja-item" id="btnLugares" style="display:none" hidden><span class="mi-ico">⭐</span><span class="mi-txt"><strong>Mis lugares</strong><small>Tus favoritos</small></span></button>
 <button class="hoja-item" id="btnMedir" style="display:none" hidden><span class="mi-ico">📏</span><span class="mi-txt"><strong>Medir</strong><small>Distancia en el mapa</small></span></button>
 <button class="hoja-item" id="btnOffline"><span class="mi-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg></span><span class="mi-txt"><strong>Mapa offline</strong><small>Usar sin internet</small></span></button>
+<button class="hoja-item" id="btnLetras"><span class="mi-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" x2="15" y1="20" y2="20"/><line x1="12" x2="12" y1="4" y2="20"/></svg></span><span class="mi-txt"><strong>Letras grandes en el mapa</strong><small>Nombres de calles más grandes</small></span></button>
 <button class="hoja-item" id="btnTema"><span class="mi-ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg></span><span class="mi-txt"><strong>Modo oscuro</strong><small>Cambiar colores</small></span></button>
 </div>
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v77</div>
+<div class="ver-app" id="verApp">v78</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
@@ -815,7 +816,8 @@ buscador.classList.add('ajustado');
 }
 }
 /* Offline: los zoom 17-19 no se descargan, así que Leaflet agranda las de zoom 16 */
-function ajustarZoomTeselas(){if(typeof capaBase==='undefined')return;const z=navigator.onLine?19:16;if(capaBase.options.maxNativeZoom!==z){capaBase.options.maxNativeZoom=z;capaBase.redraw()}}
+function ajustarZoomTeselas(){if(typeof capaBase==='undefined')return;const o=optsBase();if(capaBase.options.maxNativeZoom!==o.maxNativeZoom){capaBase.options.maxNativeZoom=o.maxNativeZoom;capaBase.redraw()}}
+function ponerLetrasGrandes(on){letrasGrandes=on;try{localStorage.setItem('salta_letras',on?'1':'0')}catch(e){}Object.assign(capaBase.options,optsBase());capaBase.redraw();const b=document.getElementById('btnLetras');if(b)b.querySelector('small').textContent=on?'Activado · tocá para volver al normal':'Nombres de calles más grandes'}
 window.addEventListener('online',()=>ajustarZoomTeselas());
 window.addEventListener('offline',()=>ajustarZoomTeselas());
 window.addEventListener('online',actualizarEstadoConexion);
@@ -831,12 +833,15 @@ function aplicarTemaYMapa(t){aplicarTema(t);actualizarMapaOscuro()}
 (function(){let t=null;try{t=localStorage.getItem(TEMA_KEY)}catch(e){};if(!t){const h=new Date().getHours();t=(h>=20||h<7)?'dark':'light'}
 if(/MapaSaltaApp/.test(navigator.userAgent))t='dark';/* en el APK siempre arranca en modo oscuro */
 aplicarTema(t)})();
+document.getElementById('btnLetras').addEventListener('click',()=>{ponerLetrasGrandes(!letrasGrandes);mostrarNotificacion(letrasGrandes?'🔠 Letras grandes activadas':'Letras normales','info',2000)});
 document.getElementById('btnTema').addEventListener('click',()=>{const a=document.documentElement.getAttribute('data-theme');aplicarTemaYMapa(a==='dark'?'light':'dark')});
 
 /* MAPA */
 const CENTRO_SALTA=[-24.789,-65.411];
-const map=L.map('map',{rotate:true,rotateControl:false,bearing:0,touchRotate:false,shiftKeyRotate:false,compassBearing:false,preferCanvas:true,fadeAnimation:false,zoomSnap:1,wheelDebounceTime:30,wheelPxPerZoomLevel:80,inertiaDeceleration:3000,tapTolerance:15}).setView(CENTRO_SALTA,14);
-const capaBase=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,maxNativeZoom:navigator.onLine?19:16,attribution:'© OpenStreetMap',updateWhenIdle:false,updateWhenZooming:false,updateInterval:80,keepBuffer:4});
+const map=L.map('map',{rotate:true,rotateControl:false,bearing:0,touchRotate:true,shiftKeyRotate:false,compassBearing:false,preferCanvas:true,fadeAnimation:false,zoomSnap:0.5,zoomDelta:1,wheelDebounceTime:30,wheelPxPerZoomLevel:80,inertiaDeceleration:3000,tapTolerance:15}).setView(CENTRO_SALTA,14);
+let letrasGrandes=false;try{letrasGrandes=localStorage.getItem('salta_letras')==='1'}catch(e){}
+function optsBase(){return letrasGrandes?{tileSize:512,zoomOffset:-1,maxNativeZoom:navigator.onLine?19:17}:{tileSize:256,zoomOffset:0,maxNativeZoom:navigator.onLine?19:16}}
+const capaBase=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{...optsBase(),maxZoom:19,attribution:'© OpenStreetMap',updateWhenIdle:false,updateWhenZooming:false,updateInterval:80,keepBuffer:4});
 /* Capa de fondo de baja resolución: tapa los huecos mientras bajan las imágenes al alejar o mover el mapa */
 const capaFondo=L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,maxNativeZoom:12,minZoom:0,zIndex:0,className:'capa-fondo',updateWhenIdle:false,updateWhenZooming:false,keepBuffer:8,attribution:''});
 capaFondo.addTo(map);
@@ -851,6 +856,14 @@ a.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0
 L.DomEvent.disableClickPropagation(d);L.DomEvent.on(a,'click',e=>{L.DomEvent.preventDefault(e);if(typeof abrirModalOffline==='function')abrirModalOffline()});
 return d}});
 new CtrlOffline().addTo(map);
+const CtrlNorte=L.Control.extend({options:{position:'topright'},onAdd(){
+const d=L.DomUtil.create('div','leaflet-bar leaflet-control ctrl-offline ctrl-norte');d.style.display='none';
+const a=L.DomUtil.create('a','',d);a.href='#';a.title='Volver al norte';a.setAttribute('aria-label','Volver al norte');
+a.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 2 16 12 12 10 8 12 12 2" fill="#ef4444" stroke="#ef4444"/><polygon points="12 22 8 12 12 14 16 12 12 22"/></svg>';
+L.DomEvent.disableClickPropagation(d);L.DomEvent.on(a,'click',e=>{L.DomEvent.preventDefault(e);rotacionAutomatica=false;try{map.setBearing(0)}catch(x){}});
+this._d=d;this._a=a;return d}});
+const ctrlNorte=new CtrlNorte().addTo(map);
+map.on('rotate',()=>{const b=map.getBearing?map.getBearing():0;const n=((b%360)+360)%360;ctrlNorte._d.style.display=(n>2&&n<358)?'':'none';ctrlNorte._a.querySelector('svg').style.transform=`rotate(${b}deg)`;if(typeof actualizarFlecha==='function')actualizarFlecha()});
 setTimeout(actualizarMapaOscuro,100);
 setTimeout(()=>{if(!navigator.onLine)return;const zs=[[10,-25.2,-65.8,-24.4,-65.0],[11,-25.0,-65.65,-24.55,-65.2],[12,-24.95,-65.6,-24.62,-65.3]];
 const t=(la,ln,z)=>{const n=2**z,r=la*Math.PI/180;return[Math.floor((ln+180)/360*n),Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*n)]};
@@ -884,7 +897,7 @@ let posicionUsuario=null,headingUsuario=null,posicionAnterior=null,timestampAnte
 let ultimaVelocidad=0,marcadorUsuario=null,circuloPrecision=null,primerUbicacion=false,usarBrujulaDispositivo=false;
 let rotacionAutomatica=false,precisionActual=null;
 const iconoUsuario=L.divIcon({className:'punto-usuario',html:'<div class="flecha" id="flechaUsuario" style="transform:translateX(-50%) rotate(0deg);display:none;"></div><div class="circulo"></div>',iconSize:[22,22],iconAnchor:[11,11]});
-function actualizarFlecha(){const f=document.getElementById('flechaUsuario');if(!f)return;f.style.transform=`translateX(-50%) rotate(${headingUsuario||0}deg)`;f.style.display=headingUsuario!=null?'block':'none'}
+function actualizarFlecha(){const f=document.getElementById('flechaUsuario');if(!f)return;f.style.transform=`translateX(-50%) rotate(${(headingUsuario||0)+(map.getBearing?map.getBearing():0)}deg)`;f.style.display=headingUsuario!=null?'block':'none'}
 function actualizarCalidadGps(acc){const el=document.getElementById('calidadGps'),txt=document.getElementById('calidadTexto');el.classList.remove('excelente','buena','regular','mala');let cal,label;
 if(acc<10){cal='excelente';label=`Excelente (±${Math.round(acc)} m)`}else if(acc<30){cal='buena';label=`Buena (±${Math.round(acc)} m)`}else if(acc<100){cal='regular';label=`Regular (±${Math.round(acc)} m)`}else{cal='mala';label=`Mala (±${Math.round(acc)} m)`}
 el.classList.add(cal,'activo');txt.textContent=label}
@@ -922,7 +935,7 @@ if(pos.coords.heading!=null&&!isNaN(pos.coords.heading)&&vel>1.5){headingUsuario
 else if(posicionAnterior&&!usarBrujulaDispositivo){const dist=haversine(posicionAnterior[0],posicionAnterior[1],lat,lng);if(dist>3)headingUsuario=calcularRumbo(posicionAnterior[0],posicionAnterior[1],lat,lng)}
 posicionAnterior=[lat,lng];timestampAnterior=ahora;posicionUsuario=[lat,lng];
 if(!marcadorUsuario){marcadorUsuario=L.marker([lat,lng],{icon:iconoUsuario,zIndexOffset:1000}).addTo(map);posVista=[lat,lng]}
-if(!circuloPrecision)circuloPrecision=L.circle([lat,lng],{radius:acc,className:'circulo-precision',interactive:false}).addTo(map);
+if(!circuloPrecision)circuloPrecision=L.circle([lat,lng],{radius:acc,interactive:false,stroke:true,color:'#3b82f6',weight:1,opacity:.35,fillColor:'#3b82f6',fillOpacity:.1}).addTo(map);
 else circuloPrecision.setRadius(acc);
 moverMarcadorSuave([lat,lng]);ultimoFix=ahora;ponerSenal(true);
 actualizarFlecha();
@@ -1916,9 +1929,16 @@ actualizarBadgeFiltros();
 }
 /* Precarga de teselas de los zoom vecinos: al acercar o alejar ya están guardadas */
 let precargaTimer=null;
+/* El mapa sin internet se renueva solo cada 30 días, con WiFi y en segundo plano */
+function refrescarOfflineSiToca(){
+try{const f=+localStorage.getItem('offlineFecha');if(!f||Date.now()-f<30*86400000)return;
+const c=navigator.connection;if(!navigator.onLine||(c&&(c.saveData||(c.type&&c.type!=='wifi'&&c.type!=='ethernet'))))return;
+if(!navigator.serviceWorker||!navigator.serviceWorker.controller)return;
+navigator.serviceWorker.controller.postMessage({tipo:'refrescarTeselas',urls:listaTeselasOffline()});
+localStorage.setItem('offlineFecha',String(Date.now()))}catch(e){}}
 function precargarVecinos(){
 if(!navigator.onLine||(navigator.connection&&navigator.connection.saveData)||document.hidden)return;
-const z=Math.round(map.getZoom()),b=map.getBounds(),cola=[],vistos=new Set();
+const z=Math.round(map.getZoom())-(letrasGrandes?1:0),b=map.getBounds(),cola=[],vistos=new Set();
 const tilesDe=(zz,bb)=>{const mn=map.project(bb.getNorthWest(),zz).divideBy(256).floor(),mx=map.project(bb.getSouthEast(),zz).divideBy(256).floor(),n=Math.pow(2,zz),r=[];
 for(let x=mn.x;x<=mx.x;x++)for(let y=mn.y;y<=mx.y;y++){if(y<0||y>=n)continue;r.push(`https://tile.openstreetmap.org/${zz}/${((x%n)+n)%n}/${y}.png`)}return r};
 const meter=(t,max)=>{if(t.length>max)return;t.forEach(u=>{if(!vistos.has(u)&&!_precargadas.has(u)){vistos.add(u);cola.push(u)}})};
@@ -1952,6 +1972,7 @@ cargarLugaresGuardados();
 restaurarEstado();
 console.timeEnd('carga');
 console.log('✅ App lista');
+setTimeout(refrescarOfflineSiToca,15000);
 setTimeout(()=>{cargarDirecciones();cargarBarrios()},400);
 }catch(e){
 console.error('Error carga inicial:',e);

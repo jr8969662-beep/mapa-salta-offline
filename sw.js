@@ -5,7 +5,7 @@
 // Cambiar también el texto de <div id="verApp"> en index.html
 // ============================================
 
-const VERSION = 'v77';
+const VERSION = 'v78';
 const CACHE_APP = 'salta-app-' + VERSION;
 // FIJO: index.html usa este nombre para descargar/borrar teselas. No lo ligues a VERSION.
 const CACHE_TILES = 'salta-tiles-v15';
@@ -112,6 +112,19 @@ function recortarTeselas(cache) {
         if (libres.length > 6000) libres.slice(0, libres.length - 4000).forEach((k) => cache.delete(k));
     });
 }
+
+
+// Renovar el mapa sin internet: la app manda la lista de teselas y se vuelven a bajar despacio, de a 2
+self.addEventListener('message', (event) => {
+    const d = event.data || {};
+    if (d.tipo !== 'refrescarTeselas' || !Array.isArray(d.urls)) return;
+    event.waitUntil(abrirCacheTeselas().then(async (cache) => {
+        const urls = d.urls.slice(0, 3000); let i = 0;
+        const w = async () => { while (i < urls.length) { const u = urls[i++];
+            try { const k = claveTesela(new URL(u)); const r = await fetch(k, { mode: 'cors', credentials: 'omit', cache: 'reload' }); if (r.ok) await cache.put(k, r); } catch (e) {} } };
+        await Promise.all([w(), w()]);
+    }));
+});
 
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
