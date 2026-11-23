@@ -604,7 +604,8 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 .tab#btnGratis.activo{background:none!important;box-shadow:none!important;border:none!important;color:var(--success)!important}
 .leaflet-overlay-pane{mix-blend-mode:multiply;opacity:.8}
 [data-theme=dark] .leaflet-overlay-pane{mix-blend-mode:screen;opacity:.8}
-.ver-app{position:fixed;top:0;left:14px;z-index:1600;font-size:10px;line-height:12px;font-weight:700;color:#fff;background:rgba(30,64,175,.85);padding:0 7px;border-radius:0 0 7px 7px;pointer-events:none}</style>
+.ver-app{position:fixed;top:0;left:14px;z-index:1600;font-size:10px;line-height:12px;font-weight:700;color:#fff;background:rgba(30,64,175,.85);padding:0 7px;border-radius:0 0 7px 7px;pointer-events:none}.ctrl-offline a{display:flex!important;align-items:center;justify-content:center}.ctrl-offline svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+</style>
 </head>
 <body>
 
@@ -664,7 +665,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v76</div>
+<div class="ver-app" id="verApp">v77</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
@@ -842,6 +843,14 @@ capaFondo.addTo(map);
 capaBase.setZIndex(1);
 capaBase.addTo(map);
 map.zoomControl.setPosition('topright');
+/* Botón "mapa sin internet" debajo del + y − */
+const CtrlOffline=L.Control.extend({options:{position:'topright'},onAdd(){
+const d=L.DomUtil.create('div','leaflet-bar leaflet-control ctrl-offline');
+const a=L.DomUtil.create('a','',d);a.href='#';a.title='Descargar mapa sin internet';a.setAttribute('role','button');a.setAttribute('aria-label','Descargar mapa sin internet');
+a.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>';
+L.DomEvent.disableClickPropagation(d);L.DomEvent.on(a,'click',e=>{L.DomEvent.preventDefault(e);if(typeof abrirModalOffline==='function')abrirModalOffline()});
+return d}});
+new CtrlOffline().addTo(map);
 setTimeout(actualizarMapaOscuro,100);
 setTimeout(()=>{if(!navigator.onLine)return;const zs=[[10,-25.2,-65.8,-24.4,-65.0],[11,-25.0,-65.65,-24.55,-65.2],[12,-24.95,-65.6,-24.62,-65.3]];
 const t=(la,ln,z)=>{const n=2**z,r=la*Math.PI/180;return[Math.floor((ln+180)/360*n),Math.floor((1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*n)]};
