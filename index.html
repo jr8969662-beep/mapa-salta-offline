@@ -667,7 +667,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v79</div>
+<div class="ver-app" id="verApp">v80</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
@@ -954,10 +954,19 @@ else m='Buscando señal de GPS…';
 if(!posicionUsuario)document.getElementById('aviso').textContent=m;
 else if(c===1)mostrarNotificacion('📍 Se perdió el permiso de ubicación','aviso',4000);
 if(c!==1&&!posicionUsuario&&bajoWatch==null&&erroresGps>=2){try{bajoWatch=navigator.geolocation.watchPosition(manejarPosicion,()=>{},{enableHighAccuracy:false,timeout:30000,maximumAge:10000})}catch(e){}}}
-function iniciarGps(){if(!('geolocation'in navigator))return;try{if(gpsWatch!=null)navigator.geolocation.clearWatch(gpsWatch)}catch(e){}
+function iniciarGps(){if(!('geolocation'in navigator))return;try{gpsAhorro=false}catch(e){}try{if(gpsWatch!=null)navigator.geolocation.clearWatch(gpsWatch)}catch(e){}
 gpsWatch=navigator.geolocation.watchPosition(manejarPosicion,errorUbicacion,{enableHighAccuracy:true,timeout:20000,maximumAge:0});
 navigator.geolocation.getCurrentPosition(manejarPosicion,()=>{},{enableHighAccuracy:false,timeout:8000,maximumAge:60000})}
 iniciarGps();
+/* Ahorro de batería: si no navegás ni seguís tu posición y estás quieto 2 min, el GPS pasa a modo liviano */
+let gpsAhorro=false,_ultMov={p:null,t:Date.now()};
+function gpsModo(ahorro){if(ahorro===gpsAhorro||!('geolocation'in navigator))return;gpsAhorro=ahorro;
+try{if(gpsWatch!=null)navigator.geolocation.clearWatch(gpsWatch)}catch(e){}
+gpsWatch=navigator.geolocation.watchPosition(manejarPosicion,errorUbicacion,ahorro?{enableHighAccuracy:false,timeout:60000,maximumAge:20000}:{enableHighAccuracy:true,timeout:20000,maximumAge:0})}
+setInterval(()=>{if(!posicionUsuario)return;const ahora=Date.now();
+if(!_ultMov.p||haversine(_ultMov.p[0],_ultMov.p[1],posicionUsuario[0],posicionUsuario[1])>35){_ultMov={p:posicionUsuario.slice(),t:ahora};if(gpsAhorro)gpsModo(false);return}
+const ocupado=navActiva||siguiendo||(typeof vivoRef!=='undefined'&&vivoRef)||(typeof cercaOn!=='undefined'&&cercaOn);
+if(ocupado){if(gpsAhorro)gpsModo(false)}else if(ahora-_ultMov.t>120000)gpsModo(true)},10000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&(!ultimoFix||Date.now()-ultimoFix>25000))iniciarGps()});
 window.addEventListener('online',()=>{if(!ultimoFix||Date.now()-ultimoFix>25000)iniciarGps()});
 let usaAbs=false,hSuave=null,ultOri=0;
@@ -981,10 +990,12 @@ function actualizarVelocimetro(){const v=document.getElementById('velocimetro'),
 let callesIndex=[],callesMap=new Map(),callesPalabras=new Map(),direccionesIndex=[],direccionesMap=new Map();
 let marcadorCalle=null,trazoCalle=null,ultimaBusqueda=null,destinoActual=null;
 
+const ceder=()=>new Promise(r=>setTimeout(r,0));
+async function enPartes(arr,fn,n){n=n||1200;for(let i=0;i<arr.length;i++){if(i&&i%n===0)await ceder();fn(arr[i])}}
 async function cargarCalles(){
 try{
-const r=await fetch('data/calles.geojson'),d=await r.json(),agrupadas={};
-d.features.forEach(f=>{
+const r=await fetch('data/calles.geojson');if(!r.ok)throw new Error('http '+r.status);const d=await r.json(),agrupadas={};
+await enPartes(d.features,f=>{
 const n=f.properties.name;if(!n)return;
 let lat,lng,c;
 if(f.geometry&&f.geometry.type==='LineString'){c=f.geometry.coordinates;const m=c[Math.floor(c.length/2)];lng=m[0];lat=m[1]}
@@ -1007,7 +1018,7 @@ async function cargarDirecciones(){
 try{
 const r=await fetch('data/direcciones.geojson');if(!r.ok)return;
 const d=await r.json();
-d.features.forEach(f=>{
+await enPartes(d.features,f=>{
 const p=f.properties,c=p['addr:street'],ns=p['addr:housenumber'];
 if(!c||!ns)return;
 const num=parseInt(ns);if(isNaN(num))return;
@@ -1938,6 +1949,22 @@ const c=navigator.connection;if(!navigator.onLine||(c&&(c.saveData||(c.type&&c.t
 if(!navigator.serviceWorker||!navigator.serviceWorker.controller)return;
 navigator.serviceWorker.controller.postMessage({tipo:'refrescarTeselas',urls:listaTeselasOffline()});
 localStorage.setItem('offlineFecha',String(Date.now()))}catch(e){}}
+/* Si no se pudieron cargar datos esenciales, avisar y reintentar solo */
+let _reintDatos=null;
+function verificarDatos(intento){
+const faltan=[];
+if(!callesIndex.length)faltan.push(['calles',cargarCalles]);
+if(!SAETA)faltan.push(['colectivos',cargarRutasSaeta]);
+if(!direccionesMap.size)faltan.push(['direcciones',cargarDirecciones]);
+if(typeof BARRIOS!=='undefined'&&!BARRIOS.length)faltan.push(['barrios',cargarBarrios]);
+if(!faltan.length){if(intento>0)mostrarNotificacion('✅ Ya se cargaron todos los datos','exito',3000);return}
+const nombres=faltan.map(f=>f[0]).join(', ');
+if(!navigator.onLine){mostrarNotificacion(`📵 Sin internet: faltan ${nombres}. Se cargan solos cuando vuelva la conexión.`,'aviso',5000);
+window.addEventListener('online',()=>verificarDatos(intento+1),{once:true});return}
+if(intento>=4){mostrarNotificacion(`⚠️ No se pudieron cargar ${nombres}. Cerrá y abrí la app.`,'aviso',6000);return}
+mostrarNotificacion(`⏳ No se pudieron cargar ${nombres}. Reintentando…`,'aviso',3500);
+clearTimeout(_reintDatos);
+_reintDatos=setTimeout(async()=>{for(const f of faltan){try{await f[1]()}catch(e){}}verificarDatos(intento+1)},[4000,10000,25000,60000][intento]||60000)}
 function precargarVecinos(){
 if(!navigator.onLine||(navigator.connection&&navigator.connection.saveData)||document.hidden)return;
 const z=Math.round(map.getZoom())-(letrasGrandes?1:0),b=map.getBounds(),cola=[],vistos=new Set();
@@ -1974,6 +2001,7 @@ cargarLugaresGuardados();
 restaurarEstado();
 console.timeEnd('carga');
 console.log('✅ App lista');
+setTimeout(()=>verificarDatos(0),3000);
 setTimeout(refrescarOfflineSiToca,15000);
 setTimeout(()=>{cargarDirecciones();cargarBarrios()},400);
 }catch(e){
@@ -2595,7 +2623,7 @@ function lugaresDeCat(cat){const g=CATGRUPO[cat];if(!g)return LUGARES.filter(l=>
 function categoriasDeQuery(nq){const out=[];if(nq.length<3&&nq!=='bar')return out;
 for(const[cat,als]of Object.entries(ALIAS_CAT)){if(!CATGRUPO[cat]&&!LUGARES.some(l=>l.cat===cat))continue;if(CATGRUPO[cat]&&cat!=='kiosco24'&&!lugaresDeCat(cat).length)continue;if(als.some(a=>a===nq||(nq.length>=3&&a.startsWith(nq))))out.push(cat)}return out}
 /* DATOS DE CONTACTO DE LUGARES: calle más cercana, teléfono y horario en español */
-function callesCercanas(lat,lng,radio){
+function callesCercanas(lat,lng,radio,conObj){
 const k=Math.cos(lat*Math.PI/180),M=111320,out=[];
 for(const c of callesIndex){prepararCalle(c);if(c._pen)continue;
 if(!c._bb)c._bb=obtenerBBox(c.tramos);const b=c._bb;
@@ -2605,8 +2633,30 @@ for(const t of c.tramos)for(let i=0;i<t.length-1;i++){
 const ax=(t[i][1]-lng)*k*M,ay=(t[i][0]-lat)*M,bx=(t[i+1][1]-lng)*k*M,by=(t[i+1][0]-lat)*M;
 const dx=bx-ax,dy=by-ay,l2=dx*dx+dy*dy;let u=l2?-(ax*dx+ay*dy)/l2:0;u=Math.max(0,Math.min(1,u));
 const d=Math.hypot(ax+u*dx,ay+u*dy);if(d<bd)bd=d}
-if(bd<radio)out.push({n:c.nombreOriginal,d:bd})}
+if(bd<radio)out.push(conObj?{n:c.nombreOriginal,d:bd,c}:{n:c.nombreOriginal,d:bd})}
 return out.sort((a,b)=>a.d-b.d)}
+function infoEsquina(lat,lng){
+const k=Math.cos(lat*Math.PI/180),M=111320,X=p=>(p[1]-lng)*k*M,Y=p=>(p[0]-lat)*M;
+const cs=callesCercanas(lat,lng,260,true);if(!cs.length||cs[0].d>60)return null;
+const A=cs[0];
+const segs=c=>{const o=[];for(const t of c.c.tramos)for(let i=0;i<t.length-1;i++){const ax=X(t[i]),ay=Y(t[i]),bx=X(t[i+1]),by=Y(t[i+1]);if(Math.min(Math.hypot(ax,ay),Math.hypot(bx,by))<450)o.push([ax,ay,bx,by])}return o};
+const sA=segs(A);if(!sA.length)return{calle:A.n};
+let dir=null,bd=1e9;for(const[ax,ay,bx,by]of sA){const dx=bx-ax,dy=by-ay,l2=dx*dx+dy*dy||1;let u=Math.max(0,Math.min(1,-(ax*dx+ay*dy)/l2));const d=Math.hypot(ax+u*dx,ay+u*dy);if(d<bd){bd=d;dir=[dx,dy]}}
+const cruces=[];
+for(const B of cs.slice(1)){if(B.n===A.n)continue;let mejor={};
+for(const[bx1,by1,bx2,by2]of segs(B))for(const[ax1,ay1,ax2,ay2]of sA){
+const r1=ax2-ax1,r2=ay2-ay1,s1=bx2-bx1,s2=by2-by1,den=r1*s2-r2*s1;if(Math.abs(den)<1e-6)continue;
+const t=((bx1-ax1)*s2-(by1-ay1)*s1)/den,u=((bx1-ax1)*r2-(by1-ay1)*r1)/den;
+if(t<-0.02||t>1.02||u<-0.02||u>1.02)continue;
+const ix=ax1+t*r1,iy=ay1+t*r2,d=Math.hypot(ix,iy),lado=(ix*dir[0]+iy*dir[1])>=0?1:-1;
+if(!mejor[lado]||d<mejor[lado].d)mejor[lado]={n:B.n,d,lado}}
+for(const l in mejor)cruces.push(mejor[l])}
+if(!cruces.length)return{calle:A.n};
+cruces.sort((a,b)=>a.d-b.d);
+if(cruces[0].d<22)return{calle:A.n,esquina:cruces[0].n};
+const ad=cruces.find(c=>c.lado===1),at=cruces.find(c=>c.lado===-1);
+if(ad&&at&&ad.n!==at.n&&ad.d<220&&at.d<220)return{calle:A.n,entre:[at.n,ad.n]};
+return{calle:A.n,cerca:cruces[0].n}}
 let _ubicCalleUlt=null;
 function actualizarUbicCalle(){
 const el=document.getElementById('ubicCalle');if(!el)return;
@@ -2614,10 +2664,11 @@ if(!posicionUsuario||!callesIndex.length||document.hidden){el.style.display='non
 const[p0,p1]=posicionUsuario;
 if(_ubicCalleUlt&&haversine(_ubicCalleUlt[0],_ubicCalleUlt[1],p0,p1)<15)return;
 _ubicCalleUlt=[p0,p1];
-const cs=callesCercanas(p0,p1,130);
-if(!cs.length||cs[0].d>60){el.style.display='none';return}
-const otra=cs.find(x=>x.n!==cs[0].n&&x.d<130);
-el.innerHTML=`<span class="uc-ico">📍</span><span>Estás en <b>${escHtml(cs[0].n)}</b>${otra?`, cerca de <b>${escHtml(otra.n)}</b>`:''}</span>`;
+const e=infoEsquina(p0,p1);
+if(!e){el.style.display='none';return}
+const b=t=>`<b>${escHtml(t)}</b>`;
+const txt=e.esquina?`Estás en la esquina de ${b(e.calle)} y ${b(e.esquina)}`:e.entre?`Estás en ${b(e.calle)}, entre ${b(e.entre[0])} y ${b(e.entre[1])}`:e.cerca?`Estás en ${b(e.calle)}, cerca de ${b(e.cerca)}`:`Estás en ${b(e.calle)}`;
+el.innerHTML=`<span class="uc-ico">📍</span><span>${txt}</span>`;
 el.style.display='flex'}
 setInterval(actualizarUbicCalle,4000);
 document.addEventListener('visibilitychange',()=>{_ubicCalleUlt=null;actualizarUbicCalle()});
