@@ -605,6 +605,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 .leaflet-overlay-pane{mix-blend-mode:multiply;opacity:.8}
 [data-theme=dark] .leaflet-overlay-pane{mix-blend-mode:screen;opacity:.8}
 .ver-app{position:fixed;top:0;left:14px;z-index:1600;font-size:10px;line-height:12px;font-weight:700;color:#fff;background:rgba(30,64,175,.85);padding:0 7px;border-radius:0 0 7px 7px;pointer-events:none}.ctrl-offline a{display:flex!important;align-items:center;justify-content:center}.ctrl-offline svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ubic-calle{position:absolute;left:12px;right:84px;bottom:calc(var(--barra-alto) + 60px);z-index:1000;display:none;align-items:center;gap:8px;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:16px;padding:8px 12px;font-size:13px;line-height:1.3;box-shadow:var(--sh-lg);cursor:pointer;max-width:420px}.ubic-calle b{font-weight:700}.ubic-calle .uc-ico{flex:0 0 auto}[data-theme=dark] .ubic-calle{background:#1e293b;border-color:#334155}
 </style>
 </head>
 <body>
@@ -666,10 +667,11 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v78</div>
+<div class="ver-app" id="verApp">v79</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
+<div class="ubic-calle" id="ubicCalle" onclick="if(posicionUsuario)map.setView(posicionUsuario,Math.max(map.getZoom(),17))"></div>
 <div class="calidad-gps" id="calidadGps"><span class="dot"></span><span id="calidadTexto">Buscando señal...</span></div>
 <div class="notificacion" id="notificacion"></div>
 <div class="ficha" id="ficha" role="dialog" aria-label="Lugar">
@@ -2593,6 +2595,32 @@ function lugaresDeCat(cat){const g=CATGRUPO[cat];if(!g)return LUGARES.filter(l=>
 function categoriasDeQuery(nq){const out=[];if(nq.length<3&&nq!=='bar')return out;
 for(const[cat,als]of Object.entries(ALIAS_CAT)){if(!CATGRUPO[cat]&&!LUGARES.some(l=>l.cat===cat))continue;if(CATGRUPO[cat]&&cat!=='kiosco24'&&!lugaresDeCat(cat).length)continue;if(als.some(a=>a===nq||(nq.length>=3&&a.startsWith(nq))))out.push(cat)}return out}
 /* DATOS DE CONTACTO DE LUGARES: calle más cercana, teléfono y horario en español */
+function callesCercanas(lat,lng,radio){
+const k=Math.cos(lat*Math.PI/180),M=111320,out=[];
+for(const c of callesIndex){prepararCalle(c);if(c._pen)continue;
+if(!c._bb)c._bb=obtenerBBox(c.tramos);const b=c._bb;
+if(lat<b.minLat-.002||lat>b.maxLat+.002||lng<b.minLng-.002||lng>b.maxLng+.002)continue;
+let bd=radio;
+for(const t of c.tramos)for(let i=0;i<t.length-1;i++){
+const ax=(t[i][1]-lng)*k*M,ay=(t[i][0]-lat)*M,bx=(t[i+1][1]-lng)*k*M,by=(t[i+1][0]-lat)*M;
+const dx=bx-ax,dy=by-ay,l2=dx*dx+dy*dy;let u=l2?-(ax*dx+ay*dy)/l2:0;u=Math.max(0,Math.min(1,u));
+const d=Math.hypot(ax+u*dx,ay+u*dy);if(d<bd)bd=d}
+if(bd<radio)out.push({n:c.nombreOriginal,d:bd})}
+return out.sort((a,b)=>a.d-b.d)}
+let _ubicCalleUlt=null;
+function actualizarUbicCalle(){
+const el=document.getElementById('ubicCalle');if(!el)return;
+if(!posicionUsuario||!callesIndex.length||document.hidden){el.style.display='none';return}
+const[p0,p1]=posicionUsuario;
+if(_ubicCalleUlt&&haversine(_ubicCalleUlt[0],_ubicCalleUlt[1],p0,p1)<15)return;
+_ubicCalleUlt=[p0,p1];
+const cs=callesCercanas(p0,p1,130);
+if(!cs.length||cs[0].d>60){el.style.display='none';return}
+const otra=cs.find(x=>x.n!==cs[0].n&&x.d<130);
+el.innerHTML=`<span class="uc-ico">📍</span><span>Estás en <b>${escHtml(cs[0].n)}</b>${otra?`, cerca de <b>${escHtml(otra.n)}</b>`:''}</span>`;
+el.style.display='flex'}
+setInterval(actualizarUbicCalle,4000);
+document.addEventListener('visibilitychange',()=>{_ubicCalleUlt=null;actualizarUbicCalle()});
 function calleCercanaA(lat,lng){
 const k=Math.cos(lat*Math.PI/180),M=111320;let best=null,bd=80;
 for(const c of callesIndex){prepararCalle(c);if(c._pen)continue;
@@ -2618,12 +2646,12 @@ return p.join(' · ')}
 function htmlLugares(q){const nq=normTxt(q);if(nq.length<2)return '';const h=[];
 categoriasDeQuery(nq).slice(0,3).forEach(cat=>{const n=cat==='kiosco24'?lugaresDeCat('kiosco24').length||LUGARES.filter(l=>['kiosk','convenience'].includes(l.cat)).length:lugaresDeCat(cat).length;
 h.push(`<div class="sug-item cat" data-tipo="cat" data-cat="${cat}"><div class="sug-emoji">${EMOJIS[cat]||'📍'}</div><div class="sug-texto"><strong>${NOMBRES[cat]||cat} cerca de vos</strong><small>${n} lugares · ordenados por distancia</small></div></div>`)});
-const toks=nq.split(' ');const cand=[];
+const toks=nq.split(' ');const cand=[];const catsQ=new Set();categoriasDeQuery(nq).forEach(c=>{catsQ.add(c);if(CATGRUPO[c])CATGRUPO[c].c.forEach(x=>catsQ.add(x))});
 LUGARES.forEach((l,i)=>{if(NO_BUSCAR.has(l.cat)||l.sinNombre&&!['police','hospital','clinic','pharmacy'].includes(l.cat))return;
 const nn=normTxt(l.nombre+' '+(SING[l.cat]||''));if(!toks.every(t=>nn.includes(t)))return;
-const nl=normTxt(l.nombre);cand.push({i,l,sc:(nl.startsWith(nq)?0:(nl.includes(nq)?1:(nl.split(' ').some(w=>w.startsWith(toks[0]))?2:3)))-(l.cat==='peak'?1.5:0),d:distA(l)})});
+const nl=normTxt(l.nombre);cand.push({i,l,sc:(nl.startsWith(nq)?0:(nl.includes(nq)?1:(nl.split(' ').some(w=>w.startsWith(toks[0]))?2:3)))-(l.cat==='peak'?1.5:0),d:distA(l)});if(catsQ.has(l.cat))cand[cand.length-1].sc=0});
 cand.sort((a,b)=>a.sc-b.sc||a.d-b.d);
-cand.slice(0,6).forEach(c=>h.push(`<div class="sug-item lugar" data-tipo="lugar" data-i="${c.i}"><div class="sug-emoji">${EMOJIS[c.l.cat]||'📍'}</div><div class="sug-texto"><strong>${c.l.nombre}</strong><small>${SING[c.l.cat]||NOMBRES[c.l.cat]||''} · ${formatearDistancia(c.d)}</small>${(()=>{const t=detalleLugar(c.l);return t?'<small>'+t+'</small>':''})()}</div></div>`));
+cand.slice(0,catsQ.size?8:6).forEach(c=>h.push(`<div class="sug-item lugar" data-tipo="lugar" data-i="${c.i}"><div class="sug-emoji">${EMOJIS[c.l.cat]||'📍'}</div><div class="sug-texto"><strong>${c.l.nombre}</strong><small>${SING[c.l.cat]||NOMBRES[c.l.cat]||''} · ${formatearDistancia(c.d)}</small>${(()=>{const t=detalleLugar(c.l);return t?'<small>'+t+'</small>':''})()}</div></div>`));
 return h.join('')}
 /* cerca de mí */
 let cercaCat=null,cercaSoloAbierto=false;
