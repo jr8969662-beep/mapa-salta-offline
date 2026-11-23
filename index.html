@@ -667,7 +667,7 @@ body.navegando .panel-ruta{transform:translateY(100%)!important}
 </div>
 
 <div id="map"></div>
-<div class="ver-app" id="verApp">v80</div>
+<div class="ver-app" id="verApp">v81</div>
 <div class="aviso-ubicacion" id="aviso">Buscando tu ubicación...</div>
 <div class="aviso-medir" id="avisoMedir">📏 Tocá dos puntos en el mapa</div>
 <div class="velocimetro" id="velocimetro"><span class="num" id="velocidadNum">0</span> km/h</div>
@@ -905,7 +905,58 @@ if(acc<10){cal='excelente';label=`Excelente (±${Math.round(acc)} m)`}else if(ac
 el.classList.add(cal,'activo');txt.textContent=label}
 /* Ubicación en tiempo real: marcador animado, seguimiento, rumbo GPS y aviso de señal perdida */
 let posVista=null,animGps=null,ultimoFix=0,siguiendo=false,wakeLock=null,ultimaAceptada=0,saltosRaros=0,movimientoGps=0,bajoWatch=null,erroresGps=0,gpsWatch=null;
+/* ===== GPS de precisión: filtro de Kalman + predicción entre lecturas + ajuste a la calle ===== */
+const KF={o:null,x:null,P:null,t:0,snap:[0,0],v:0};
+function kfReset(){KF.o=null;KF.x=null}
+function kfLocal(lat,lng){return[(lng-KF.o[1])*111320*Math.cos(KF.o[0]*Math.PI/180),(lat-KF.o[0])*110540]}
+function kfLatLng(x,y){return[KF.o[0]+y/110540,KF.o[1]+x/(111320*Math.cos(KF.o[0]*Math.PI/180))]}
+function kfPredecir(dt){if(dt<=0)return;const q=2.2*2.2,a=dt*dt*dt*dt/4,b=dt*dt*dt/2,c=dt*dt;
+for(let ax=0;ax<2;ax++){const P=KF.P[ax];KF.x[ax]+=KF.x[2+ax]*dt;
+const p00=P[0]+dt*(P[1]+P[2])+dt*dt*P[3]+q*a,p01=P[1]+dt*P[3]+q*b,p11=P[3]+q*c;P[0]=p00;P[1]=P[2]=p01;P[3]=p11}}
+function kfMedirPos(ax,z,R){const P=KF.P[ax],S=P[0]+R,k0=P[0]/S,k1=P[2]/S,y=z-KF.x[ax];
+KF.x[ax]+=k0*y;KF.x[2+ax]+=k1*y;const p00=(1-k0)*P[0],p01=(1-k0)*P[1],p11=P[3]-k1*P[1];P[0]=p00;P[1]=P[2]=p01;P[3]=p11}
+function kfMedirVel(ax,z,R){const P=KF.P[ax],S=P[3]+R,k0=P[1]/S,k1=P[3]/S,y=z-KF.x[2+ax];
+KF.x[ax]+=k0*y;KF.x[2+ax]+=k1*y;const p00=P[0]-k0*P[2],p01=(1-k1)*P[1],p11=(1-k1)*P[3];P[0]=p00;P[1]=P[2]=p01;P[3]=p11}
+function kalmanGps(lat,lng,acc,vel,rumbo,t){
+if(!KF.o||!KF.x||(t-KF.t)>15000||haversine(KF.o[0],KF.o[1],lat,lng)>20000){KF.o=[lat,lng];KF.x=[0,0,0,0];KF.P=[[acc*acc,0,0,9],[acc*acc,0,0,9]];KF.t=t;return[lat,lng]}
+kfPredecir((t-KF.t)/1000);KF.t=t;
+const[zx,zy]=kfLocal(lat,lng),R=Math.max(9,acc*acc);
+kfMedirPos(0,zx,R);kfMedirPos(1,zy,R);
+if(vel!=null&&vel>=0){
+if(vel<0.35){kfMedirVel(0,0,0.09);kfMedirVel(1,0,0.09)}
+else if(rumbo!=null&&!isNaN(rumbo)&&vel>0.8){const h=rumbo*Math.PI/180,Rv=Math.pow(0.4+0.08*vel,2);kfMedirVel(0,vel*Math.sin(h),Rv);kfMedirVel(1,vel*Math.cos(h),Rv)}}
+KF.v=Math.hypot(KF.x[2],KF.x[3]);
+return kfLatLng(KF.x[0],KF.x[1])}
+/* Ajuste a la calle (o a la ruta si estás navegando) cuando vas en movimiento: solo para dibujar */
+function segCercano(lat,lng,lineas,radio,rumbo){
+const k=Math.cos(lat*Math.PI/180)*111320,M=110540;let best=null;
+for(const t of lineas)for(let i=0;i<t.length-1;i++){
+const ax=(t[i][1]-lng)*k,ay=(t[i][0]-lat)*M,bx=(t[i+1][1]-lng)*k,by=(t[i+1][0]-lat)*M,dx=bx-ax,dy=by-ay,l2=dx*dx+dy*dy;if(l2<1)continue;
+if(Math.min(Math.hypot(ax,ay),Math.hypot(bx,by))>radio+Math.sqrt(l2))continue;
+let u=Math.max(0,Math.min(1,-(ax*dx+ay*dy)/l2));const px=ax+u*dx,py=ay+u*dy,d=Math.hypot(px,py);if(d>radio)continue;
+let cost=d;if(rumbo!=null){const br=(Math.atan2(dx,dy)*180/Math.PI+360)%360;let df=Math.abs(br-rumbo)%180;df=Math.min(df,180-df);if(df>35)continue;cost+=df*0.15}
+if(!best||cost<best.cost)best={cost,dx:px/k,dy:py/M}}
+return best}
+function calcularSnap(lat,lng,acc){
+KF.snap=[0,0];if(KF.v<2.5||acc>35)return;
+const rumbo=(Math.atan2(KF.x[2],KF.x[3])*180/Math.PI+360)%360;let s=null;
+try{if(navActiva&&coordsRuta.length)s=segCercano(lat,lng,[coordsRuta],22,rumbo);
+if(!s&&typeof callesCercanas==='function'&&callesIndex.length){const cs=callesCercanas(lat,lng,18,true);for(const c of cs.slice(0,4)){const r=segCercano(lat,lng,c.c.tramos,18,rumbo);if(r&&(!s||r.cost<s.cost))s=r}}}catch(e){}
+if(s)KF.snap=[s.dy,s.dx]}
+/* Dibujo continuo: el punto avanza con la velocidad estimada entre lecturas, sin saltos ni atraso */
+let _rafGps=null;
+function bucleGps(){_rafGps=requestAnimationFrame(bucleGps);
+if(!marcadorUsuario||!KF.x||document.hidden)return;
+const dt=Math.min(1.5,Math.max(0,(Date.now()-KF.t)/1000)),mov=KF.v>0.6;
+const x=KF.x[0]+(mov?KF.x[2]*dt:0),y=KF.x[1]+(mov?KF.x[3]*dt:0);
+let[tl,tg]=kfLatLng(x,y);tl+=KF.snap[0];tg+=KF.snap[1];
+if(!posVista){posVista=[tl,tg]}
+const f=mov?0.35:0.18;const nl=posVista[0]+(tl-posVista[0])*f,ng=posVista[1]+(tg-posVista[1])*f;
+if(Math.abs(nl-posVista[0])<1e-8&&Math.abs(ng-posVista[1])<1e-8)return;
+posVista=[nl,ng];marcadorUsuario.setLatLng(posVista);if(circuloPrecision)circuloPrecision.setLatLng(posVista);
+if(siguiendo)map.setView(posVista,map.getZoom(),{animate:false})}
 function moverMarcadorSuave(destino){
+if(!_rafGps)bucleGps();if(KF.x)return;
 if(!marcadorUsuario||!posVista){posVista=destino.slice();return}
 const ini=posVista.slice(),t0=performance.now(),dur=Math.min(1100,Math.max(400,(Date.now()-ultimoFix)||800));
 cancelAnimationFrame(animGps);
@@ -921,17 +972,18 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 function seguirUsuario(on,zoom){siguiendo=on;const b=document.getElementById('btnCentrar');
 b.classList.toggle('activo',on);b.innerHTML=on?'<span class="tab-ico">'+ICO_SVG.nav+'</span>Siguiendo':'<span class="tab-ico">'+ICO_SVG.loc+'</span>Ubicación';
 if(on){if(posVista||posicionUsuario)map.setView(posVista||posicionUsuario,Math.max(map.getZoom(),zoom||17),{animate:true});pedirPantallaActiva()}else if(!navActiva)soltarPantallaActiva()}
-function manejarPosicion(pos){const lat=pos.coords.latitude,lng=pos.coords.longitude,ahora=Date.now(),acc=pos.coords.accuracy;
+function manejarPosicion(pos){let lat=pos.coords.latitude,lng=pos.coords.longitude;const ahora=Date.now(),acc=pos.coords.accuracy;
 if(posicionUsuario){
 if(acc>100){ultimoFix=ahora;precisionActual=acc;actualizarCalidadGps(acc);ponerSenal(true);return}
 const dtS=Math.max(1,(ahora-(ultimaAceptada||ahora))/1000),saltoM=haversine(posicionUsuario[0],posicionUsuario[1],lat,lng);
-if(saltoM>60&&saltoM/dtS>70&&++saltosRaros<3)return}
+if(saltoM>60&&saltoM/dtS>70&&++saltosRaros<3)return;if(saltoM>60&&saltoM/dtS>70)kfReset()}
 saltosRaros=0;ultimaAceptada=ahora;
 if(bajoWatch!=null&&acc<=50){try{navigator.geolocation.clearWatch(bajoWatch)}catch(e){}bajoWatch=null}
 erroresGps=0;
 precisionActual=acc;
 const vel=pos.coords.speed;
 if(vel!=null&&vel>=0)ultimaVelocidad=vel*3.6;
+{const rawLat=lat,rawLng=lng;[lat,lng]=kalmanGps(lat,lng,acc,vel,pos.coords.heading,ahora);calcularSnap(lat,lng,acc);if(vel==null&&KF.v>=0)ultimaVelocidad=KF.v*3.6}
 if(posicionUsuario&&(vel==null||vel<0.7)){const dj=haversine(posicionUsuario[0],posicionUsuario[1],lat,lng);if(dj<Math.min(acc*0.5,6)){ultimoFix=ahora;if(circuloPrecision)circuloPrecision.setRadius(acc);actualizarCalidadGps(acc);ponerSenal(true);return}}
 if(pos.coords.heading!=null&&!isNaN(pos.coords.heading)&&vel>1.5){headingUsuario=pos.coords.heading;movimientoGps=ahora}
 else if(posicionAnterior&&!usarBrujulaDispositivo){const dist=haversine(posicionAnterior[0],posicionAnterior[1],lat,lng);if(dist>3)headingUsuario=calcularRumbo(posicionAnterior[0],posicionAnterior[1],lat,lng)}
